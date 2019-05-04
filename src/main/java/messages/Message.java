@@ -5,7 +5,7 @@ public class Message {
 	String type;
 	
 	long userId;
-	long roomId;
+	long raumId;
 	
 	Object content;
 	
@@ -33,12 +33,12 @@ public class Message {
 		this.content = content;
 	}
 
-	public long getRoomId() {
-		return roomId;
+	public long getRaumId() {
+		return raumId;
 	}
 
-	public void setRaumId(long roomId) {
-		this.roomId = roomId;
+	public void setRaumId(long raumId) {
+		this.raumId = raumId;
 	}
 
 	public long getUserId() {

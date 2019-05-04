@@ -54,9 +54,9 @@ public class SyncService {
 	
 	public Raum joinRaum(Message message) {
 		
-		if(rooms.containsKey(message.getRoomId())) {
+		if(rooms.containsKey(message.getRaumId())) {
 			
-			Raum raum = rooms.get(message.getRoomId());
+			Raum raum = rooms.get(message.getRaumId());
 			raum.addUser(message.getUserId());
 			return raum;
 		
