@@ -7,6 +7,7 @@ import org.springframework.web.socket.config.annotation.AbstractWebSocketMessage
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 
+import Services.SyncService;
 import interceptor.HttpRequestInterceptor;
 
 @SuppressWarnings("deprecation")
@@ -28,6 +29,11 @@ public class WebSocketConfiguration extends AbstractWebSocketMessageBrokerConfig
     @Bean
     public HttpRequestInterceptor httpRequestInterceptor() {
      return new HttpRequestInterceptor();
+    }
+    
+    @Bean
+    public SyncService syncService() {
+     return new SyncService();
     }
 
 }

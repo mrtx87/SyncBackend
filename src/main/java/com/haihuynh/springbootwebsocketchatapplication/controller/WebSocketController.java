@@ -6,6 +6,7 @@ import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 
+import Services.SyncService;
 import messages.Message;
 
 import java.time.LocalDateTime;
@@ -15,22 +16,25 @@ import java.time.format.DateTimeFormatter;
 public class WebSocketController {
 
     private final SimpMessagingTemplate messageService;
+    private final SyncService syncService;
 
     @Autowired
-    public WebSocketController(final SimpMessagingTemplate template) {
+    public WebSocketController(final SimpMessagingTemplate template, final SyncService syncService) {
         this.messageService = template;
+        this.syncService = syncService;
     }
 
     @MessageMapping("/send/message")
     public void onReceiveMessage(@Nullable final String message) {
+    	
+    	
         this.messageService.convertAndSend("/chat",
             LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")) + ": " + message);
     }
     
     @MessageMapping("/send/create-room")
     public void onCreateRoom(@Nullable final Message message) {
-        this.messageService.convertAndSend("/chat",
-            LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")) + ": " + message);
+    	syncService.createRoom(message);
     }
     
     /*
