@@ -6,6 +6,7 @@ import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 
+import Services.Raum;
 import Services.SyncService;
 import messages.Message;
 
@@ -34,7 +35,15 @@ public class WebSocketController {
     
     @MessageMapping("/send/create-room")
     public void onCreateRoom(@Nullable final Message message) {
-    	syncService.createRoom(message);
+    	Raum room = syncService.createRoom(message);
+    	if(room != null) {
+    		this.messageService.convertAndSend("/"+message.getUserId(),
+    				room);
+    	}else {
+    		this.messageService.convertAndSend("/"+message.getUserId(),
+    				new Raum());
+    	}
+    	
     }
     
     /*

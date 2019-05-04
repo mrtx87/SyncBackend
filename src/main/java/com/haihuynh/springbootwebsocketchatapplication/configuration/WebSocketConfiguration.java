@@ -34,6 +34,7 @@ public class WebSocketConfiguration extends AbstractWebSocketMessageBrokerConfig
     @Bean
     public SyncService syncService() {
      return new SyncService();
+     
     }
 
 }

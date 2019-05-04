@@ -25,14 +25,18 @@ public class SyncService {
 		return roomIdCounter;
 	}
 	
-	public void createRoom(Message message) {
-		Long userID = message.getUserId();
-		Raum room = new Raum();
-		room.setRaumId(generateNewRoomId());
-		room.addUser(message.getUserId());
-		rooms.put(roomIdCounter, room);
+	public Raum createRoom(Message message) {
+		try {
+			Long userID = message.getUserId();
+			Raum room = new Raum();
+			room.setRaumId(generateNewRoomId());
+			room.addUser(message.getUserId());
+			rooms.put(roomIdCounter, room);
+			return room;
+		}catch(Exception e) {
+			return null;
+		}
 		
-		System.out.println(room.toString());
 	}
 
 
