@@ -52,13 +52,25 @@ public class SyncService {
 		
 	}
 	
-	public Raum joinRaum(Message message) {
+	public Message joinRaum(Message message) {
 		
 		if(rooms.containsKey(message.getRaumId())) {
-			
+			Long userID = message.getUserId();
 			Raum raum = rooms.get(message.getRaumId());
 			raum.addUser(message.getUserId());
-			return raum;
+
+
+			WebSocketConfiguration
+			.registryInstance
+			.enableSimpleBroker("/"+userID);
+			
+			Message responseMessage = new Message();
+			responseMessage.setType("join-room");
+			responseMessage.setContent(raum);
+			responseMessage.setRaumId(raum.raumId);
+			responseMessage.setUserId(userID);
+			
+			return responseMessage;
 		
 		}
 		

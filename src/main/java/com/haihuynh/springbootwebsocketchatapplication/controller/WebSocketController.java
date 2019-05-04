@@ -46,10 +46,18 @@ public class WebSocketController {
     	
     }
     
+    //onReceiveNewVideo
+    
     @MessageMapping("/send/join-room")
     public void onJoinRoom(@Nullable final Message message) {
-    	//Raum raum = syncService.
-    	
+    	Message responseMessage = syncService.joinRaum(message);
+    	if(responseMessage != null) {
+    		this.messageService.convertAndSend("/chat/"+message.getUserId(),
+    				responseMessage);
+    	}else {
+    		this.messageService.convertAndSend("/chat"+message.getRaumId(),
+    				new Message("error"));
+    	}
     	
     }
     
