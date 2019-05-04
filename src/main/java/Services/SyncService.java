@@ -105,15 +105,22 @@ public class SyncService {
 	}
 	
 	public Message videoTimeStamp(Message message) {
-		Raum raum = rooms.get(message.getRaumId());
-		Long userID = message.getUserId();
-		Long time = message.getTimeStamp();
+		if(rooms.containsKey(message.getRaumId())) {
 		
-		Message responseMessage = new Message();
-		//responseMessage.getType("video-timestamp");
+			Raum raum = rooms.get(message.getRaumId());
+			Long userID = message.getUserId();
+			Long time = message.getTimeStamp();
+		
+			Message responseMessage = new Message();
+			responseMessage.setType("ok");
+			responseMessage.setRaumId(raum.raumId);
+			responseMessage.setUserId(userID);
+			
+			return responseMessage;
+		
+		}
 		return null;
 	}
-	
 	
 
 }

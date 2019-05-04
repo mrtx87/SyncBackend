@@ -80,6 +80,19 @@ public class WebSocketController {
     	
     }
     
+    @MessageMapping("/send/video-timestamp")
+    public void onReceiveTimeStamp(@Nullable final Message message) {
+    	Message responseMessage = syncService.videoTimeStamp(message);
+    	if(responseMessage != null) {
+    		this.messageService.convertAndSend("/chat/"+message.getTimeStamp(),
+        			responseMessage);
+    	}else {
+    		this.messageService.convertAndSend("/chat"+message.getTimeStamp(),
+    				new Message("error"));
+    	}
+    	
+    }
+    
     /*
     @MessageMapping("/chat")
     @SendTo("/topic/messages")
