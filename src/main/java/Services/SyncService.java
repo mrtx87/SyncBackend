@@ -80,25 +80,38 @@ public class SyncService {
 	}
 
 	public List<Message> addAndShareNewVideo(Message message) {
+		if(rooms.containsKey(message.getRaumId())) {
+			Raum raum = rooms.get(message.getRaumId());
+			Long userID = message.getUserId();
+			String videoLink = message.getVideoLink();
+			raum.setVideoLink(videoLink);
+			List<Message> messages = new ArrayList<>();
+			
+			for (Long id : raum.getUserIds()) {
+				
+				Message responseMessage = new Message();
+				responseMessage.setType("insert-new-video");
+				responseMessage.setRaumId(raum.raumId);
+				responseMessage.setUserId(id);
+				responseMessage.setVideoLink(videoLink);
+				messages.add(responseMessage);
+			}
+			
+		
+			return messages;	
+		}
+		return new ArrayList<>();
+	
+	}
+	
+	public Message videoTimeStamp(Message message) {
 		Raum raum = rooms.get(message.getRaumId());
 		Long userID = message.getUserId();
-		String videoLink = message.getVideoLink();
-		raum.setVideoLink(videoLink);
-		List<Message> list = new ArrayList<>();
+		Long time = message.getTimeStamp();
 		
-		for (Long id : raum.getUserIds()) {
-			
-			Message responseMessage = new Message();
-			responseMessage.setType("insert-new-video");
-			responseMessage.setRaumId(raum.raumId);
-			responseMessage.setUserId(id);
-			responseMessage.setVideoLink(videoLink);
-			list.add(responseMessage);
-		}
-		
-	
-		return 	list;	
-	
+		Message responseMessage = new Message();
+		//responseMessage.getType("video-timestamp");
+		return null;
 	}
 	
 	

@@ -51,12 +51,19 @@ public class WebSocketController {
     @MessageMapping("/send/receive-new-video")
     public void onReceiveNewVideo(@Nullable final Message message) {
     	List<Message> responseMessages = syncService.addAndShareNewVideo(message);
-    	for (Message responseMessage : responseMessages) {
-    		if(responseMessage != null) {
-        		this.messageService.convertAndSend("/chat/"+ responseMessage.getUserId(),
-        				responseMessage);
-        	}
-		}
+    	if(responseMessages.size() > 0) {
+	    	for (Message responseMessage : responseMessages) {
+	    		if(responseMessage != null) {
+	        		this.messageService.convertAndSend("/chat/"+ responseMessage.getUserId(),
+	        				responseMessage);
+	        	}
+			}
+    	}else {
+    		this.messageService.convertAndSend("/chat/"+ message.getUserId(),
+    				new Message("error"));
+    		
+    	}
+    	
 				  	
     }
     

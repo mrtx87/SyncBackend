@@ -6,8 +6,18 @@ public class Message {
 	long userId;
 	long raumId;
 	String videoLink;
+	long timeStamp;
+	
 
 	Object content;
+
+	public long getTimeStamp() {
+		return timeStamp;
+	}
+
+	public void setTimeStamp(long timeStamp) {
+		this.timeStamp = timeStamp;
+	}
 	
 	public String getVideoLink() {
 		return videoLink;
