@@ -4,6 +4,8 @@ import java.util.HashMap;
 
 import org.springframework.stereotype.Service;
 
+import com.haihuynh.springbootwebsocketchatapplication.configuration.WebSocketConfiguration;
+
 import messages.Message;
 
 @Service
@@ -25,18 +27,42 @@ public class SyncService {
 		return roomIdCounter;
 	}
 	
-	public Raum createRaum(Message message) {
+	public Message createRaum(Message message) {
 		try {
 			Long userID = message.getUserId();
 			Raum raum = new Raum();
 			raum.setRaumId(generateNewRaumId());
 			raum.addUser(message.getUserId());
 			rooms.put(roomIdCounter, raum);
-			return raum;
+			
+			WebSocketConfiguration
+			.registryInstance
+			.enableSimpleBroker("/"+userID);
+			
+			Message responseMessage = new Message();
+			responseMessage.setType("create-room");
+			responseMessage.setContent(raum);
+			responseMessage.setRaumId(raum.raumId);
+			responseMessage.setUserId(userID);
+			
+			return responseMessage;
 		}catch(Exception e) {
 			return null;
 		}
 		
+	}
+	
+	public Raum joinRaum(Message message) {
+		
+		if(rooms.containsKey(message.getRoomId())) {
+			
+			Raum raum = rooms.get(message.getRoomId());
+			raum.addUser(message.getUserId());
+			return raum;
+		
+		}
+		
+		return null;		
 	}
 
 

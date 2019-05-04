@@ -15,6 +15,8 @@ import interceptor.HttpRequestInterceptor;
 @EnableWebSocketMessageBroker
 public class WebSocketConfiguration extends AbstractWebSocketMessageBrokerConfigurer {
 
+	public static MessageBrokerRegistry registryInstance;
+	
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry.addEndpoint("/socket").setAllowedOrigins("*").withSockJS();
@@ -24,6 +26,8 @@ public class WebSocketConfiguration extends AbstractWebSocketMessageBrokerConfig
     public void configureMessageBroker(MessageBrokerRegistry registry) {
         registry.setApplicationDestinationPrefixes("/app")
             .enableSimpleBroker("/chat");
+        
+        registryInstance = registry;
     }
     
     @Bean
