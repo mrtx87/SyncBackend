@@ -1,6 +1,8 @@
 package Services;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import org.springframework.stereotype.Service;
 
@@ -77,5 +79,28 @@ public class SyncService {
 		return null;		
 	}
 
+	public List<Message> addAndShareNewVideo(Message message) {
+		Raum raum = rooms.get(message.getRaumId());
+		Long userID = message.getUserId();
+		String videoLink = message.getVideoLink();
+		raum.setVideoLink(videoLink);
+		List<Message> list = new ArrayList<>();
+		
+		for (Long id : raum.getUserIds()) {
+			
+			Message responseMessage = new Message();
+			responseMessage.setType("insert-new-video");
+			responseMessage.setRaumId(raum.raumId);
+			responseMessage.setUserId(id);
+			responseMessage.setVideoLink(videoLink);
+			list.add(responseMessage);
+		}
+		
+	
+		return 	list;	
+	
+	}
+	
+	
 
 }

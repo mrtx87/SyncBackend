@@ -12,6 +12,7 @@ import messages.Message;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 @Controller
 public class WebSocketController {
@@ -47,6 +48,17 @@ public class WebSocketController {
     }
     
     //onReceiveNewVideo
+    @MessageMapping("/send/receive-new-video")
+    public void onReceiveNewVideo(@Nullable final Message message) {
+    	List<Message> responseMessages = syncService.addAndShareNewVideo(message);
+    	for (Message responseMessage : responseMessages) {
+    		if(responseMessage != null) {
+        		this.messageService.convertAndSend("/chat/"+ responseMessage.getUserId(),
+        				responseMessage);
+        	}
+		}
+				  	
+    }
     
     @MessageMapping("/send/join-room")
     public void onJoinRoom(@Nullable final Message message) {

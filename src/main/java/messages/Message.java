@@ -3,12 +3,20 @@ package messages;
 public class Message {
 	
 	String type;
-	
 	long userId;
 	long raumId;
-	
+	String videoLink;
+
 	Object content;
 	
+	public String getVideoLink() {
+		return videoLink;
+	}
+
+	public void setVideoLink(String videoLink) {
+		this.videoLink = videoLink;
+	}
+
 	public Message() {
 
 	}
