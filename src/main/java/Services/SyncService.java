@@ -20,19 +20,19 @@ public class SyncService {
 		this.rooms = rooms;
 	}
 	
-	public Long generateNewRoomId() {
+	public Long generateNewRaumId() {
 		roomIdCounter +=1;
 		return roomIdCounter;
 	}
 	
-	public Raum createRoom(Message message) {
+	public Raum createRaum(Message message) {
 		try {
 			Long userID = message.getUserId();
-			Raum room = new Raum();
-			room.setRaumId(generateNewRoomId());
-			room.addUser(message.getUserId());
-			rooms.put(roomIdCounter, room);
-			return room;
+			Raum raum = new Raum();
+			raum.setRaumId(generateNewRaumId());
+			raum.addUser(message.getUserId());
+			rooms.put(roomIdCounter, raum);
+			return raum;
 		}catch(Exception e) {
 			return null;
 		}

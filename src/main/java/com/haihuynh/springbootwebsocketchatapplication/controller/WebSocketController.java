@@ -35,14 +35,21 @@ public class WebSocketController {
     
     @MessageMapping("/send/create-room")
     public void onCreateRoom(@Nullable final Message message) {
-    	Raum room = syncService.createRoom(message);
-    	if(room != null) {
-    		this.messageService.convertAndSend("/"+message.getUserId(),
-    				room);
+    	Raum raum = syncService.createRaum(message);
+    	if(raum != null) {
+    		this.messageService.convertAndSend("/chat",
+    				raum);
     	}else {
-    		this.messageService.convertAndSend("/"+message.getUserId(),
+    		this.messageService.convertAndSend("/chat",
     				new Raum());
     	}
+    	
+    }
+    
+    @MessageMapping("/send/enter-room")
+    public void onEnterRoom(@Nullable final Message message) {
+    	
+    	
     	
     }
     
