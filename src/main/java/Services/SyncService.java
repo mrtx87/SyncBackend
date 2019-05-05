@@ -35,6 +35,8 @@ public class SyncService {
 			Raum raum = new Raum();
 			raum.setRaumId(generateNewRaumId());
 			raum.addUser(message.getUserId());
+			raum.setVideoLink("https://www.youtube.com/embed/9ClYy0MxsU0");
+
 			rooms.put(roomIdCounter, raum);
 			
 			WebSocketConfiguration
@@ -54,25 +56,28 @@ public class SyncService {
 		
 	}
 	
-	public Message joinRaum(Message message) {
+	public List<Message> joinRaum(Message message) {
 		
 		if(rooms.containsKey(message.getRaumId())) {
 			Long userID = message.getUserId();
 			Raum raum = rooms.get(message.getRaumId());
 			raum.addUser(message.getUserId());
+			List<Message> messages = new ArrayList<>();
 
 
 			WebSocketConfiguration
 			.registryInstance
 			.enableSimpleBroker("/"+userID);
+			for (Long id : raum.getUserIds()) {
+				Message responseMessage = new Message();
+				responseMessage.setType("join-room");
+				responseMessage.setContent(raum);
+				responseMessage.setRaumId(raum.raumId);
+				responseMessage.setUserId(id);
+				messages.add(responseMessage);
+			}
 			
-			Message responseMessage = new Message();
-			responseMessage.setType("join-room");
-			responseMessage.setContent(raum);
-			responseMessage.setRaumId(raum.raumId);
-			responseMessage.setUserId(userID);
-			
-			return responseMessage;
+			return messages;
 		
 		}
 		
@@ -104,23 +109,40 @@ public class SyncService {
 	
 	}
 	
-	public Message videoTimeStamp(Message message) {
+	public List<Message> disconnectClient(Message message) {
 		if(rooms.containsKey(message.getRaumId())) {
-		
 			Raum raum = rooms.get(message.getRaumId());
 			Long userID = message.getUserId();
-			Long time = message.getTimeStamp();
-		
-			Message responseMessage = new Message();
-			responseMessage.setType("ok");
-			responseMessage.setRaumId(raum.raumId);
-			responseMessage.setUserId(userID);
+			raum.remove(userID);
+
+			List<Message> messages = new ArrayList<>();
 			
-			return responseMessage;
+			for (Long id : raum.getUserIds()) {
+				
+				Message responseMessage = new Message();
+				responseMessage.setType("update-clients");
+				responseMessage.setRaumId(raum.raumId);
+				responseMessage.setUserId(id);
+				responseMessage.setContent(raum);
+				messages.add(responseMessage);
+			}
+			
 		
+			return messages;	
 		}
+		return new ArrayList<>();
+	}
+	
+	public Message addUserTimeStamp(Message message) {
+		Raum raum = rooms.get(message.getRaumId());
+		Long userID = message.getUserId();
+		Long time = message.getTimeStamp();
+		
+		Message responseMessage = new Message();
+		//responseMessage.getType("video-timestamp");
 		return null;
 	}
+	
 	
 
 }
