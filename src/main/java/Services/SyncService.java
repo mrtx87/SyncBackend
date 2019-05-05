@@ -1,5 +1,6 @@
 package Services;
 
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -8,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import com.haihuynh.springbootwebsocketchatapplication.configuration.WebSocketConfiguration;
 
+import messages.ChatMessageStub;
 import messages.Message;
 
 @Service
@@ -29,6 +31,10 @@ public class SyncService {
 	public Long generateNewRaumId() {
 		roomIdCounter +=1;
 		return roomIdCounter;
+	}
+	
+	public String getCurrenTime() {
+		return LocalTime.now().toString();
 	}
 	
 	public Message createRaum(Message message) {
@@ -53,6 +59,16 @@ public class SyncService {
 			responseMessage.setUserId(userID);
 			responseMessage.setUserName(name);
 			
+			Message joinChatMessage = new Message();
+			joinChatMessage.setType("chat-message");
+			joinChatMessage.setUserId(userID);
+			joinChatMessage.setUserName(name);
+			ChatMessageStub cms = new ChatMessageStub();
+			cms.setChatMessage("has joined the Room");
+			cms.setTimestamp(getCurrenTime());
+			joinChatMessage.setContent(cms);
+			raum.addChatMessage(joinChatMessage);
+			
 			return responseMessage;
 		}catch(Exception e) {
 			return null;
@@ -70,6 +86,16 @@ public class SyncService {
 			String name = randomName();
 			List<Message> messages = new ArrayList<>();
 
+			
+			Message joinChatMessage = new Message();
+			joinChatMessage.setType("chat-message");
+			joinChatMessage.setUserId(userID);
+			joinChatMessage.setUserName(name);
+			ChatMessageStub cms = new ChatMessageStub();
+			cms.setChatMessage("has joined the Room");
+			cms.setTimestamp(getCurrenTime());
+			joinChatMessage.setContent(cms);
+			raum.addChatMessage(joinChatMessage);
 
 			WebSocketConfiguration
 			.registryInstance
@@ -166,7 +192,7 @@ public class SyncService {
 	public List<Long>  saveMessage(Message message) {
 		if(rooms.containsKey(message.getRaumId())) {
 			Raum raum = rooms.get(message.getRaumId());
-			raum.addMessage(message);
+			raum.addChatMessage(message);
 			
 			return raum.getUserIds();
 		}

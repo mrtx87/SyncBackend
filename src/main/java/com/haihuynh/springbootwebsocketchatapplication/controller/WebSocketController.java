@@ -17,6 +17,7 @@ import messages.Message;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
@@ -51,7 +52,8 @@ public class WebSocketController {
 			
 			ChatMessageStub messageStub = new ChatMessageStub();
 			messageStub.setChatMessage((String)message.getContent());
-			messageStub.setTimestamp(Instant.now().toString());
+			messageStub.setTimestamp(this.syncService.getCurrenTime());
+			//millsecunden abschneiden
 			shareMessage.setContent(messageStub);
 			List<Long> userIds = syncService.saveMessage(shareMessage);
 			if(userIds != null) {
@@ -70,6 +72,14 @@ public class WebSocketController {
 		System.err.println(syncService.randomName());
 		if (responseMessage != null) {
 			this.messageService.convertAndSend("/chat/" + message.getUserId(), responseMessage);
+			
+			Raum raum = this.syncService.getRaum(responseMessage.getRaumId());
+			Message allChatMessages = new Message();
+			allChatMessages.setType("all-chat-messages");
+			allChatMessages.setRaumId(raum.getRaumId());
+			allChatMessages.setUserId(responseMessage.getUserId());
+			allChatMessages.setContent(raum.getChatMessages());
+			this.messageService.convertAndSend("/chat/" + responseMessage.getUserId(), allChatMessages);
 		} else {
 			this.messageService.convertAndSend("/chat" + message.getUserId(), new Message("error"));
 		}
@@ -106,7 +116,7 @@ public class WebSocketController {
 					allChatMessages.setType("all-chat-messages");
 					allChatMessages.setRaumId(raum.getRaumId());
 					allChatMessages.setUserId(responseMessage.getUserId());
-					allChatMessages.setContent(raum.getMessages());
+					allChatMessages.setContent(raum.getChatMessages());
 					this.messageService.convertAndSend("/chat/" + responseMessage.getUserId(), allChatMessages);
 				}
 			}
