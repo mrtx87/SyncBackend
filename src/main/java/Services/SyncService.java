@@ -137,6 +137,7 @@ public class SyncService {
 		Raum raum = rooms.get(message.getRaumId());
 		Long userID = message.getUserId();
 		Long time = message.getTimeStamp();
+		raum.addTimeStamp(userID, time);
 		
 		Message responseMessage = new Message();
 		//responseMessage.getType("video-timestamp");
@@ -153,6 +154,10 @@ public class SyncService {
 			return null;
 	}
 	
+	
+	public Raum getRaum(Long raumId) {
+		return rooms.get(raumId);
+	}
 	
 
 }

@@ -101,6 +101,13 @@ public class WebSocketController {
 		if (responseMessages != null) {
 			for (Message responseMessage : responseMessages) {
 				this.messageService.convertAndSend("/chat/" + responseMessage.getUserId(), responseMessage);
+				Raum raum = this.syncService.getRaum(message.getRaumId());
+				Message allChatMessages = new Message();
+				allChatMessages.setType("all-chat-messages");
+				allChatMessages.setRaumId(raum.getRaumId());
+				allChatMessages.setUserId(responseMessage.getUserId());
+				allChatMessages.setContent(raum.getMessages());
+				this.messageService.convertAndSend("/chat/" + responseMessage.getUserId(), allChatMessages);
 			}
 		}else {
 			this.messageService.convertAndSend("/chat/" + message.getUserId(), new Message("error"));
