@@ -206,6 +206,29 @@ public class SyncService {
 	public Raum getRaum(Long raumId) {
 		return rooms.get(raumId);
 	}
+
+	public List<Message> generateSyncSeekToMessages(Message message) {
+		if(rooms.containsKey(message.getRaumId())) {
+			Raum raum = rooms.get(message.getRaumId());
+			Long timeStamp = message.getTimeStamp();
+			List<Message> messages = new ArrayList<>();
+			
+			for (Long userId  : raum.getUserIds()) {
+				raum.addTimeStamp(userId, timeStamp);
+				Message responseMessage = new Message();
+				responseMessage.setUserId(userId);
+				responseMessage.setType("seekto-timestamp");
+				responseMessage.setTimeStamp(timeStamp);
+				responseMessage.setRaumId(raum.getRaumId());	
+				messages.add(responseMessage);
+			}
+			
+			return messages;	
+			
+		}
+		
+		return null;
+	}
 	
 
 }

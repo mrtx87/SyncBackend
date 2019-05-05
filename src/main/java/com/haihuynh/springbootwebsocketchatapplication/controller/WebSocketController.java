@@ -139,13 +139,28 @@ public class WebSocketController {
 	public void onReceiveSyncTimeStamp(@Nullable final Message message) {
 		Message responseMessage = syncService.addUserTimeStamp(message);
 		if (responseMessage != null) {
-			this.messageService.convertAndSend("/chat/" + message.getTimeStamp(), responseMessage);
+			this.messageService.convertAndSend("/chat/" + message.getUserId(), responseMessage);
 		} else {
-			this.messageService.convertAndSend("/chat" + message.getTimeStamp(), new Message("error"));
+			this.messageService.convertAndSend("/chat" + message.getUserId(), new Message("error"));
 		}
 
 	}
+	
+	
+	@MessageMapping("/send/seekto-timestamp")
+	public void onReceiveSeekToTimeStamp(@Nullable final Message message) {
+		List<Message> responseMessages = this.syncService.generateSyncSeekToMessages(message);
+		if (responseMessages != null) {
+			for (Message responseMessage : responseMessages) {
+				this.messageService.convertAndSend("/chat/" + responseMessage.getUserId(), responseMessage);
+			}						
+		} else {
+			this.messageService.convertAndSend("/chat" + message.getUserId(), new Message("error"));
+		}
 
+	}
+	
+	
 	/*
 	 * @MessageMapping("/chat")
 	 * 
