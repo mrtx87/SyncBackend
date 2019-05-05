@@ -34,7 +34,7 @@ public class SyncService {
 	}
 	
 	public String getCurrenTime() {
-		return LocalTime.now().toString();
+		return LocalTime.now().toString().substring(0, 8);
 	}
 	
 	public Message createRaum(Message message) {
