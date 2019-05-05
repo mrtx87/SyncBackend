@@ -23,9 +23,13 @@ import java.util.List;
 
 /*
  *   @TODO
- *    
- *   - über synchronisierung gedanken machen.
- *    
+ *    FEAT:
+ *    - über synchronisierung gedanken machen.
+ *    - youtube dui abbilden mit unsereem overlay (pause, volume, cc, geschwindigkeit, vollbild, kinomodus)
+ *    . video historie in chatverlauf anzeigen und click und startbar machen
+ *    BUGS:
+ *    - namen werden nicht richtig übertagen 
+ *    - joinmessage kommt nicht immer an
  * 
  */
 
