@@ -7,10 +7,9 @@ public class Message {
 	long raumId;
 	String videoLink;
 	long timeStamp;
-	
-
+	//date.now instant 
 	Object content;
-
+	
 	public long getTimeStamp() {
 		return timeStamp;
 	}

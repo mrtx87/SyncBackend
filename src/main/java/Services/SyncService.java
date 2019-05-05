@@ -143,6 +143,16 @@ public class SyncService {
 		return null;
 	}
 	
+	public List<Long>  saveMessage(Message message) {
+		if(rooms.containsKey(message.getRaumId())) {
+			Raum raum = rooms.get(message.getRaumId());
+			raum.addMessage(message);
+			
+			return raum.getUserIds();
+		}
+			return null;
+	}
+	
 	
 
 }

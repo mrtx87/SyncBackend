@@ -1,6 +1,7 @@
 package com.haihuynh.springbootwebsocketchatapplication.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.datetime.standard.InstantFormatter;
 import org.springframework.lang.Nullable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -11,8 +12,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import Services.Raum;
 import Services.SyncService;
+import messages.ChatMessageStub;
 import messages.Message;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -40,9 +43,27 @@ public class WebSocketController {
 		this.syncService = syncService;
 	}
 
-	@MessageMapping("/send/message")
-	public void onReceiveMessage(@Nullable final String message) {
-
+	@MessageMapping("/send/chat-message")
+	public void onReceiveMessage(@Nullable final Message message) {
+		if("chat-message".equals(message.getType())) {
+			Message shareMessage = new Message();
+			shareMessage.setType(message.getType());
+			shareMessage.setRaumId(message.getRaumId());
+			shareMessage.setUserId(message.getUserId());
+			
+			ChatMessageStub messageStub = new ChatMessageStub();
+			messageStub.setChatMessage((String)message.getContent());
+			messageStub.setTimestamp(Instant.now().toString());
+			shareMessage.setContent(messageStub);
+			List<Long> userIds = syncService.saveMessage(shareMessage);
+			if(userIds != null) {
+				
+				for (Long userId : userIds) {
+					this.messageService.convertAndSend("/chat/"+userId, shareMessage);
+				}				
+			}
+		}
+		
 	}
 
 	@MessageMapping("/send/create-room")
