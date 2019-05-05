@@ -9,7 +9,16 @@ public class Message {
 	long timeStamp;
 	//date.now instant 
 	Object content;
+	String userName;
 	
+	public String getUserName() {
+		return userName;
+	}
+
+	public void setUserName(String userName) {
+		this.userName = userName;
+	}
+
 	public long getTimeStamp() {
 		return timeStamp;
 	}
