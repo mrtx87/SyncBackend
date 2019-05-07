@@ -229,6 +229,27 @@ public class SyncService {
 		
 		return null;
 	}
+
+	public List<Message> generateSyncPlayToggleMessages(Message message) {
+		
+		if(rooms.containsKey(message.getRaumId()) && message.getTimeStamp() >= 0) {
+			Raum raum = rooms.get(message.getRaumId());
+			List<Message> messages = new ArrayList<>();
+			
+			for (Long userId : raum.getUserIds()) {
+				Message responseMessage = new Message();
+				responseMessage.setType("toggle-play");
+				responseMessage.setUserId(message.getUserId());
+				responseMessage.setRaumId(raum.getRaumId());
+				responseMessage.setContent(message.getContent());
+				messages.add(responseMessage);
+			}
+			return messages;
+			
+		}
+		
+		return null;
+	}
 	
 
 }

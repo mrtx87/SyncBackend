@@ -60,11 +60,13 @@ public class WebSocketController {
 			//millsecunden abschneiden
 			shareMessage.setContent(messageStub);
 			List<Long> userIds = syncService.saveMessage(shareMessage);
+			
 			if(userIds != null) {
 				
 				for (Long userId : userIds) {
 					this.messageService.convertAndSend("/chat/"+userId, shareMessage);
-				}				
+				}
+				System.out.println("broadcast message");
 			}
 		}
 		
@@ -157,6 +159,23 @@ public class WebSocketController {
 		if (responseMessages != null) {
 			for (Message responseMessage : responseMessages) {
 				this.messageService.convertAndSend("/chat/" + responseMessage.getUserId(), responseMessage);
+			}						
+		} else {
+			this.messageService.convertAndSend("/chat" + message.getUserId(), new Message("error"));
+		}
+
+	}
+	
+	
+	@MessageMapping("/send/toggle-play")
+	public void onReceiveTogglePlay(@Nullable final Message message) {
+		List<Message> responseMessages = this.syncService.generateSyncPlayToggleMessages(message);
+		if (responseMessages != null) {
+			List<Long> userIds = this.syncService.getRaum(message.getRaumId()).getUserIds();
+			for (int i = 0; i < responseMessages.size(); i++) {
+				
+				this.messageService.convertAndSend("/chat/" + userIds.get(i), responseMessages.get(i));
+				
 			}						
 		} else {
 			this.messageService.convertAndSend("/chat" + message.getUserId(), new Message("error"));
