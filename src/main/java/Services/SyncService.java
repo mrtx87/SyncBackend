@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 
 import com.haihuynh.springbootwebsocketchatapplication.configuration.WebSocketConfiguration;
 
-import messages.ChatMessageStub;
+import messages.ChatMessage;
 import messages.Message;
 
 @Service
@@ -43,8 +43,7 @@ public class SyncService {
 			Raum raum = new Raum();
 			String name = randomName();
 			raum.setRaumId(generateNewRaumId());
-			raum.addUser(message.getUserId());
-			raum.setVideoLink("https://www.youtube.com/embed/9ClYy0MxsU0");
+			raum.addUser(userID, name);
 
 			rooms.put(roomIdCounter, raum);
 			
@@ -52,24 +51,23 @@ public class SyncService {
 			.registryInstance
 			.enableSimpleBroker("/"+userID);
 			
-			Message responseMessage = new Message();
-			responseMessage.setType("create-room");
-			responseMessage.setContent(raum);
-			responseMessage.setRaumId(raum.raumId);
-			responseMessage.setUserId(userID);
-			responseMessage.setUserName(name);
+			Message createRaumMessage = new Message();
+			createRaumMessage.setType("create-room");
+			createRaumMessage.setUserId(userID);
+			createRaumMessage.setUserName(name);
+			createRaumMessage.setRaumId(raum.raumId);
+			createRaumMessage.setUsers(raum.getUsers());
+			ChatMessage chatMessage = new ChatMessage();
+			chatMessage.setMessageText("has created the Room");
+			chatMessage.setTimestamp(getCurrenTime());
+			chatMessage.setRaumId(raum.getRaumId());
+			chatMessage.setUserId(userID);
+			chatMessage.setUserName(name);
 			
-			Message joinChatMessage = new Message();
-			joinChatMessage.setType("chat-message");
-			joinChatMessage.setUserId(userID);
-			joinChatMessage.setUserName(name);
-			ChatMessageStub cms = new ChatMessageStub();
-			cms.setChatMessage("has joined the Room");
-			cms.setTimestamp(getCurrenTime());
-			joinChatMessage.setContent(cms);
-			raum.addChatMessage(joinChatMessage);
+			saveChatMessage(chatMessage);
+			createRaumMessage.setChatMessages(raum.getChatMessages());
 			
-			return responseMessage;
+			return createRaumMessage;
 		}catch(Exception e) {
 			return null;
 		}
@@ -80,44 +78,45 @@ public class SyncService {
 		
 		if(rooms.containsKey(message.getRaumId())) {
 			Raum raum = rooms.get(message.getRaumId());
-			raum.addUser(message.getUserId());
-			
-			Long userID = message.getUserId();
 			String name = randomName();
+			raum.addUser(message.getUserId(), name);
 			List<Message> messages = new ArrayList<>();
 
 			
-			Message joinChatMessage = new Message();
-			joinChatMessage.setType("chat-message");
-			joinChatMessage.setUserId(userID);
-			joinChatMessage.setUserName(name);
-			ChatMessageStub cms = new ChatMessageStub();
-			cms.setChatMessage("has joined the Room");
-			cms.setTimestamp(getCurrenTime());
-			joinChatMessage.setContent(cms);
-			raum.addChatMessage(joinChatMessage);
+			Message joinMessage = new Message();
+			joinMessage.setType("join-room");
+			joinMessage.setUserId(message.getUserId());
+			joinMessage.setUserName(name);
+			joinMessage.setUsers(raum.getUsers());
+			joinMessage.setRaumId(raum.getRaumId());
+			joinMessage.setChatMessages(raum.getChatMessages());
+			joinMessage.setVideoLink(raum.getVideoLink());
+			
+			ChatMessage chatMessage = new ChatMessage();
+			chatMessage.setMessageText("has joined the Room");
+			chatMessage.setTimestamp(getCurrenTime());
+			chatMessage.setUserId(message.getUserId());
+			chatMessage.setUserName(name);
+			chatMessage.setRaumId(raum.getRaumId());
+			
+			joinMessage.setChatMessage(chatMessage);
+			saveChatMessage(chatMessage);
 
 			WebSocketConfiguration
 			.registryInstance
-			.enableSimpleBroker("/"+userID);
+			.enableSimpleBroker("/"+ message.getUserId());
 			
 			for (Long id : raum.getUserIds()) {
-					if(userID != id) {
+					if(message.getUserId() != id) {
 					Message responseMessage = new Message();
 					responseMessage.setType("update-client");
-					responseMessage.setContent(raum);
 					responseMessage.setRaumId(raum.raumId);
 					responseMessage.setUserId(id);
+					responseMessage.setChatMessage(chatMessage);
+
 					messages.add(responseMessage);
 				}else {
-					Message responseMessage = new Message();
-					responseMessage.setType("join-room");
-					responseMessage.setContent(raum);
-					responseMessage.setRaumId(raum.raumId);
-					responseMessage.setUserId(id);
-					responseMessage.setUserName(name);
-					messages.add(responseMessage);
-					
+					messages.add(joinMessage);
 				}
 			}
 			
@@ -129,13 +128,19 @@ public class SyncService {
 	}
 
 	public List<Message> addAndShareNewVideo(Message message) {
-		if(rooms.containsKey(message.getRaumId())) {
+		if(rooms.containsKey(message.getRaumId()) && message.getVideoLink() != null) {
 			Raum raum = rooms.get(message.getRaumId());
-			Long userID = message.getUserId();
 			String videoLink = message.getVideoLink();
 			raum.setVideoLink(videoLink);
 			List<Message> messages = new ArrayList<>();
 			
+			ChatMessage chatMessage = new ChatMessage();
+			chatMessage.setMessageText(videoLink);
+			chatMessage.setRaumId(raum.getRaumId());
+			chatMessage.setUserId(message.getUserId());
+			chatMessage.setUserName(message.getUserName());
+			chatMessage.setTimestamp(getTimeStamp());
+			saveChatMessage(chatMessage);
 			for (Long id : raum.getUserIds()) {
 				
 				Message responseMessage = new Message();
@@ -143,6 +148,7 @@ public class SyncService {
 				responseMessage.setRaumId(raum.raumId);
 				responseMessage.setUserId(id);
 				responseMessage.setVideoLink(videoLink);
+				responseMessage.setChatMessage(chatMessage);
 				messages.add(responseMessage);
 			}
 			
@@ -153,6 +159,7 @@ public class SyncService {
 	
 	}
 	
+	
 	public List<Message> disconnectClient(Message message) {
 		if(rooms.containsKey(message.getRaumId())) {
 			Raum raum = rooms.get(message.getRaumId());
@@ -161,14 +168,20 @@ public class SyncService {
 
 			List<Message> messages = new ArrayList<>();
 		
+			ChatMessage chatMessage = new ChatMessage();
+			chatMessage.setMessageText("has left the Room");
+			chatMessage.setUserId(message.getUserId());
+			chatMessage.setRaumId(raum.getRaumId());
+			chatMessage.setUserName(message.getUserName());
+			chatMessage.setTimestamp(getTimeStamp());
+			saveChatMessage(chatMessage);
 			for (Long id : raum.getUserIds()) {
 				
 				Message responseMessage = new Message();
-				responseMessage.setType("update-clients");
+				responseMessage.setType("update-client");
 				responseMessage.setRaumId(raum.raumId);
 				responseMessage.setUserId(id);
-				responseMessage.setContent(raum);
-				
+				responseMessage.setChatMessage(chatMessage);
 				messages.add(responseMessage);
 			}
 			
@@ -176,6 +189,10 @@ public class SyncService {
 			return messages;	
 		}
 		return new ArrayList<>();
+	}
+	
+	public String getTimeStamp() {
+		return LocalTime.now().toString();
 	}
 	
 	public Message addUserTimeStamp(Message message) {
@@ -189,14 +206,19 @@ public class SyncService {
 		return null;
 	}
 	
-	public List<Long>  saveMessage(Message message) {
+	public List<Long> saveChatMessage(Message message) {
+		if(rooms.containsKey(message.getRaumId())) {
+			saveChatMessage(message.getChatMessage());
+			return rooms.get(message.getRaumId()).getUserIds();
+		}
+			return null;
+	}
+	
+	public void saveChatMessage(ChatMessage message) {
 		if(rooms.containsKey(message.getRaumId())) {
 			Raum raum = rooms.get(message.getRaumId());
 			raum.addChatMessage(message);
-			
-			return raum.getUserIds();
 		}
-			return null;
 	}
 	
 	public String randomName(){
@@ -239,9 +261,9 @@ public class SyncService {
 			for (Long userId : raum.getUserIds()) {
 				Message responseMessage = new Message();
 				responseMessage.setType("toggle-play");
-				responseMessage.setUserId(message.getUserId());
+				responseMessage.setUserId(userId);
 				responseMessage.setRaumId(raum.getRaumId());
-				responseMessage.setContent(message.getContent());
+				responseMessage.setPlayerState(message.getPlayerState());
 				messages.add(responseMessage);
 			}
 			return messages;

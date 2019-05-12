@@ -3,14 +3,22 @@ package Services;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import messages.Message;
+
 public class RaumDTO {
 
 	long raumId;
-	ArrayList<Long> userIds = new ArrayList<>();
+	ArrayList<Long> userIds;
 	String videoLink;
+	ArrayList<Message> chatMessages;
+	HashMap<Long, Long> timeStamps;
 	
-	HashMap<Long, Long> timeStamps = new HashMap<>();
-	
+	public ArrayList<Message> getChatMessages() {
+		return chatMessages;
+	}
+	public void setChatMessages(ArrayList<Message> chatMessages) {
+		this.chatMessages = chatMessages;
+	}
 	public void addTimeStamp(Long userId,Long time) {
 		timeStamps.put(userId, time);
 	}
@@ -47,6 +55,9 @@ public class RaumDTO {
     	userIds.remove(id);
     }
     
+    public void addChatMessage(Message message) {
+    	chatMessages.add(message);
+    }
     @Override
     public String toString() {
     	

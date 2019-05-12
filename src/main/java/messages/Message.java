@@ -1,16 +1,59 @@
 package messages;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+
+import Services.Raum;
+
 public class Message {
 	
 	String type;
 	long userId;
+	String userName;
 	long raumId;
 	String videoLink;
 	long timeStamp;
-	//date.now instant 
-	Object content;
-	String userName;
+	int playerState;
+	ChatMessage chatMessage;
+	ArrayList<ChatMessage> chatMessages;
+	HashMap<Long, String> users;
 	
+	public ArrayList<ChatMessage> getChatMessages() {
+		return chatMessages;
+	}
+
+
+	public void setChatMessages(ArrayList<ChatMessage> chatMessages) {
+		this.chatMessages = chatMessages;
+	}
+	
+	public int getPlayerState() {
+		return playerState;
+	}
+	
+
+	public HashMap<Long, String> getUsers() {
+		return users;
+	}
+
+
+	public void setUsers(HashMap<Long, String> users) {
+		this.users = users;
+	}
+
+
+	public void setPlayerState(int playerState) {
+		this.playerState = playerState;
+	}
+	
+	public ChatMessage getChatMessage() {
+		return chatMessage;
+	}
+
+	public void setChatMessage(ChatMessage chatMessage) {
+		this.chatMessage = chatMessage;
+	}
+
 	public String getUserName() {
 		return userName;
 	}
@@ -49,14 +92,6 @@ public class Message {
 
 	public void setType(String type) {
 		this.type = type;
-	}
-
-	public Object getContent() {
-		return content;
-	}
-
-	public void setContent(Object content) {
-		this.content = content;
 	}
 
 	public long getRaumId() {

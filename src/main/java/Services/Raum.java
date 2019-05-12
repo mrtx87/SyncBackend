@@ -2,23 +2,26 @@ package Services;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
+import messages.ChatMessage;
 import messages.Message;
 
 public class Raum {
 
 	long raumId;
-	ArrayList<Long> userIds = new ArrayList<>();
 	String videoLink;
-	ArrayList<Message> chatMessages = new ArrayList<>();
+	ArrayList<ChatMessage> chatMessages = new ArrayList<>();
 	HashMap<Long, Long> timeStamps = new HashMap<>();
-	
+	HashMap<Long, String> users= new HashMap<>();
+
 
 	
-	public ArrayList<Message> getChatMessages() {
+	public ArrayList<ChatMessage> getChatMessages() {
 		return chatMessages;
 	}
-	public void setChatMessages(ArrayList<Message> chatMessages) {
+	public void setChatMessages(ArrayList<ChatMessage> chatMessages) {
 		this.chatMessages = chatMessages;
 	}
 	public void addTimeStamp(Long userId,Long time) {
@@ -36,12 +39,10 @@ public class Raum {
 	public void setRaumId(long raumId) {
 		this.raumId = raumId;
 	}
-	public ArrayList<Long> getUserIds() {
-		return userIds;
+	public HashMap<Long, String> getUsers() {
+		return users;
 	}
-	public void setUserIds(ArrayList<Long> userIds) {
-		this.userIds = userIds;
-	}
+
 	public String getVideoLink() {
 		return videoLink;
 	}
@@ -49,17 +50,26 @@ public class Raum {
 		this.videoLink = videoLink;
 	}
 	
-	public void addUser(Long id) {
-		userIds.add(id);
+	public void addUser(Long id, String name) {
+		users.put(id, name);
 	}
 	
     public void remove(Long id) {
-    	userIds.remove(id);
+    	users.remove(id);
     }
     
-    public void addChatMessage(Message message) {
+    public void addChatMessage(ChatMessage message) {
     	chatMessages.add(message);
     }
+    
+    public ArrayList<Long> getUserIds() {
+    	return (ArrayList<Long>) this.users.keySet().stream().collect(Collectors.toList());
+    }
+    
+    public ArrayList<String> getUserNames() {
+    	return  (ArrayList<String>) this.users.values().stream().collect(Collectors.toList());
+    }
+    
     @Override
     public String toString() {
     	

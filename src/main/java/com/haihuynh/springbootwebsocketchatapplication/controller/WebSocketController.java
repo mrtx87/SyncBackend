@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import Services.Raum;
 import Services.SyncService;
-import messages.ChatMessageStub;
+import messages.ChatMessage;
 import messages.Message;
 
 import java.time.Instant;
@@ -47,45 +47,25 @@ public class WebSocketController {
 
 	@MessageMapping("/send/chat-message")
 	public void onReceiveMessage(@Nullable final Message message) {
-		if("chat-message".equals(message.getType())) {
-			Message shareMessage = new Message();
-			shareMessage.setType(message.getType());
-			shareMessage.setRaumId(message.getRaumId());
-			shareMessage.setUserId(message.getUserId());
-			shareMessage.setUserName(message.getUserName());
-			
-			ChatMessageStub messageStub = new ChatMessageStub();
-			messageStub.setChatMessage((String)message.getContent());
-			messageStub.setTimestamp(this.syncService.getCurrenTime());
-			//millsecunden abschneiden
-			shareMessage.setContent(messageStub);
-			List<Long> userIds = syncService.saveMessage(shareMessage);
-			
+			message.setType("chat-message");
+			message.getChatMessage().setTimestamp(this.syncService.getTimeStamp());
+			List<Long> userIds = syncService.saveChatMessage(message);
 			if(userIds != null) {
-				
 				for (Long userId : userIds) {
-					this.messageService.convertAndSend("/chat/"+userId, shareMessage);
+					this.messageService.convertAndSend("/chat/"+userId, message);
 				}
-				System.out.println("broadcast message");
+				System.out.println("[broadcast message: " + message.getChatMessage().toString() + "]");
 			}
-		}
+		
 		
 	}
 
 	@MessageMapping("/send/create-room")
 	public void onCreateRoom(@Nullable final Message message) {
 		Message responseMessage = syncService.createRaum(message);
-		System.err.println(syncService.randomName());
 		if (responseMessage != null) {
 			this.messageService.convertAndSend("/chat/" + message.getUserId(), responseMessage);
-			
-			Raum raum = this.syncService.getRaum(responseMessage.getRaumId());
-			Message allChatMessages = new Message();
-			allChatMessages.setType("all-chat-messages");
-			allChatMessages.setRaumId(raum.getRaumId());
-			allChatMessages.setUserId(responseMessage.getUserId());
-			allChatMessages.setContent(raum.getChatMessages());
-			this.messageService.convertAndSend("/chat/" + responseMessage.getUserId(), allChatMessages);
+			System.err.println("user: " + responseMessage.getUserId() + " -> [created room - " + responseMessage.getRaumId() + "]");
 		} else {
 			this.messageService.convertAndSend("/chat" + message.getUserId(), new Message("error"));
 		}
@@ -97,6 +77,7 @@ public class WebSocketController {
 	public void onReceiveNewVideo(@Nullable final Message message) {
 		List<Message> responseMessages = syncService.addAndShareNewVideo(message);
 		if (responseMessages.size() > 0) {
+			System.out.println("[user:" + message.getUserId() + " sharing video: " + message.getVideoLink() + "]");
 			for (Message responseMessage : responseMessages) {
 				if (responseMessage != null) {
 					this.messageService.convertAndSend("/chat/" + responseMessage.getUserId() , responseMessage);
@@ -116,15 +97,7 @@ public class WebSocketController {
 		if (responseMessages != null) {
 			for (Message responseMessage : responseMessages) {
 				this.messageService.convertAndSend("/chat/" + responseMessage.getUserId(), responseMessage);
-				if(responseMessage.getUserId() == message.getUserId()) {
-					Raum raum = this.syncService.getRaum(message.getRaumId());
-					Message allChatMessages = new Message();
-					allChatMessages.setType("all-chat-messages");
-					allChatMessages.setRaumId(raum.getRaumId());
-					allChatMessages.setUserId(responseMessage.getUserId());
-					allChatMessages.setContent(raum.getChatMessages());
-					this.messageService.convertAndSend("/chat/" + responseMessage.getUserId(), allChatMessages);
-				}
+				System.err.println("user: " + responseMessage.getUserId() + " -> [joined room - " + responseMessage.getRaumId() + "]");
 			}
 		}else {
 			this.messageService.convertAndSend("/chat/" + message.getUserId(), new Message("error"));
@@ -135,6 +108,7 @@ public class WebSocketController {
 	@MessageMapping("/send/disconnect-client")
 	public void onDisconnectClient(@Nullable final Message message) {
 		List<Message> responseMessages = syncService.disconnectClient(message);
+		System.out.println("user: " + message.getUserId() + " -> [left room - " + message.getRaumId() + "]");
 		for (Message responseMessage : responseMessages) {
 			this.messageService.convertAndSend("/chat/" + responseMessage.getUserId(), responseMessage);
 		}
@@ -157,6 +131,7 @@ public class WebSocketController {
 	public void onReceiveSeekToTimeStamp(@Nullable final Message message) {
 		List<Message> responseMessages = this.syncService.generateSyncSeekToMessages(message);
 		if (responseMessages != null) {
+			System.out.println("user: " + message.getUserId() + "-> [jumps in room - " + message.getRaumId() + "]");
 			for (Message responseMessage : responseMessages) {
 				this.messageService.convertAndSend("/chat/" + responseMessage.getUserId(), responseMessage);
 			}						
@@ -171,6 +146,7 @@ public class WebSocketController {
 	public void onReceiveTogglePlay(@Nullable final Message message) {
 		List<Message> responseMessages = this.syncService.generateSyncPlayToggleMessages(message);
 		if (responseMessages != null) {
+			System.out.println("user: " + message.getUserId() + " -> [toggle play in room - " + message.getRaumId() + "]");
 			List<Long> userIds = this.syncService.getRaum(message.getRaumId()).getUserIds();
 			for (int i = 0; i < responseMessages.size(); i++) {
 				
