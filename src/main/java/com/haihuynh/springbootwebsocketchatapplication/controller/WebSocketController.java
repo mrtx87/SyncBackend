@@ -55,9 +55,7 @@ public class WebSocketController {
 					this.messageService.convertAndSend("/chat/"+userId, message);
 				}
 				System.out.println("[broadcast message: " + message.getChatMessage().toString() + "]");
-			}
-		
-		
+			}	
 	}
 
 	@MessageMapping("/send/create-room")
@@ -149,9 +147,21 @@ public class WebSocketController {
 			System.out.println("user: " + message.getUserId() + " -> [toggle play in room - " + message.getRaumId() + "]");
 			List<Long> userIds = this.syncService.getRaum(message.getRaumId()).getUserIds();
 			for (int i = 0; i < responseMessages.size(); i++) {
-				
 				this.messageService.convertAndSend("/chat/" + userIds.get(i), responseMessages.get(i));
-				
+			}						
+		} else {
+			this.messageService.convertAndSend("/chat" + message.getUserId(), new Message("error"));
+		}
+
+	}
+	
+	@MessageMapping("/send/sync-roomstate")
+	public void onReceiveRoomState(@Nullable final Message message) {
+		List<Message> responseMessages = this.syncService.generateSyncRoomStateMessages(message);
+		if (responseMessages != null) {
+			System.out.println("user: " + message.getUserId() + " -> [switch Roomstate - " + message.getRoomState() + "]");
+			for (Message responseMessage : responseMessages) {
+				this.messageService.convertAndSend("/chat/" + responseMessage.getUserId(), responseMessage);
 			}						
 		} else {
 			this.messageService.convertAndSend("/chat" + message.getUserId(), new Message("error"));

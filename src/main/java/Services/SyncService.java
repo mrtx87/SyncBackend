@@ -41,9 +41,14 @@ public class SyncService {
 		try {
 			Long userID = message.getUserId();
 			Raum raum = new Raum();
+			raum.setPublicRoom(message.getRoomState());
 			String name = randomName();
 			raum.setRaumId(generateNewRaumId());
-			raum.addUser(userID, name);
+			User user = new User();
+			user.setUserName(name);
+			user.setUserId(message.getUserId());
+			user.setAdmin(true);			
+			raum.addUser(message.getUserId(), user);
 
 			rooms.put(roomIdCounter, raum);
 			
@@ -79,7 +84,17 @@ public class SyncService {
 		if(rooms.containsKey(message.getRaumId())) {
 			Raum raum = rooms.get(message.getRaumId());
 			String name = randomName();
-			raum.addUser(message.getUserId(), name);
+			User user = new User();
+			user.setUserName(name);
+			user.setUserId(message.getUserId());
+			
+			if(raum.isPublicRoom()) {
+				user.setAdmin(false);	
+			}else {
+				user.setAdmin(true);	
+			}
+			
+			raum.addUser(message.getUserId(), user);
 			List<Message> messages = new ArrayList<>();
 
 			
@@ -268,6 +283,40 @@ public class SyncService {
 			}
 			return messages;
 			
+		}
+		
+		return null;
+	}
+
+	public List<Message> generateSyncRoomStateMessages(Message message) {
+		
+		if(rooms.containsKey(message.getRaumId())) {
+			
+			Raum raum = rooms.get(message.getRaumId());		
+			raum.setPublicRoom(message.getRoomState());
+			List<Message> messages = new ArrayList<>();
+			ChatMessage chatMessage = new ChatMessage();
+			chatMessage.setUserId(message.getUserId());
+			chatMessage.setRaumId(message.getRaumId());
+			chatMessage.setUserName(message.getUserName());
+			chatMessage.setTimestamp(getCurrenTime());
+			if(raum.isPublicRoom()) {
+				chatMessage.setMessageText("Room is now public");
+			}else {
+				chatMessage.setMessageText("Room is now private");
+			}
+			
+			
+		for (User user : raum.getUserList()) {
+			Message responseMessage = new Message();
+			responseMessage.setType("sync-roomstate");
+			responseMessage.setUser(user);
+			responseMessage.setRoomState(raum.isPublicRoom());
+			responseMessage.setChatMessage(chatMessage);
+			messages.add(responseMessage);
+		}
+		
+		return messages;
 		}
 		
 		return null;

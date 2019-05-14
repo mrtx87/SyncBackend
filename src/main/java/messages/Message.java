@@ -3,21 +3,44 @@ package messages;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+
 import Services.Raum;
+import Services.User;
 
 public class Message {
 	
 	String type;
-	long userId;
-	String userName;
+	User user;
+	public User getUser() {
+		return user;
+	}
+
+
+	public void setUser(User user) {
+		this.user = user;
+	}
+
 	long raumId;
+	
 	String videoLink;
 	long timeStamp;
 	int playerState;
 	ChatMessage chatMessage;
 	ArrayList<ChatMessage> chatMessages;
-	HashMap<Long, String> users;
+	HashMap<Long, User> users;
+	Boolean roomState;
 	
+	
+	public Boolean getRoomState() {
+		return roomState;
+	}
+
+
+	public void setRoomState(Boolean roomState) {
+		this.roomState = roomState;
+	}
+
+
 	public ArrayList<ChatMessage> getChatMessages() {
 		return chatMessages;
 	}
@@ -32,12 +55,12 @@ public class Message {
 	}
 	
 
-	public HashMap<Long, String> getUsers() {
+	public HashMap<Long, User> getUsers() {
 		return users;
 	}
 
 
-	public void setUsers(HashMap<Long, String> users) {
+	public void setUsers(HashMap<Long, User> users) {
 		this.users = users;
 	}
 
@@ -55,11 +78,18 @@ public class Message {
 	}
 
 	public String getUserName() {
-		return userName;
+		if(user != null) {
+		return user.getUserName();
+		}
+		return null;
 	}
 
 	public void setUserName(String userName) {
-		this.userName = userName;
+		if(user != null) {
+			this.user.setUserName(userName);
+		}
+		user = new User();
+		user.setUserName(userName);
 	}
 
 	public long getTimeStamp() {
@@ -102,12 +132,32 @@ public class Message {
 		this.raumId = raumId;
 	}
 
-	public long getUserId() {
-		return userId;
+	public Long getUserId() {
+		if(user != null)
+			return user.getUserId();
+		return null; 
 	}
 
 	public void setUserId(long userId) {
-		this.userId = userId;
+		if(user != null) {
+			this.user.setUserId(userId);
+		}
+		user = new User();
+		user.setUserId(userId);
+	}
+	
+	public Boolean isAdmin() {
+		if(user != null)
+			return user.isAdmin();
+		return null;
+	}
+
+	public void setAdmin(Boolean admin) {
+		if(user != null) {
+			this.user.setAdmin(admin);
+		}
+		user = new User();
+		user.setAdmin(admin);
 	}
 	
 	
