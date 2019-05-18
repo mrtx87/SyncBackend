@@ -44,11 +44,20 @@ public class WebSocketController {
 		this.messageService = template;
 		this.syncService = syncService;
 	}
+	
+	
+	@MessageMapping("/send/request-public-raeume")
+	public void onRequestPublicRaeume(@Nullable final Message message) {
+			Message responseMessage = syncService.generatePublicRaeumeMessage(message);
+			this.messageService.convertAndSend("/chat/"+ responseMessage.getUserId(), responseMessage);
+			System.out.println("[broadcast public Räume: " + message.getUserId() + "]");		
+	}
+
 
 	@MessageMapping("/send/chat-message")
 	public void onReceiveMessage(@Nullable final Message message) {
 			message.setType("chat-message");
-			message.getChatMessage().setTimestamp(this.syncService.getTimeStamp());
+			message.getChatMessage().setTimestamp(this.syncService.getCurrenTime());
 			List<Long> userIds = syncService.saveChatMessage(message);
 			if(userIds != null) {
 				for (Long userId : userIds) {
@@ -59,11 +68,12 @@ public class WebSocketController {
 	}
 
 	@MessageMapping("/send/create-room")
-	public void onCreateRoom(@Nullable final Message message) {
+	public void onCreateRaum(@Nullable final Message message) {
+		System.err.println("Trying to Create Room by UseId: " + message.getUserId());
 		Message responseMessage = syncService.createRaum(message);
 		if (responseMessage != null) {
 			this.messageService.convertAndSend("/chat/" + message.getUserId(), responseMessage);
-			System.err.println("user: " + responseMessage.getUserId() + " -> [created room - " + responseMessage.getRaumId() + "]");
+			System.err.println("userId: " + responseMessage.getUserId() + " -> [created room - " + responseMessage.getRaumId()  + " |  status: " + syncService.getRaum(responseMessage.getRaumId()).getRaumStatus() + "]");
 		} else {
 			this.messageService.convertAndSend("/chat" + message.getUserId(), new Message("error"));
 		}
@@ -159,7 +169,7 @@ public class WebSocketController {
 	public void onReceiveRoomState(@Nullable final Message message) {
 		List<Message> responseMessages = this.syncService.generateSyncRoomStateMessages(message);
 		if (responseMessages != null) {
-			System.out.println("user: " + message.getUserId() + " -> [switch Roomstate - " + message.getRoomState() + "]");
+			System.out.println("user: " + message.getUserId() + " -> [switch Roomstate - " + message.getRaumStatus() + "]");
 			for (Message responseMessage : responseMessages) {
 				this.messageService.convertAndSend("/chat/" + responseMessage.getUserId(), responseMessage);
 			}						

@@ -5,12 +5,36 @@ import java.util.HashMap;
 
 
 import Services.Raum;
+import Services.RaumDTO;
 import Services.User;
 
 public class Message {
 	
 	String type;
 	User user;
+	
+	long raumId;
+	
+	String videoLink;
+	long timeStamp;
+	int playerState;
+	ChatMessage chatMessage;
+	ArrayList<ChatMessage> chatMessages;
+	ArrayList<User> users;
+	Boolean raumStatus;
+	ArrayList<RaumDTO> publicRaeume;
+	
+	
+	public ArrayList<RaumDTO> getPublicRaeume() {
+		return publicRaeume;
+	}
+
+
+	public void setPublicRaeume(ArrayList<RaumDTO> publicRaeume) {
+		this.publicRaeume = publicRaeume;
+	}
+
+
 	public User getUser() {
 		return user;
 	}
@@ -20,24 +44,14 @@ public class Message {
 		this.user = user;
 	}
 
-	long raumId;
 	
-	String videoLink;
-	long timeStamp;
-	int playerState;
-	ChatMessage chatMessage;
-	ArrayList<ChatMessage> chatMessages;
-	HashMap<Long, User> users;
-	Boolean roomState;
-	
-	
-	public Boolean getRoomState() {
-		return roomState;
+	public Boolean getRaumStatus() {
+		return raumStatus;
 	}
 
 
-	public void setRoomState(Boolean roomState) {
-		this.roomState = roomState;
+	public void setRaumStatus(Boolean raumStatus) {
+		this.raumStatus = raumStatus;
 	}
 
 
@@ -55,12 +69,12 @@ public class Message {
 	}
 	
 
-	public HashMap<Long, User> getUsers() {
+	public ArrayList<User> getUsers() {
 		return users;
 	}
 
 
-	public void setUsers(HashMap<Long, User> users) {
+	public void setUsers(ArrayList<User> users) {
 		this.users = users;
 	}
 

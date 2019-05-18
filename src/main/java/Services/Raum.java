@@ -12,19 +12,20 @@ public class Raum {
 
 	long raumId;
 	String videoLink;
-	Boolean publicRoom;
-	
-
+	Boolean raumStatus;
 	ArrayList<ChatMessage> chatMessages = new ArrayList<>();
 	HashMap<Long, Long> timeStamps = new HashMap<>();
 	HashMap<Long, User> users= new HashMap<>();
 	
-
-	public Boolean isPublicRoom() {
-		return publicRoom;
+	public int getSize() {
+		return users.size();
 	}
-	public void setPublicRoom(Boolean publicRoom) {
-		this.publicRoom = publicRoom;
+	
+	public Boolean getRaumStatus() {
+		return raumStatus;
+	}
+	public void setaumStatus(Boolean publicRoom) {
+		this.raumStatus = publicRoom;
 	}
 	public void setUsers(HashMap<Long, User> users) {
 		this.users = users;

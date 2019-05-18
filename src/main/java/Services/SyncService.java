@@ -4,6 +4,8 @@ import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
@@ -14,6 +16,10 @@ import messages.Message;
 
 @Service
 public class SyncService {
+	
+	public static Boolean publicRaum = false;
+	public static Boolean privateRaum = true;
+
 	
 	HashMap<Long, Raum> rooms = new HashMap<>();
 	Long roomIdCounter = new Long(1000);
@@ -41,7 +47,11 @@ public class SyncService {
 		try {
 			Long userID = message.getUserId();
 			Raum raum = new Raum();
-			raum.setPublicRoom(message.getRoomState());
+			//DEBUG ESTMAL
+			raum.setVideoLink("siO6dkqidc4");
+			//DEBUG
+			
+			raum.setaumStatus(message.getRaumStatus());
 			String name = randomName();
 			raum.setRaumId(generateNewRaumId());
 			User user = new User();
@@ -58,10 +68,10 @@ public class SyncService {
 			
 			Message createRaumMessage = new Message();
 			createRaumMessage.setType("create-room");
-			createRaumMessage.setUserId(userID);
-			createRaumMessage.setUserName(name);
+			createRaumMessage.setUser(user);
 			createRaumMessage.setRaumId(raum.raumId);
-			createRaumMessage.setUsers(raum.getUsers());
+			createRaumMessage.setUsers(raum.getUserList());
+			createRaumMessage.setVideoLink(raum.getVideoLink());
 			ChatMessage chatMessage = new ChatMessage();
 			chatMessage.setMessageText("has created the Room");
 			chatMessage.setTimestamp(getCurrenTime());
@@ -88,7 +98,7 @@ public class SyncService {
 			user.setUserName(name);
 			user.setUserId(message.getUserId());
 			
-			if(raum.isPublicRoom()) {
+			if(raum.getRaumStatus()) {
 				user.setAdmin(false);	
 			}else {
 				user.setAdmin(true);	
@@ -100,12 +110,12 @@ public class SyncService {
 			
 			Message joinMessage = new Message();
 			joinMessage.setType("join-room");
-			joinMessage.setUserId(message.getUserId());
-			joinMessage.setUserName(name);
-			joinMessage.setUsers(raum.getUsers());
+			joinMessage.setUser(user);
+			joinMessage.setUsers(raum.getUserList());
 			joinMessage.setRaumId(raum.getRaumId());
 			joinMessage.setChatMessages(raum.getChatMessages());
 			joinMessage.setVideoLink(raum.getVideoLink());
+			joinMessage.setTimeStamp(getTimeStamp(raum.getRaumId()));
 			
 			ChatMessage chatMessage = new ChatMessage();
 			chatMessage.setMessageText("has joined the Room");
@@ -114,8 +124,9 @@ public class SyncService {
 			chatMessage.setUserName(name);
 			chatMessage.setRaumId(raum.getRaumId());
 			
-			joinMessage.setChatMessage(chatMessage);
 			saveChatMessage(chatMessage);
+			joinMessage.setChatMessages(raum.getChatMessages());
+
 
 			WebSocketConfiguration
 			.registryInstance
@@ -141,7 +152,32 @@ public class SyncService {
 		
 		return null;		
 	}
+	
+	public Long getTimeStamp(Long raumId) {
+		return getRaum(raumId).getTimeStamps().values().stream().collect(Collectors.toList()).get(0);
+	}
 
+	public Message generatePublicRaeumeMessage(Message message){
+		
+		Message responseMessage = new Message();
+		responseMessage.setUserId(message.getUserId());
+		responseMessage.setPublicRaeume(getPublicRooms());
+		responseMessage.setType("request-public-raeume");
+		
+		return responseMessage;
+	}
+	
+	
+	public ArrayList<RaumDTO> getPublicRooms() {
+		
+		return (ArrayList<RaumDTO>) rooms
+				.values()
+				.stream()
+				.filter(raum -> raum.getRaumStatus() == publicRaum)
+				.map(raum -> RaumMapper.createRaumDTO(raum))
+				.collect(Collectors.toList());	
+	}
+	
 	public List<Message> addAndShareNewVideo(Message message) {
 		if(rooms.containsKey(message.getRaumId()) && message.getVideoLink() != null) {
 			Raum raum = rooms.get(message.getRaumId());
@@ -154,7 +190,7 @@ public class SyncService {
 			chatMessage.setRaumId(raum.getRaumId());
 			chatMessage.setUserId(message.getUserId());
 			chatMessage.setUserName(message.getUserName());
-			chatMessage.setTimestamp(getTimeStamp());
+			chatMessage.setTimestamp(getCurrenTime());
 			saveChatMessage(chatMessage);
 			for (Long id : raum.getUserIds()) {
 				
@@ -188,7 +224,7 @@ public class SyncService {
 			chatMessage.setUserId(message.getUserId());
 			chatMessage.setRaumId(raum.getRaumId());
 			chatMessage.setUserName(message.getUserName());
-			chatMessage.setTimestamp(getTimeStamp());
+			chatMessage.setTimestamp(getCurrenTime());
 			saveChatMessage(chatMessage);
 			for (Long id : raum.getUserIds()) {
 				
@@ -206,9 +242,6 @@ public class SyncService {
 		return new ArrayList<>();
 	}
 	
-	public String getTimeStamp() {
-		return LocalTime.now().toString();
-	}
 	
 	public Message addUserTimeStamp(Message message) {
 		Raum raum = rooms.get(message.getRaumId());
@@ -249,7 +282,7 @@ public class SyncService {
 			Raum raum = rooms.get(message.getRaumId());
 			Long timeStamp = message.getTimeStamp();
 			List<Message> messages = new ArrayList<>();
-			
+			raum.addTimeStamp(message.getUserId(), timeStamp);
 			for (Long userId  : raum.getUserIds()) {
 				raum.addTimeStamp(userId, timeStamp);
 				Message responseMessage = new Message();
@@ -293,14 +326,14 @@ public class SyncService {
 		if(rooms.containsKey(message.getRaumId())) {
 			
 			Raum raum = rooms.get(message.getRaumId());		
-			raum.setPublicRoom(message.getRoomState());
+			raum.setaumStatus(message.getRaumStatus());
 			List<Message> messages = new ArrayList<>();
 			ChatMessage chatMessage = new ChatMessage();
 			chatMessage.setUserId(message.getUserId());
 			chatMessage.setRaumId(message.getRaumId());
 			chatMessage.setUserName(message.getUserName());
 			chatMessage.setTimestamp(getCurrenTime());
-			if(raum.isPublicRoom()) {
+			if(raum.getRaumStatus()) {
 				chatMessage.setMessageText("Room is now public");
 			}else {
 				chatMessage.setMessageText("Room is now private");
@@ -311,7 +344,7 @@ public class SyncService {
 			Message responseMessage = new Message();
 			responseMessage.setType("sync-roomstate");
 			responseMessage.setUser(user);
-			responseMessage.setRoomState(raum.isPublicRoom());
+			responseMessage.setRaumStatus(raum.getRaumStatus());
 			responseMessage.setChatMessage(chatMessage);
 			messages.add(responseMessage);
 		}
