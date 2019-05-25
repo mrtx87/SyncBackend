@@ -205,6 +205,7 @@ public class SyncService {
 			joinMessage.setVideoLink(raum.getVideoLink());
 			joinMessage.setTimeStamp(getTimeStamp(raum.getRaumId()));
 			joinMessage.setRaumStatus(raum.getRaumStatus());
+			joinMessage.setPlayerState(raum.getPlayerState());
 
 			ChatMessage chatMessage = new ChatMessage();
 			if(raum.getRaumStatus() == publicRaum) {
@@ -404,6 +405,7 @@ public class SyncService {
 
 		if (rooms.containsKey(message.getRaumId()) && message.getTimeStamp() >= 0) {
 			Raum raum = rooms.get(message.getRaumId());
+			raum.setPlayerState(message.getPlayerState());
 			List<Message> messages = new ArrayList<>();
 
 			for (Long userId : raum.getUserIds()) {
@@ -411,7 +413,7 @@ public class SyncService {
 				responseMessage.setType("toggle-play");
 				responseMessage.setUserId(userId);
 				responseMessage.setRaumId(raum.getRaumId());
-				responseMessage.setPlayerState(message.getPlayerState());
+				responseMessage.setPlayerState(raum.getPlayerState());
 				messages.add(responseMessage);
 			}
 			return messages;

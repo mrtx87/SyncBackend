@@ -13,6 +13,8 @@ public class Raum {
 	long raumId;
 	String videoLink;
 	Boolean raumStatus;
+	int playerState;
+	
 	ArrayList<ChatMessage> chatMessages = new ArrayList<>();
 	HashMap<Long, Long> timeStamps = new HashMap<>();
 	HashMap<Long, User> users= new HashMap<>();
@@ -22,6 +24,14 @@ public class Raum {
 		setRaumId(SyncService.generateRaumId());
 }
 	
+	public int getPlayerState() {
+		return playerState;
+	}
+
+	public void setPlayerState(int playerState) {
+		this.playerState = playerState;
+	}
+
 	public int getSize() {
 		return users.size();
 	}
