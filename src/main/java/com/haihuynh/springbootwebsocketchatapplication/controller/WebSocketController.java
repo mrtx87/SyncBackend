@@ -27,6 +27,9 @@ import java.util.List;
  *    - über synchronisierung gedanken machen.
  *    - youtube dui abbilden mit unsereem overlay (pause, volume, cc, geschwindigkeit, vollbild, kinomodus)
  *    . video historie in chatverlauf anzeigen und click und startbar machen
+ *    
+ *    - resetRaumId für admins im privatenmodus
+ *    - playlist
  *    BUGS:
  *    - namen werden nicht richtig übertagen 
  *    - joinmessage kommt nicht immer an
@@ -73,7 +76,7 @@ public class WebSocketController {
 		Message responseMessage = syncService.createRaum(message);
 		if (responseMessage != null) {
 			this.messageService.convertAndSend("/chat/" + message.getUserId(), responseMessage);
-			System.err.println("userId: " + responseMessage.getUserId() + " -> [created room - " + responseMessage.getRaumId()  + " |  status: " + syncService.getRaum(responseMessage.getRaumId()).getRaumStatus() + "]");
+			System.err.println("userId: " + responseMessage.getUserId() + " -> [created room - " + responseMessage.getRaumId() + " |  status: " + syncService.getRaum(responseMessage.getRaumId()).getRaumStatus() + "]");
 		} else {
 			this.messageService.convertAndSend("/chat" + message.getUserId(), new Message("error"));
 		}
@@ -179,6 +182,51 @@ public class WebSocketController {
 
 	}
 	
+	
+	@MessageMapping("/send/assign-admin")
+	public void onReceiveAssignAdmin(@Nullable final Message message) {
+		List<Message> responseMessages = this.syncService.generateAssignedAdminMessages(message);
+		if (responseMessages != null) {
+			System.out.println("[user: " + message.getAssignedAdmin().getUserId() + " has been assigned admin by " + message.getUserId() + "]");
+			for (Message responseMessage : responseMessages) {
+				this.messageService.convertAndSend("/chat/" + responseMessage.getUserId(), responseMessage);
+			}						
+		} else {
+			this.messageService.convertAndSend("/chat" + message.getUserId(), new Message("error"));
+		}
+
+	}
+	
+	
+	
+	@MessageMapping("/send/to-public-room")
+	public void onReceiveToPublicRoomRequest(@Nullable final Message message) {
+		List<Message> responseMessages = this.syncService.generateToPublicRoomMessages(message);
+		if (responseMessages != null) {
+			System.out.println("[user: " + message.getUserId() + " has set room " + message.getRaumId() + " to public]");
+			for (Message responseMessage : responseMessages) {
+				this.messageService.convertAndSend("/chat/" + responseMessage.getUserId(), responseMessage);
+			}						
+		} else {
+			this.messageService.convertAndSend("/chat" + message.getUserId(), new Message("error"));
+		}
+
+	}
+	
+	
+	@MessageMapping("/send/to-private-room")
+	public void onReceiveToPrivateRoomRequest(@Nullable final Message message) {
+		List<Message> responseMessages = this.syncService.generateToPrivateRoomMessages(message);
+		if (responseMessages != null) {
+			System.out.println("[user: " + message.getUserId() + " has set room " + message.getRaumId() + " to public]");
+			for (Message responseMessage : responseMessages) {
+				this.messageService.convertAndSend("/chat/" + responseMessage.getUserId(), responseMessage);
+			}						
+		} else {
+			this.messageService.convertAndSend("/chat" + message.getUserId(), new Message("error"));
+		}
+
+	}
 	
 	/*
 	 * @MessageMapping("/chat")

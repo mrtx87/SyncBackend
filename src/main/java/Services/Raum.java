@@ -17,6 +17,11 @@ public class Raum {
 	HashMap<Long, Long> timeStamps = new HashMap<>();
 	HashMap<Long, User> users= new HashMap<>();
 	
+	public Raum() {
+
+		setRaumId(SyncService.generateRaumId());
+}
+	
 	public int getSize() {
 		return users.size();
 	}
@@ -24,7 +29,7 @@ public class Raum {
 	public Boolean getRaumStatus() {
 		return raumStatus;
 	}
-	public void setaumStatus(Boolean publicRoom) {
+	public void setRaumStatus(Boolean publicRoom) {
 		this.raumStatus = publicRoom;
 	}
 	public void setUsers(HashMap<Long, User> users) {
@@ -34,6 +39,11 @@ public class Raum {
 	public ArrayList<ChatMessage> getChatMessages() {
 		return chatMessages;
 	}
+	
+	public ArrayList<ChatMessage> getPublicChatMessages() {
+		return (ArrayList<ChatMessage>) chatMessages.stream().filter(cm -> !cm.isPrivate()).collect(Collectors.toList());
+	}
+	
 	public void setChatMessages(ArrayList<ChatMessage> chatMessages) {
 		this.chatMessages = chatMessages;
 	}
@@ -95,6 +105,23 @@ public class Raum {
     	result += "roomid[" + raumId + "] -> userIds[" + getUserIds().toString() + "]"; 
     	
     	return result;
+    }
+    
+    public User getUser(Long userId) {
+    	return users.get(userId);
+    }
+    
+    public boolean exists(Long userId) {
+    	return users.containsKey(userId);
+    }
+    
+    public void assignUserAsAdmin(User user) {
+    	User newAdmin = users.get(user.userId);
+    	newAdmin.setAdmin(true);
+    }
+    
+    public void setAllUsersToAdmins() {
+    	users.values().stream().forEach(u -> u.setAdmin(true));	
     }
     
 }

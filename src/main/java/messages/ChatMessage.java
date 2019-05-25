@@ -1,51 +1,62 @@
 package messages;
 
+import Services.User;
+
 public class ChatMessage {
 
-	Long userId;
+	boolean isPrivate;
+
+	User user;
 	Long raumId;
-	String userName;
+
 	String timestamp;
 	String messageText;
-	
-	
-	public Long getUserId() {
-		return userId;
+
+	public boolean isPrivate() {
+		return isPrivate;
 	}
-	public void setUserId(Long userId) {
-		this.userId = userId;
+
+	public void setPrivate(boolean isPrivate) {
+		this.isPrivate = isPrivate;
 	}
-	public String getUserName() {
-		return userName;
+
+	public User getUser() {
+		return user;
 	}
-	public void setUserName(String userName) {
-		this.userName = userName;
+
+	public void setUser(User user) {
+		this.user = user;
 	}
+
 	public Long getRaumId() {
 		return raumId;
 	}
+
 	public void setRaumId(Long raumId) {
 		this.raumId = raumId;
 	}
+
 	public String getTimestamp() {
 		return timestamp;
 	}
+
 	public void setTimestamp(String timestamp) {
 		this.timestamp = timestamp;
 	}
+
 	public String getMessageText() {
 		return messageText;
 	}
+
 	public void setMessageText(String messageText) {
 		this.messageText = messageText;
 	}
-	
+
 	@Override
 	public String toString() {
 		// TODO Auto-generated method stub
-		return "id: " + userId + " | name:" + userName + " | time:" + timestamp +
-				"\ntext: " + messageText;
+		return "id: " + user.getUserId() + " | name:" + user.getUserName() + " | time:" + timestamp + "\ntext: "
+				+ messageText;
 	}
-	
-	
+
 }

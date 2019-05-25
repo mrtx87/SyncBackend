@@ -3,18 +3,17 @@ package messages;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-
 import Services.Raum;
 import Services.RaumDTO;
 import Services.User;
 
 public class Message {
-	
+
 	String type;
 	User user;
-	
+
 	long raumId;
-	
+
 	String videoLink;
 	long timeStamp;
 	int playerState;
@@ -23,66 +22,64 @@ public class Message {
 	ArrayList<User> users;
 	Boolean raumStatus;
 	ArrayList<RaumDTO> publicRaeume;
-	
-	
+	User assignedAdmin;
+
+	public User getAssignedAdmin() {
+		return assignedAdmin;
+	}
+
+	public void setAssignedAdmin(User assignedAdmin) {
+		this.assignedAdmin = assignedAdmin;
+	}
+
 	public ArrayList<RaumDTO> getPublicRaeume() {
 		return publicRaeume;
 	}
-
 
 	public void setPublicRaeume(ArrayList<RaumDTO> publicRaeume) {
 		this.publicRaeume = publicRaeume;
 	}
 
-
 	public User getUser() {
 		return user;
 	}
-
 
 	public void setUser(User user) {
 		this.user = user;
 	}
 
-	
 	public Boolean getRaumStatus() {
 		return raumStatus;
 	}
-
 
 	public void setRaumStatus(Boolean raumStatus) {
 		this.raumStatus = raumStatus;
 	}
 
-
 	public ArrayList<ChatMessage> getChatMessages() {
 		return chatMessages;
 	}
 
-
 	public void setChatMessages(ArrayList<ChatMessage> chatMessages) {
 		this.chatMessages = chatMessages;
 	}
-	
+
 	public int getPlayerState() {
 		return playerState;
 	}
-	
 
 	public ArrayList<User> getUsers() {
 		return users;
 	}
 
-
 	public void setUsers(ArrayList<User> users) {
 		this.users = users;
 	}
 
-
 	public void setPlayerState(int playerState) {
 		this.playerState = playerState;
 	}
-	
+
 	public ChatMessage getChatMessage() {
 		return chatMessage;
 	}
@@ -92,14 +89,14 @@ public class Message {
 	}
 
 	public String getUserName() {
-		if(user != null) {
-		return user.getUserName();
+		if (user != null) {
+			return user.getUserName();
 		}
 		return null;
 	}
 
 	public void setUserName(String userName) {
-		if(user != null) {
+		if (user != null) {
 			this.user.setUserName(userName);
 		}
 		user = new User();
@@ -113,7 +110,7 @@ public class Message {
 	public void setTimeStamp(long timeStamp) {
 		this.timeStamp = timeStamp;
 	}
-	
+
 	public String getVideoLink() {
 		return videoLink;
 	}
@@ -125,7 +122,7 @@ public class Message {
 	public Message() {
 
 	}
-	
+
 	public Message(String type) {
 		this.type = type;
 	}
@@ -147,35 +144,31 @@ public class Message {
 	}
 
 	public Long getUserId() {
-		if(user != null)
+		if (user != null)
 			return user.getUserId();
-		return null; 
+		return null;
 	}
 
 	public void setUserId(long userId) {
-		if(user != null) {
+		if (user != null) {
 			this.user.setUserId(userId);
 		}
 		user = new User();
 		user.setUserId(userId);
 	}
-	
+
 	public Boolean isAdmin() {
-		if(user != null)
+		if (user != null)
 			return user.isAdmin();
 		return null;
 	}
 
 	public void setAdmin(Boolean admin) {
-		if(user != null) {
+		if (user != null) {
 			this.user.setAdmin(admin);
 		}
 		user = new User();
 		user.setAdmin(admin);
 	}
-	
-	
 
 }
-	
-

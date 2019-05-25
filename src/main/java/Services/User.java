@@ -2,13 +2,14 @@ package Services;
 
 public class User {
 	
-	Long userId;
+	long userId;
 	String userName;
 	Boolean admin;
-	public Long getUserId() {
+	
+	public long getUserId() {
 		return userId;
 	}
-	public void setUserId(Long userId) {
+	public void setUserId(long userId) {
 		this.userId = userId;
 	}
 	public String getUserName() {
