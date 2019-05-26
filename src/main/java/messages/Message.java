@@ -11,7 +11,6 @@ public class Message {
 
 	String type;
 	User user;
-
 	long raumId;
 
 	String videoLink;
@@ -22,14 +21,15 @@ public class Message {
 	ArrayList<User> users;
 	Boolean raumStatus;
 	ArrayList<RaumDTO> publicRaeume;
-	User assignedAdmin;
+	User assignedUser;
 
-	public User getAssignedAdmin() {
-		return assignedAdmin;
+   
+	public User getAssignedUser() {
+		return assignedUser;
 	}
 
-	public void setAssignedAdmin(User assignedAdmin) {
-		this.assignedAdmin = assignedAdmin;
+	public void setAssignedUser(User assignedUser) {
+		this.assignedUser = assignedUser;
 	}
 
 	public ArrayList<RaumDTO> getPublicRaeume() {

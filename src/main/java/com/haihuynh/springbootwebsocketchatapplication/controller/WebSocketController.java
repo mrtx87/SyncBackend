@@ -29,11 +29,16 @@ import java.util.List;
  *    . video historie in chatverlauf anzeigen und click und startbar machen
  *    
  *    - resetRaumId für admins im privatenmodus
+ *    - switch für privaten modus ob alle gleichberechtig oder nicht
+ *    - öffentliche raum kicken und auf blocklist setzen und cookie setzen bei unseren mit userid 
  *    - playlist
+ *    - wenn join dann timestamps anfordern und clients synchronisieen bzw. newn client der joint den timestamp geben
+ *    - copy link to clipboard
+ *    -fullscreen
+ *    -kinomodus
+ *    -controllen für video
  *    BUGS:
- *    - namen werden nicht richtig übertagen 
- *    - joinmessage kommt nicht immer an
- * 
+ * 	  -
  */
 
 @Controller
@@ -187,7 +192,7 @@ public class WebSocketController {
 	public void onReceiveAssignAdmin(@Nullable final Message message) {
 		List<Message> responseMessages = this.syncService.generateAssignedAdminMessages(message);
 		if (responseMessages != null) {
-			System.out.println("[user: " + message.getAssignedAdmin().getUserId() + " has been assigned admin by " + message.getUserId() + "]");
+			System.out.println("[user: " + message.getAssignedUser().getUserId() + " has been assigned admin by " + message.getUserId() + "]");
 			for (Message responseMessage : responseMessages) {
 				this.messageService.convertAndSend("/chat/" + responseMessage.getUserId(), responseMessage);
 			}						
@@ -226,6 +231,33 @@ public class WebSocketController {
 			this.messageService.convertAndSend("/chat" + message.getUserId(), new Message("error"));
 		}
 
+	} 
+	
+	@MessageMapping("/send/kick-user")
+	public void onReceiveKickUser(@Nullable final Message message) {
+		List<Message> responseMessages = this.syncService.generateKickMessages(message);
+		if (responseMessages != null) {
+			System.out.println("[user: " + message.getUserId() + " has kicked User: "+ message.getAssignedUser().getUserId() + "from room:" + message.getRaumId() + "]");
+			for (Message responseMessage : responseMessages) {
+				this.messageService.convertAndSend("/chat/" + responseMessage.getUserId(), responseMessage);
+			}						
+		} else {
+			this.messageService.convertAndSend("/chat" + message.getUserId(), new Message("error"));
+		}
+
+	}
+	
+	@MessageMapping("/send/refresh-raumid")
+	public void onReceiveRefreshRaumId(@Nullable final Message message) {
+		List<Message> responseMessages = this.syncService.generateRefreshRaumIdMessages(message);
+		if (responseMessages != null) {
+			System.out.println("[user: " + message.getUserId() + " has wants to resfresh Raumid: " + message.getRaumId() + "]");
+			for (Message responseMessage : responseMessages) {
+				this.messageService.convertAndSend("/chat/" + responseMessage.getUserId(), responseMessage);
+			}						
+		} else {
+			this.messageService.convertAndSend("/chat" + message.getUserId(), new Message("error"));
+		}
 	}
 	
 	/*

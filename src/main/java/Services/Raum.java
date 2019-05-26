@@ -134,4 +134,8 @@ public class Raum {
     	users.values().stream().forEach(u -> u.setAdmin(true));	
     }
     
+    public User deleteUser(Long userId) {
+    	return users.remove(userId);
+    }
+    
 }
