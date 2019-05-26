@@ -144,7 +144,7 @@ public class SyncService {
 			user.setUserId(message.getUserId());
 			user.setAdmin(true);
 			raum.addUser(message.getUserId(), user);
-			raum.addTimeStamp(userID, 0L);
+			raum.setCurrentTimestamp(0L);
 
 			WebSocketConfiguration.registryInstance.enableSimpleBroker("/" + userID);
 
@@ -246,7 +246,7 @@ public class SyncService {
 	}
 
 	public Long getTimeStamp(Long raumId) {
-		return getRaum(raumId).getTimeStamps().values().stream().collect(Collectors.toList()).get(0);
+		return getRaum(raumId).getCurrentTimestamp();
 	}
 
 	public Message generatePublicRaeumeMessage(Message message) {
@@ -336,16 +336,6 @@ public class SyncService {
 		return new ArrayList<>();
 	}
 
-	public Message addUserTimeStamp(Message message) {
-		Raum raum = rooms.get(message.getRaumId());
-		Long userID = message.getUserId();
-		Long time = message.getTimeStamp();
-		raum.addTimeStamp(userID, time);
-
-		Message responseMessage = new Message();
-		// responseMessage.getType("video-timestamp");
-		return null;
-	}
 
 	public List<Long> saveChatMessage(Message message) {
 		if (rooms.containsKey(message.getRaumId())) {
@@ -381,13 +371,12 @@ public class SyncService {
 			Raum raum = rooms.get(message.getRaumId());
 			Long timeStamp = message.getTimeStamp();
 			List<Message> messages = new ArrayList<>();
-			raum.addTimeStamp(message.getUserId(), timeStamp);
+			raum.setCurrentTimestamp(timeStamp);
 			for (Long userId : raum.getUserIds()) {
-				raum.addTimeStamp(userId, timeStamp);
 				Message responseMessage = new Message();
 				responseMessage.setUserId(userId);
 				responseMessage.setType("seekto-timestamp");
-				responseMessage.setTimeStamp(timeStamp);
+				responseMessage.setTimeStamp(raum.getCurrentTimestamp());
 				responseMessage.setRaumId(raum.getRaumId());
 				messages.add(responseMessage);
 			}
@@ -676,6 +665,18 @@ public class SyncService {
 		rooms.remove(raumId);
 		raum.setRaumId(generateRaumId());
 		rooms.put(raum.getRaumId(), raum);
+	}
+
+	public Message addUserTimeStamp(Message message) {
+		if(rooms.containsKey(message.getRaumId())) {
+			
+			Raum raum = getRaum(message.getRaumId());
+			raum.setCurrentTimestamp(message.getTimeStamp());
+			
+			return message;
+		}
+		
+		return null;
 	}
 	
 	
