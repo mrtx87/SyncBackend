@@ -317,18 +317,19 @@ public class SyncService {
 			chatMessage.setUser(message.getUser());
 			chatMessage.setRaumId(raum.getRaumId());
 			chatMessage.setTimestamp(getCurrenTime());
-			saveChatMessage(chatMessage);
 			if(raum.getRaumStatus() == publicRaum) {
 				chatMessage.setPrivate(publicRaum);
 			}else {
 				chatMessage.setPrivate(privateRaum);
 			}
-			for (Long id : raum.getUserIds()) {
+			saveChatMessage(chatMessage);
+
+			for (User user: raum.getUserList()) {
 
 				Message responseMessage = new Message();
 				responseMessage.setType("update-client");
 				responseMessage.setRaumId(raum.raumId);
-				responseMessage.setUserId(id);
+				responseMessage.setUser(user);
 				responseMessage.setChatMessage(chatMessage);
 				messages.add(responseMessage);
 			}
