@@ -1,9 +1,6 @@
 package messages;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-
-import Services.Raum;
 import Services.RaumDTO;
 import Services.User;
 

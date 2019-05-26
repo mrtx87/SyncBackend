@@ -2,11 +2,8 @@ package Services;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
-
 import messages.ChatMessage;
-import messages.Message;
 
 public class Raum {
 

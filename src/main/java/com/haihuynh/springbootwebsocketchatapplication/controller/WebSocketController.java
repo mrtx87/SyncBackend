@@ -1,24 +1,12 @@
 package com.haihuynh.springbootwebsocketchatapplication.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.format.datetime.standard.InstantFormatter;
 import org.springframework.lang.Nullable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-
-import Services.Raum;
 import Services.SyncService;
-import messages.ChatMessage;
 import messages.Message;
-
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 /*
