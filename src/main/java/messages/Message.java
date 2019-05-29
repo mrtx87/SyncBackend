@@ -19,8 +19,17 @@ public class Message {
 	Boolean raumStatus;
 	ArrayList<RaumDTO> publicRaeume;
 	User assignedUser;
+	ArrayList<String> playlist;
 
    
+	public ArrayList<String> getPlaylist() {
+		return playlist;
+	}
+
+	public void setPlaylist(ArrayList<String> playlist) {
+		this.playlist = playlist;
+	}
+
 	public User getAssignedUser() {
 		return assignedUser;
 	}

@@ -18,7 +18,7 @@ import java.util.List;
  *    
  *    - resetRaumId für admins im privatenmodus
  *    - switch für privaten modus ob alle gleichberechtig oder nicht
- *    - öffentliche raum kicken und auf blocklist setzen und cookie setzen bei unseren mit userid 
+ *    - öffentliche raum kicken und auf blocklist setzen und cookie setzen bei usern mit userid 
  *    - playlist
  *    - wenn join dann timestamps anfordern und clients synchronisieen bzw. newn client der joint den timestamp geben
  *    - copy link to clipboard
@@ -96,8 +96,8 @@ public class WebSocketController {
 
 	@MessageMapping("/send/join-room")
 	public void onJoinRoom(@Nullable final Message message) {
-
 		List<Message> responseMessages = syncService.joinRaum(message);
+		
 		if (responseMessages != null) {
 			for (Message responseMessage : responseMessages) {
 				this.messageService.convertAndSend("/chat/" + responseMessage.getUserId(), responseMessage);
@@ -240,6 +240,19 @@ public class WebSocketController {
 		List<Message> responseMessages = this.syncService.generateRefreshRaumIdMessages(message);
 		if (responseMessages != null) {
 			System.out.println("[user: " + message.getUserId() + " has wants to resfresh Raumid: " + message.getRaumId() + "]");
+			for (Message responseMessage : responseMessages) {
+				this.messageService.convertAndSend("/chat/" + responseMessage.getUserId(), responseMessage);
+			}						
+		} else {
+			this.messageService.convertAndSend("/chat" + message.getUserId(), new Message("error"));
+		}
+	}
+	
+	@MessageMapping("/send/add-video-to-playlist")
+	public void onReceiveAddVideoToPlaylist(@Nullable final Message message) {
+		List<Message> responseMessages = this.syncService.addVideoToPlaylistMessages(message);
+		if (responseMessages != null) {
+			System.out.println("[user: " + message.getUserId() + " added video " + message.getVideoLink() + "to playlist]");
 			for (Message responseMessage : responseMessages) {
 				this.messageService.convertAndSend("/chat/" + responseMessage.getUserId(), responseMessage);
 			}						

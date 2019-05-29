@@ -14,8 +14,17 @@ public class Raum {
 	Long currentTimestamp;
 	ArrayList<ChatMessage> chatMessages = new ArrayList<>();
 	HashMap<Long, User> users = new HashMap<>();
-
+	ArrayList<String> playlist = new ArrayList<>();
 	
+	
+	public ArrayList<String> getPlaylist() {
+		return playlist;
+	}
+
+	public void setPlaylist(ArrayList<String> playlist) {
+		this.playlist = playlist;
+	}
+
 	public Long getCurrentTimestamp() {
 		return currentTimestamp;
 	}
@@ -141,6 +150,10 @@ public class Raum {
 
 	public User deleteUser(Long userId) {
 		return users.remove(userId);
+	}
+	
+	public void addVideoToPlaylist(String videoLink) {
+		playlist.add(videoLink);
 	}
 
 }

@@ -178,6 +178,7 @@ public class SyncService {
 	public List<Message> joinRaum(Message message) {
 
 		if (rooms.containsKey(message.getRaumId())) {
+			
 			Raum raum = rooms.get(message.getRaumId());
 			String name = randomName();
 			User user = new User();
@@ -202,6 +203,7 @@ public class SyncService {
 			joinMessage.setTimeStamp(getTimeStamp(raum.getRaumId()));
 			joinMessage.setRaumStatus(raum.getRaumStatus());
 			joinMessage.setPlayerState(raum.getPlayerState());
+			joinMessage.setPlaylist(raum.getPlaylist());
 
 			ChatMessage chatMessage = new ChatMessage();
 			if (raum.getRaumStatus() == publicRaum) {
@@ -344,6 +346,7 @@ public class SyncService {
 		return null;
 	}
 
+	//TODO raum.saveChatMessage(chatmessage)
 	public void saveChatMessage(ChatMessage message) {
 		if (rooms.containsKey(message.getRaumId())) {
 			Raum raum = rooms.get(message.getRaumId());
@@ -673,6 +676,41 @@ public class SyncService {
 			raum.setCurrentTimestamp(message.getTimeStamp());
 			
 			return message;
+		}
+		
+		return null;
+	}
+
+	public List<Message> addVideoToPlaylistMessages(Message message) {
+		
+		if (rooms.containsKey(message.getRaumId()) && isAdmin(message.getRaumId(), message.getUserId())) {
+			Raum raum = getRaum(message.getRaumId());
+			
+			raum.addVideoToPlaylist(message.getVideoLink());
+			
+			ChatMessage chatMessage = new ChatMessage();
+			if (raum.getRaumStatus() == publicRaum) {
+				chatMessage.setPrivate(publicRaum);
+			} else {
+				chatMessage.setPrivate(privateRaum);
+			}
+			chatMessage.setUser(raum.getUser(message.getUserId()));
+			chatMessage.setTimestamp(getCurrenTime());
+			chatMessage.setMessageText(raum.getVideoLink());
+		
+			ArrayList<Message> responseMessages = new ArrayList<>();
+
+			for (User user : raum.getUserList()) {
+
+				Message responseMessage = new Message();
+				responseMessage.setType("add-video-to-playlist");
+				responseMessage.setUser(user);
+				responseMessage.setRaumId(raum.getRaumId());
+				responseMessage.setChatMessage(chatMessage);
+				responseMessage.setPlaylist(raum.getPlaylist());
+				responseMessages.add(responseMessage);
+			}
+			return responseMessages;
 		}
 		
 		return null;
