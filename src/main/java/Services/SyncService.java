@@ -17,8 +17,8 @@ import messages.Video;
 @Service
 public class SyncService {
 
-	public static Boolean publicRaum = true;
-	public static Boolean privateRaum = false ;
+	public static Boolean publicRaum = false;
+	public static Boolean privateRaum = true;
 
 	public static Video defaultVideo = new Video("OmEn2Iclb8U", 0L);
 
