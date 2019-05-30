@@ -10,9 +10,7 @@ public class Video {
 		this.timestamp = timestamp;
 	}
 	
-	public Video() {
-		// TODO Auto-generated constructor stub
-	}
+	public Video() {}
 	
 	public String getVideoId() {
 		return videoId;
