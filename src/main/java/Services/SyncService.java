@@ -16,7 +16,8 @@ import messages.Video;
 
 @Service
 public class SyncService {
-
+	
+	public static int maxUpdateJoinClients = 3;
 	public static Boolean publicRaum = false;
 	public static Boolean privateRaum = true;
 
@@ -224,19 +225,28 @@ public class SyncService {
 			}
 			WebSocketConfiguration.registryInstance.enableSimpleBroker("/" + message.getUserId());
 
+			int counter = 0;
 			for (Long id : raum.getUserIds()) {
 				if (user.userId != id) {
+				
 					Message responseMessage = new Message();
-					responseMessage.setType("update-client");
+					if(counter <= maxUpdateJoinClients) {
+						responseMessage.setType("update-join-client");
+					}else {
+						responseMessage.setType("update-client");
+					}
 					responseMessage.setRaumId(raum.raumId);
 					responseMessage.setUserId(id);
 					responseMessage.setChatMessage(chatMessage);
 					responseMessage.setUsers(raum.getUserList());
 
 					messages.add(responseMessage);
+					
+					
 				} else {
 					messages.add(joinMessage);
 				}
+				counter ++;
 			}
 
 			return messages;

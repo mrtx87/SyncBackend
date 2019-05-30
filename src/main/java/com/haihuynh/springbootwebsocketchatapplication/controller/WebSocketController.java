@@ -262,6 +262,21 @@ public class WebSocketController {
 		}
 	}
 	
+	@MessageMapping("/send/current-timestamp")
+	public void onReceiveCurrentTimestamp(@Nullable final Message message) {
+		
+		System.out.println();
+		
+		/*if (responseMessages != null) {
+			System.out.println("[user: " + message.getUserId() + " added video " + message.getVideo().getVideoId() + "to playlist]");
+			for (Message responseMessage : responseMessages) {
+				this.messageService.convertAndSend("/chat/" + responseMessage.getUserId(), responseMessage);
+			}						
+		} else {
+			this.messageService.convertAndSend("/chat" + message.getUserId(), new Message("error"));
+		}*/
+	}
+	
 	/*
 	 * @MessageMapping("/chat")
 	 * 
