@@ -22,6 +22,7 @@ import java.util.List;
  *    - playlist
  *    - wenn join dann timestamps anfordern und clients synchronisieen bzw. newn client der joint den timestamp geben
  *    - copy link to clipboard
+ *    - get playlist from api and video title(s)
  *    -fullscreen
  *    -kinomodus
  *    -controllen für video
@@ -81,7 +82,7 @@ public class WebSocketController {
 	public void onReceiveNewVideo(@Nullable final Message message) {
 		List<Message> responseMessages = syncService.addAndShareNewVideo(message);
 		if (responseMessages.size() > 0) {
-			System.out.println("[user:" + message.getUserId() + " sharing video: " + message.getVideoLink() + "]");
+			System.out.println("[user:" + message.getUserId() + " sharing video: " + message.getVideo().getVideoId() + "]");
 			for (Message responseMessage : responseMessages) {
 				if (responseMessage != null) {
 					this.messageService.convertAndSend("/chat/" + responseMessage.getUserId() , responseMessage);
@@ -252,7 +253,7 @@ public class WebSocketController {
 	public void onReceiveAddVideoToPlaylist(@Nullable final Message message) {
 		List<Message> responseMessages = this.syncService.addVideoToPlaylistMessages(message);
 		if (responseMessages != null) {
-			System.out.println("[user: " + message.getUserId() + " added video " + message.getVideoLink() + "to playlist]");
+			System.out.println("[user: " + message.getUserId() + " added video " + message.getVideo().getVideoId() + "to playlist]");
 			for (Message responseMessage : responseMessages) {
 				this.messageService.convertAndSend("/chat/" + responseMessage.getUserId(), responseMessage);
 			}						

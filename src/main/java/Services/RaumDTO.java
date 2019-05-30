@@ -4,12 +4,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import messages.Message;
+import messages.Video;
 
 public class RaumDTO {
 
 	long raumId;
 	int size; 
-	String videoLink;
+	Video video;
 	
 	
 	public long getRaumId() {
@@ -19,11 +20,11 @@ public class RaumDTO {
 		this.raumId = raumId;
 	}
 	
-	public String getVideoLink() {
-		return videoLink;
+	public Video getVideo() {
+		return video;
 	}
-	public void setVideoLink(String videoLink) {
-		this.videoLink = videoLink;
+	public void setVideo(Video video) {
+		this.video = video;
 	}
 	public int getSize() {
 		return size;

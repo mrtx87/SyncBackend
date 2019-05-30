@@ -10,8 +10,7 @@ public class Message {
 	User user;
 	long raumId;
 
-	String videoLink;
-	long timeStamp;
+	Video video;
 	int playerState;
 	ChatMessage chatMessage;
 	ArrayList<ChatMessage> chatMessages;
@@ -19,14 +18,24 @@ public class Message {
 	Boolean raumStatus;
 	ArrayList<RaumDTO> publicRaeume;
 	User assignedUser;
-	ArrayList<String> playlist;
-
+	ArrayList<Video> playlist;
+	
+	
+	
    
-	public ArrayList<String> getPlaylist() {
+	public Video getVideo() {
+		return video;
+	}
+
+	public void setVideo(Video video) {
+		this.video = video;
+	}
+
+	public ArrayList<Video> getPlaylist() {
 		return playlist;
 	}
 
-	public void setPlaylist(ArrayList<String> playlist) {
+	public void setPlaylist(ArrayList<Video> playlist) {
 		this.playlist = playlist;
 	}
 
@@ -109,21 +118,6 @@ public class Message {
 		user.setUserName(userName);
 	}
 
-	public long getTimeStamp() {
-		return timeStamp;
-	}
-
-	public void setTimeStamp(long timeStamp) {
-		this.timeStamp = timeStamp;
-	}
-
-	public String getVideoLink() {
-		return videoLink;
-	}
-
-	public void setVideoLink(String videoLink) {
-		this.videoLink = videoLink;
-	}
 
 	public Message() {
 

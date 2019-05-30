@@ -4,33 +4,33 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.stream.Collectors;
 import messages.ChatMessage;
+import messages.Video;
 
 public class Raum {
 
 	long raumId;
-	String videoLink;
+	Video video;
 	Boolean raumStatus;
 	int playerState;
-	Long currentTimestamp;
 	ArrayList<ChatMessage> chatMessages = new ArrayList<>();
 	HashMap<Long, User> users = new HashMap<>();
-	ArrayList<String> playlist = new ArrayList<>();
+	HashMap<String, Video> playlist = new HashMap<>();
 	
 	
-	public ArrayList<String> getPlaylist() {
-		return playlist;
+	public ArrayList<Video> getPlaylist() {
+		return (ArrayList<Video>) playlist.values().stream().collect(Collectors.toList());
 	}
 
-	public void setPlaylist(ArrayList<String> playlist) {
-		this.playlist = playlist;
+	public boolean isVideo(Video _video) {
+		return video.getVideoId().equals(_video.getVideoId());
 	}
-
-	public Long getCurrentTimestamp() {
-		return currentTimestamp;
-	}
-
-	public void setCurrentTimestamp(Long currentTimestamp) {
-		this.currentTimestamp = currentTimestamp;
+	
+	public Video updateVideo(Video _video) {
+		if(isVideo(video)) {
+			video.setTimestamp(_video.getTimestamp());
+			return video;
+		}
+		return null;
 	}
 	
 	public Raum() {
@@ -75,7 +75,6 @@ public class Raum {
 		this.chatMessages = chatMessages;
 	}
 
-
 	public long getRaumId() {
 		return raumId;
 	}
@@ -94,12 +93,14 @@ public class Raum {
 
 	}
 
-	public String getVideoLink() {
-		return videoLink;
+	
+
+	public Video getVideo() {
+		return video;
 	}
 
-	public void setVideoLink(String videoLink) {
-		this.videoLink = videoLink;
+	public void setVideo(Video video) {
+		this.video = video;
 	}
 
 	public void addUser(Long id, User user) {
@@ -152,8 +153,17 @@ public class Raum {
 		return users.remove(userId);
 	}
 	
-	public void addVideoToPlaylist(String videoLink) {
-		playlist.add(videoLink);
+	public void addVideoToPlaylist(Video video) {
+		playlist.put(video.getVideoId(), video);
+	}
+	
+	public void removeVideoFromPlaylist(Video video) {
+		playlist.remove(video.getVideoId());
+	}
+
+
+	public void setPlaylist(HashMap<String, Video> playlist) {
+		this.playlist = playlist;
 	}
 
 }
