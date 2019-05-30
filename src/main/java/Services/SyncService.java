@@ -137,6 +137,7 @@ public class SyncService {
 			raum.setVideo(defaultVideo);
 			// DEBUG
 			raum.setRaumStatus(message.getRaumStatus());
+			raum.setPlayerState(0);
 			saveRoom(raum);
 
 			String name = randomName();
@@ -156,6 +157,7 @@ public class SyncService {
 			createRaumMessage.setUsers(raum.getUserList());
 			createRaumMessage.setVideo(raum.getVideo());
 			createRaumMessage.setRaumStatus(raum.getRaumStatus());
+			createRaumMessage.setPlayerState(raum.getPlayerState());
 			ChatMessage chatMessage = new ChatMessage();
 			if (raum.getRaumStatus() == publicRaum) {
 				chatMessage.setPrivate(publicRaum);
