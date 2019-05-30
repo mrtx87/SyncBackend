@@ -137,7 +137,7 @@ public class SyncService {
 			raum.setVideo(defaultVideo);
 			// DEBUG
 			raum.setRaumStatus(message.getRaumStatus());
-			raum.setPlayerState(0);
+			raum.setPlayerState(2);
 			saveRoom(raum);
 
 			String name = randomName();
