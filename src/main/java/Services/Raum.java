@@ -1,7 +1,9 @@
 package Services;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import messages.ChatMessage;
 import messages.Video;
@@ -15,8 +17,25 @@ public class Raum {
 	ArrayList<ChatMessage> chatMessages = new ArrayList<>();
 	HashMap<Long, User> users = new HashMap<>();
 	HashMap<String, Video> playlist = new HashMap<>();
-	
-	
+	HashMap<Long, Long> timeStamps = new HashMap<>();
+	HashMap<Long, User> joiningUsers = new HashMap<>();
+
+	public HashMap<Long, User> getJoiningUsers() {
+		return joiningUsers;
+	}
+
+	public void setJoiningUsers(HashMap<Long, User> joiningUsers) {
+		this.joiningUsers = joiningUsers;
+	}
+
+	public HashMap<Long, Long> getTimeStamps() {
+		return timeStamps;
+	}
+
+	public void setTimeStamps(HashMap<Long, Long> timeStamps) {
+		this.timeStamps = timeStamps;
+	}
+
 	public ArrayList<Video> getPlaylist() {
 		return (ArrayList<Video>) playlist.values().stream().collect(Collectors.toList());
 	}
@@ -24,15 +43,27 @@ public class Raum {
 	public boolean isVideo(Video _video) {
 		return video.getVideoId().equals(_video.getVideoId());
 	}
-	
-	public Video updateVideo(Video _video) {
-		if(isVideo(video)) {
+
+	public boolean isVideo(String videoId) {
+		return video.getVideoId().equals(videoId);
+	}
+
+	public Video updateTimestamp(Video _video) {
+		if (isVideo(video)) {
 			video.setTimestamp(_video.getTimestamp());
 			return video;
 		}
 		return null;
 	}
-	
+
+	public Video updateTimestamp(String videoId, Long timestamp) {
+		if (isVideo(videoId)) {
+			video.setTimestamp(timestamp);
+			return video;
+		}
+		return null;
+	}
+
 	public Raum() {
 
 		setRaumId(SyncService.generateRaumId());
@@ -93,8 +124,6 @@ public class Raum {
 
 	}
 
-	
-
 	public Video getVideo() {
 		return video;
 	}
@@ -103,8 +132,8 @@ public class Raum {
 		this.video = video;
 	}
 
-	public void addUser(Long id, User user) {
-		users.put(id, user);
+	public void addUser(User user) {
+		users.put(user.getUserId(), user);
 	}
 
 	public void remove(Long id) {
@@ -152,18 +181,64 @@ public class Raum {
 	public User deleteUser(Long userId) {
 		return users.remove(userId);
 	}
-	
+
 	public void addVideoToPlaylist(Video video) {
 		playlist.put(video.getVideoId(), video);
 	}
-	
+
 	public void removeVideoFromPlaylist(Video video) {
 		playlist.remove(video.getVideoId());
 	}
 
-
 	public void setPlaylist(HashMap<String, Video> playlist) {
 		this.playlist = playlist;
+	}
+
+	public void addTimeStamp(Long userId, Long timeStamp) {
+		timeStamps.put(userId, timeStamp);
+	}
+
+	public ArrayList<Long> getTimeStampList() {
+
+		return (ArrayList<Long>) timeStamps.values().stream().collect(Collectors.toList());
+	}
+
+	public int getTimeStampsCount() {
+
+		return timeStamps.size();
+
+	}
+
+	public int getUsersInRoomCount() {
+		return users.size();
+	}
+
+	public ArrayList<User> getJoiningUserList() {
+
+		return (ArrayList<User>) joiningUsers.values().stream().collect(Collectors.toList());
+
+	}
+
+	public void addJoiningUser(User user) {
+
+		joiningUsers.put(user.getUserId(), user);
+
+	}
+
+	public void clearJoiningUsers() {
+
+		this.joiningUsers.clear();
+
+	}
+
+	public void cleartimestamps() {
+		this.timeStamps.clear();
+	}
+	
+	public boolean isJoiningUser(User user) {
+		
+		return joiningUsers.containsKey(user.getUserId());
+		
 	}
 
 }

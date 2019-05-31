@@ -16,7 +16,7 @@ import messages.Video;
 
 @Service
 public class SyncService {
-	
+
 	public static int maxUpdateJoinClients = 3;
 	public static Boolean publicRaum = false;
 	public static Boolean privateRaum = true;
@@ -145,7 +145,7 @@ public class SyncService {
 			user.setUserName(name);
 			user.setUserId(message.getUserId());
 			user.setAdmin(true);
-			raum.addUser(message.getUserId(), user);
+			raum.addUser(user);
 			raum.setVideo(raum.getVideo());
 
 			WebSocketConfiguration.registryInstance.enableSimpleBroker("/" + userID);
@@ -177,7 +177,7 @@ public class SyncService {
 	public List<Message> joinRaum(Message message) {
 
 		if (rooms.containsKey(message.getRaumId())) {
-			
+
 			Raum raum = rooms.get(message.getRaumId());
 			String name = randomName();
 			User user = new User();
@@ -190,7 +190,8 @@ public class SyncService {
 				user.setAdmin(false);
 			}
 
-			raum.addUser(message.getUserId(), user);
+			raum.addUser(user);
+			raum.addJoiningUser(user);
 			List<Message> messages = new ArrayList<>();
 
 			Message joinMessage = new Message();
@@ -218,25 +219,20 @@ public class SyncService {
 			int counter = 0;
 			for (Long id : raum.getUserIds()) {
 				if (user.userId != id) {
-				
+
 					Message responseMessage = new Message();
-					if(counter <= maxUpdateJoinClients) {
-						responseMessage.setType("update-join-client");
-					}else {
-						responseMessage.setType("update-client");
-					}
+					responseMessage.setType("update-client");
 					responseMessage.setRaumId(raum.raumId);
 					responseMessage.setUserId(id);
 					responseMessage.setChatMessage(chatMessage);
 					responseMessage.setUsers(raum.getUserList());
 
 					messages.add(responseMessage);
-					
-					
+
 				} else {
 					messages.add(joinMessage);
 				}
-				counter ++;
+				counter++;
 			}
 
 			return messages;
@@ -247,9 +243,9 @@ public class SyncService {
 	}
 
 	/*
-	public Long getTimeStamp(Long raumId) {
-		return getRaum(raumId).getVideo().getTimestamp();
-	}*/
+	 * public Long getTimeStamp(Long raumId) { return
+	 * getRaum(raumId).getVideo().getTimestamp(); }
+	 */
 
 	public Message generatePublicRaeumeMessage(Message message) {
 
@@ -328,7 +324,6 @@ public class SyncService {
 		return new ArrayList<>();
 	}
 
-
 	public List<Long> saveChatMessage(Message message) {
 		if (rooms.containsKey(message.getRaumId())) {
 			saveChatMessage(message.getChatMessage());
@@ -337,7 +332,7 @@ public class SyncService {
 		return null;
 	}
 
-	//TODO raum.saveChatMessage(chatmessage)
+	// TODO raum.saveChatMessage(chatmessage)
 	public void saveChatMessage(ChatMessage message) {
 		if (rooms.containsKey(message.getRaumId())) {
 			Raum raum = rooms.get(message.getRaumId());
@@ -364,7 +359,7 @@ public class SyncService {
 			Raum raum = rooms.get(message.getRaumId());
 			Video video = message.getVideo();
 			List<Message> messages = new ArrayList<>();
-			raum.updateVideo(video);
+			raum.updateTimestamp(video);
 			for (Long userId : raum.getUserIds()) {
 				Message responseMessage = new Message();
 				responseMessage.setUserId(userId);
@@ -444,7 +439,8 @@ public class SyncService {
 			ChatMessage chatMessage = new ChatMessage();
 			chatMessage.setUser(raum.getUser(message.getUserId()));
 			chatMessage.setTimestamp(getCurrenTime());
-			chatMessage.setMessageText("assigned " + raum.getUser(message.getAssignedUser().getUserId()).getUserName() + " as Admin");
+			chatMessage.setMessageText(
+					"assigned " + raum.getUser(message.getAssignedUser().getUserId()).getUserName() + " as Admin");
 
 			Message assignAdminMessage = new Message();
 			assignAdminMessage.setType("assigned-as-admin");
@@ -515,7 +511,6 @@ public class SyncService {
 			}
 			return responseMessages;
 		}
-
 		return null;
 	}
 
@@ -555,9 +550,9 @@ public class SyncService {
 		if (rooms.containsKey(message.getRaumId()) && isAdmin(message.getRaumId(), message.getUserId())
 				&& exists(message.getRaumId(), message.getAssignedUser().userId)) {
 			Raum raum = getRaum(message.getRaumId());
-			
+
 			refreshRaumId(raum.getRaumId());
-			
+
 			User kickedUser = raum.deleteUser(message.getAssignedUser().getUserId());
 			if (kickedUser != null) {
 				ChatMessage chatMessage = new ChatMessage();
@@ -581,7 +576,7 @@ public class SyncService {
 					responseMesage.setRaumId(raum.getRaumId());
 					responseMesage.setChatMessage(chatMessage);
 					responseMesage.setUsers(raum.getUserList());
-					
+
 					responseMessages.add(responseMesage);
 				}
 				return responseMessages;
@@ -595,14 +590,14 @@ public class SyncService {
 
 		if (rooms.containsKey(message.getRaumId()) && isAdmin(message.getRaumId(), message.getUserId())) {
 			Raum raum = getRaum(message.getRaumId());
-						
+
 			refreshRaumId(raum.getRaumId());
-			
+
 			ChatMessage chatMessage = new ChatMessage();
 			chatMessage.setUser(raum.getUser(message.getUserId()));
 			chatMessage.setTimestamp(getCurrenTime());
 			chatMessage.setMessageText("has refreshed RoomId to :" + raum.getRaumId());
-		
+
 			ArrayList<Message> responseMessages = new ArrayList<>();
 			for (User user : raum.getUserList()) {
 				Message responseMessage = new Message();
@@ -610,7 +605,7 @@ public class SyncService {
 				responseMessage.setUser(user);
 				responseMessage.setRaumId(raum.getRaumId());
 				responseMessage.setChatMessage(chatMessage);
-				
+
 				responseMessages.add(responseMessage);
 			}
 			return responseMessages;
@@ -618,9 +613,9 @@ public class SyncService {
 
 		return null;
 	}
-	
-	public void refreshRaumId(Long raumId){
-		
+
+	public void refreshRaumId(Long raumId) {
+
 		Raum raum = rooms.get(raumId);
 		rooms.remove(raumId);
 		raum.setRaumId(generateRaumId());
@@ -628,27 +623,27 @@ public class SyncService {
 	}
 
 	public Message addUserTimeStamp(Message message) {
-		if(rooms.containsKey(message.getRaumId())) {
-			
+		if (rooms.containsKey(message.getRaumId())) {
+
 			Raum raum = getRaum(message.getRaumId());
-			raum.updateVideo(message.getVideo());
+			raum.updateTimestamp(message.getVideo());
 			return message;
 		}
-		
+
 		return null;
 	}
 
 	public List<Message> addVideoToPlaylistMessages(Message message) {
-		
+
 		if (rooms.containsKey(message.getRaumId()) && isAdmin(message.getRaumId(), message.getUserId())) {
 			Raum raum = getRaum(message.getRaumId());
 			raum.addVideoToPlaylist(message.getVideo());
-			
+
 			ChatMessage chatMessage = new ChatMessage();
 			chatMessage.setUser(raum.getUser(message.getUserId()));
 			chatMessage.setTimestamp(getCurrenTime());
 			chatMessage.setMessageText(raum.getVideo().getVideoId());
-		
+
 			ArrayList<Message> responseMessages = new ArrayList<>();
 			for (User user : raum.getUserList()) {
 				Message responseMessage = new Message();
@@ -661,10 +656,87 @@ public class SyncService {
 			}
 			return responseMessages;
 		}
-		
+
+		return null;
+	}
+
+	public ArrayList<Message> processJoinTimeStamp(Message message) {
+
+		if (rooms.containsKey(message.getRaumId())) {
+			Raum raum = getRaum(message.getRaumId());
+			raum.addTimeStamp(message.getUserId(), message.getVideo().getTimestamp());
+			if (raum.getTimeStampsCount() >= Math.min(maxUpdateJoinClients, raum.getUsersInRoomCount() - 1)) {
+				Long avgTimestamp = 0L;
+				for (int i = 0; i < Math.min(maxUpdateJoinClients, raum.getUsersInRoomCount() - 1); i++) {
+					avgTimestamp += raum.getTimeStampList().get(i);
+				}
+				avgTimestamp = avgTimestamp / Math.min(maxUpdateJoinClients, raum.getUsersInRoomCount() - 1);
+				raum.updateTimestamp(raum.getVideo().getVideoId() ,avgTimestamp);
+				
+				ArrayList<Message> responseMessages = new ArrayList<>();
+				for (User joiningUser : raum.getJoiningUserList()) {
+					Message responseMessage = new Message();
+					responseMessage.setType("seekto-timestamp");
+					responseMessage.setUser(joiningUser);
+					responseMessage.setRaumId(raum.getRaumId());
+					responseMessage.setVideo(raum.getVideo());
+					
+					responseMessages.add(responseMessage);
+				}
+				return responseMessages;
+
+			}
+		}
+
 		return null;
 	}
 	
+	public void clearJoiningUsers(Long raumId) {
+		if(rooms.containsKey(raumId)) {
+			Raum raum = getRaum(raumId);
+			raum.clearJoiningUsers();
+		}
+	}
 	
+	public void clearTimestamps(Long raumId) {
+		if(rooms.containsKey(raumId)) {
+			Raum raum = getRaum(raumId);
+			raum.cleartimestamps();
+		}
+	}
+
+	public List<Message> generateRequestSyncTimestampMessages(Message message) {
+		
+		if (rooms.containsKey(message.getRaumId())) {
+			Raum raum = getRaum(message.getRaumId());
+
+			ArrayList<Message> responseMessages = new ArrayList<>();
+			ArrayList<User> onlyJoinedUsers = (ArrayList<User>) raum
+					.getUserList()
+					.stream()
+					.filter(anyUser -> !raum.isJoiningUser(anyUser)) //if (raum.getTimeStampsCount() >= Math.min(maxUpdateJoinClients, raum.getUsersInRoomCount() - raum.getJoiningUserList().size())) {
+					.collect(Collectors.toList());
+			
+			ArrayList<User> randomJoinedUsers = new ArrayList<>();
+			for (int i = 0; i < Math.min(maxUpdateJoinClients, raum.getUsersInRoomCount() - raum.getJoiningUserList().size()); i++) {
+				int index = (int)(Math.random() * onlyJoinedUsers.size());
+				User randomUser = onlyJoinedUsers.remove(index);
+				randomJoinedUsers.add(randomUser);
+				
+			}
+			 
+			for (User user : randomJoinedUsers) {	
+				Message responseMessage = new Message();
+				responseMessage.setType("request-sync-timestamp");
+				responseMessage.setUser(user);
+				responseMessage.setRaumId(raum.getRaumId());
+				responseMessage.setPlaylist(raum.getPlaylist());
+				responseMessages.add(responseMessage);
+			}
+			return responseMessages;
+		}
+				
+		return null;
+	}
 
 }
