@@ -20,7 +20,7 @@ import java.util.List;
  *    - switch für privaten modus ob alle gleichberechtig oder nicht
  *    - öffentliche raum kicken und auf blocklist setzen und cookie setzen bei usern mit userid 
  *    - playlist
- *    - wenn join dann timestamps anfordern und clients synchronisieen bzw. newn client der joint den timestamp geben
+ *    - [review] wenn join dann timestamps anfordern und clients synchronisieen bzw. newn client der joint den timestamp geben
  *    - copy link to clipboard
  *    - get playlist from api and video title(s)
  *    -fullscreen

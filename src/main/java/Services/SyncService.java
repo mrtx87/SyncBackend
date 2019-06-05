@@ -21,7 +21,7 @@ public class SyncService {
 	public static Boolean publicRaum = false;
 	public static Boolean privateRaum = true;
 
-	public static Video defaultVideo = new Video("OmEn2Iclb8U", 0L);
+	public  Video defaultVideo = new Video("OmEn2Iclb8U", 0L);
 
 	HashMap<Long, Raum> rooms = new HashMap<>();
 	public List<Message> generateToPublicRoomMessages;
@@ -134,7 +134,7 @@ public class SyncService {
 			Long userID = message.getUserId();
 			Raum raum = new Raum();
 			// DEBUG ESTMAL
-			raum.setVideo(defaultVideo);
+			raum.setVideo(defaultVideo.clone());
 			// DEBUG
 			raum.setRaumStatus(message.getRaumStatus());
 			raum.setPlayerState(2);
@@ -146,7 +146,6 @@ public class SyncService {
 			user.setUserId(message.getUserId());
 			user.setAdmin(true);
 			raum.addUser(user);
-			raum.setVideo(raum.getVideo());
 
 			WebSocketConfiguration.registryInstance.enableSimpleBroker("/" + userID);
 
@@ -670,7 +669,8 @@ public class SyncService {
 				for (int i = 0; i < Math.min(maxUpdateJoinClients, raum.getUsersInRoomCount() - 1); i++) {
 					avgTimestamp += raum.getTimeStampList().get(i);
 				}
-				avgTimestamp = avgTimestamp / Math.min(maxUpdateJoinClients, raum.getUsersInRoomCount() - 1);
+				avgTimestamp = avgTimestamp / Math.max(Math.min(maxUpdateJoinClients, raum.getUsersInRoomCount() - 1), 1);
+				avgTimestamp = avgTimestamp + 1;
 				raum.updateTimestamp(raum.getVideo().getVideoId() ,avgTimestamp);
 				
 				ArrayList<Message> responseMessages = new ArrayList<>();

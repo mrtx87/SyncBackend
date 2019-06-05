@@ -25,5 +25,9 @@ public class Video {
 		this.timestamp = timestamp;
 	}
 	
+	public Video clone() {
+		return new Video(this.videoId, this.timestamp);
+	}
+	
 
 }
