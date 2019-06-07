@@ -11,20 +11,15 @@ import java.util.List;
 
 /*
  *   @TODO
- *    FEAT:
- *    - über synchronisierung gedanken machen.
- *    - youtube dui abbilden mit unsereem overlay (pause, volume, cc, geschwindigkeit, vollbild, kinomodus)
- *    . video historie in chatverlauf anzeigen und click und startbar machen
- *    
- *    - resetRaumId für admins im privatenmodus
+ *    FEAT: *    
+ *    - resetRaumId für admins nur im privatenmodus
  *    - switch für privaten modus ob alle gleichberechtig oder nicht
+ *    
  *    - öffentliche raum kicken und auf blocklist setzen und cookie setzen bei usern mit userid 
- *    - playlist
- *    - [review] wenn join dann timestamps anfordern und clients synchronisieen bzw. newn client der joint den timestamp geben
+ *    
+ *    
  *    - copy link to clipboard
  *    - get playlist from api and video title(s)
- *    -fullscreen
- *    -kinomodus
  *    -controllen für video
  *    BUGS:
  * 	  -

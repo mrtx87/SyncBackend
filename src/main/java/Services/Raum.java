@@ -1,9 +1,7 @@
 package Services;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import messages.ChatMessage;
 import messages.Video;
@@ -49,7 +47,7 @@ public class Raum {
 	}
 
 	public Video updateTimestamp(Video _video) {
-		if (isVideo(video)) {
+		if (isVideo(_video)) {
 			video.setTimestamp(_video.getTimestamp());
 			return video;
 		}

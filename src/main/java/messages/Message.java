@@ -19,9 +19,6 @@ public class Message {
 	ArrayList<RaumDTO> publicRaeume;
 	User assignedUser;
 	ArrayList<Video> playlist;
-	
-	
-	
    
 	public Video getVideo() {
 		return video;

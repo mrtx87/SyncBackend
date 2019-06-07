@@ -215,7 +215,6 @@ public class SyncService {
 
 			WebSocketConfiguration.registryInstance.enableSimpleBroker("/" + message.getUserId());
 
-			int counter = 0;
 			for (Long id : raum.getUserIds()) {
 				if (user.userId != id) {
 
@@ -231,11 +230,9 @@ public class SyncService {
 				} else {
 					messages.add(joinMessage);
 				}
-				counter++;
 			}
 
 			return messages;
-
 		}
 
 		return null;
@@ -377,9 +374,10 @@ public class SyncService {
 
 	public List<Message> generateSyncPlayToggleMessages(Message message) {
 
-		if (rooms.containsKey(message.getRaumId())) {
+		if (rooms.containsKey(message.getRaumId()) && message.getVideo() != null) {
 			Raum raum = rooms.get(message.getRaumId());
 			raum.setPlayerState(message.getPlayerState());
+			raum.updateTimestamp(message.getVideo());
 			List<Message> messages = new ArrayList<>();
 			for (Long userId : raum.getUserIds()) {
 				Message responseMessage = new Message();
@@ -387,6 +385,7 @@ public class SyncService {
 				responseMessage.setUserId(userId);
 				responseMessage.setRaumId(raum.getRaumId());
 				responseMessage.setPlayerState(raum.getPlayerState());
+				responseMessage.setVideo(raum.getVideo());
 				messages.add(responseMessage);
 			}
 			return messages;
