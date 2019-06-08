@@ -4,10 +4,20 @@ public class Video {
 	
 	String videoId;
 	Long timestamp;
+	String title;
 	
-	public Video(String videoId, Long timestamp) {
+	public String getTitle() {
+		return title;
+	}
+
+	public void setTitle(String title) {
+		this.title = title;
+	}
+
+	public Video(String videoId, Long timestamp, String title) {
 		this.videoId = videoId;
 		this.timestamp = timestamp;
+		this.title = title;
 	}
 	
 	public Video() {}
@@ -26,7 +36,7 @@ public class Video {
 	}
 	
 	public Video clone() {
-		return new Video(this.videoId, this.timestamp);
+		return new Video(this.videoId, this.timestamp, this.title);
 	}
 	
 

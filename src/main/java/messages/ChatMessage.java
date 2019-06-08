@@ -8,9 +8,27 @@ public class ChatMessage {
 
 	User user;
 	Long raumId;
+	String type;
 
 	String timestamp;
 	String messageText;
+	Video video;
+
+	public String getType() {
+		return type;
+	}
+
+	public void setType(String type) {
+		this.type = type;
+	}
+
+	public Video getVideo() {
+		return video;
+	}
+
+	public void setVideo(Video video) {
+		this.video = video;
+	}
 
 	public boolean isPrivate() {
 		return isPrivate;

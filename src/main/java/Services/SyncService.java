@@ -21,7 +21,7 @@ public class SyncService {
 	public static Boolean publicRaum = false;
 	public static Boolean privateRaum = true;
 
-	public  Video defaultVideo = new Video("OmEn2Iclb8U", 0L);
+	public  Video defaultVideo = new Video("w3qPMe_cCJk", 0L,"The Smiths - Please, Please, Please, Let Me Get What I Want");
 
 	HashMap<Long, Raum> rooms = new HashMap<>();
 	public List<Message> generateToPublicRoomMessages;
@@ -267,7 +267,8 @@ public class SyncService {
 			List<Message> messages = new ArrayList<>();
 
 			ChatMessage chatMessage = new ChatMessage();
-			chatMessage.setMessageText(video.getVideoId());
+			chatMessage.setType("insert-video");
+			chatMessage.setVideo(raum.getVideo());
 			chatMessage.setRaumId(raum.getRaumId());
 			chatMessage.setUser(message.getUser());
 			chatMessage.setTimestamp(getCurrenTime());
