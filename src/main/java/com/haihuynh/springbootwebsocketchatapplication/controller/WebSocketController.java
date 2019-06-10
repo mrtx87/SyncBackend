@@ -97,8 +97,8 @@ public class WebSocketController {
 		if (responseMessages != null) {
 			for (Message responseMessage : responseMessages) {
 				this.messageService.convertAndSend("/chat/" + responseMessage.getUserId(), responseMessage);
-				System.err.println("user: " + responseMessage.getUserId() + " -> [joined room - " + responseMessage.getRaumId() + "]");
 			}
+			System.err.println("user: " + message.getUserId() + " -> [joined room - " + message.getRaumId() + "]");
 		}else {
 			this.messageService.convertAndSend("/chat/" + message.getUserId(), new Message("error"));
 		}
@@ -250,7 +250,7 @@ public class WebSocketController {
 		if (responseMessages != null) {
 			System.out.println("[user: " + message.getUserId() + " added video " + message.getVideo().getVideoId() + "to playlist]");
 			for (Message responseMessage : responseMessages) {
-				this.messageService.convertAndSend("/chat/" + responseMessage.getUserId(), responseMessage);
+				this.messageService.convertAndSend("/chat/" + responseMessage.getUser(), responseMessage);
 			}						
 		} else {
 			this.messageService.convertAndSend("/chat" + message.getUserId(), new Message("error"));
@@ -261,39 +261,28 @@ public class WebSocketController {
 	public void onReceiveCurrentTimestamp(@Nullable final Message message) {
 		
 		List<Message> responseMessages = this.syncService.processJoinTimeStamp(message);
-		
+		System.out.println("[" + responseMessages.size() + " Users getting synced]");
 		if (responseMessages != null) {
-			System.out.println("[joining users synced ]");
 			for (Message responseMessage : responseMessages) {
+				System.out.println("[joining user " + responseMessage.getUser() + " synced ]");
+
 				this.messageService.convertAndSend("/chat/" + responseMessage.getUserId(), responseMessage);
 			}
 			this.syncService.clearJoiningUsers(message.getRaumId());
 			this.syncService.clearTimestamps(message.getRaumId());
 			
-		} else {
-			
-
-			//this.messageService.convertAndSend("/chat" + message.getUserId(), new Message("error"));
-		}
+		} 
 	}
 	
 	@MessageMapping("/send/request-sync-timestamp")
 	public void onReceiveRequestSyncTimestamp(@Nullable final Message message) {
 		
-		List<Message> responseMessages = this.syncService.generateRequestSyncTimestampMessages(message);
-		
-		if (responseMessages != null) {
-			if(responseMessages.isEmpty()) {
-				this.syncService.clearJoiningUsers(message.getRaumId());
-				this.syncService.clearTimestamps(message.getRaumId());
-			}else {
-				System.out.println("[requested sync timestamps]");
-				for (Message responseMessage : responseMessages) {
-					this.messageService.convertAndSend("/chat/" + responseMessage.getUserId(), responseMessage);
-				}
-			}
+		Message responseMessage = this.syncService.generateRequestSyncTimestampMessages(message);
+		if (responseMessage != null) {
+			System.out.println("[requested sync timestamp from User " + responseMessage.getUser() + "]");
+			this.messageService.convertAndSend("/chat/" + responseMessage.getUserId(), responseMessage);
 		} else {
-			this.messageService.convertAndSend("/chat/" + message.getUserId(), new Message("error"));
+			this.messageService.convertAndSend("/chat/" + message.getUser(), new Message("error"));
 		}
 	}
 	

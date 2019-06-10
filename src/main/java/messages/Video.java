@@ -3,7 +3,7 @@ package messages;
 public class Video {
 	
 	String videoId;
-	Long timestamp;
+	Float timestamp;
 	String title;
 	String description;
 	
@@ -23,7 +23,7 @@ public class Video {
 		this.title = title;
 	}
 
-	public Video(String videoId, Long timestamp, String title) {
+	public Video(String videoId, Float timestamp, String title) {
 		this.videoId = videoId;
 		this.timestamp = timestamp;
 		this.title = title;
@@ -37,10 +37,10 @@ public class Video {
 	public void setVideoId(String videoId) {
 		this.videoId = videoId;
 	}
-	public Long getTimestamp() {
+	public Float getTimestamp() {
 		return timestamp;
 	}
-	public void setTimestamp(Long timestamp) {
+	public void setTimestamp(Float timestamp) {
 		this.timestamp = timestamp;
 	}
 	

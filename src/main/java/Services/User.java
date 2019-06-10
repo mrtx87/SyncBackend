@@ -25,5 +25,10 @@ public class User {
 		this.admin = admin;
 	}
 	
+	@Override
+	public String toString() {
+		// TODO Auto-generated method stub
+		return getUserId() + "(" + getUserName() +")";
+	}
 	
 }

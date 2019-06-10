@@ -21,7 +21,7 @@ public class SyncService {
 	public static Boolean publicRaum = false;
 	public static Boolean privateRaum = true;
 
-	public  Video defaultVideo = new Video("w3qPMe_cCJk", 0L,"The Smiths - Please, Please, Please, Let Me Get What I Want");
+	public  Video defaultVideo = new Video("WBG7TFLj4YQ", 0.0f,"Unter Wasser: Megacitys in Gefahr | Doku | ARTE\r\n");
 
 	
 	HashMap<Long, Raum> rooms = new HashMap<>();
@@ -265,6 +265,7 @@ public class SyncService {
 			Raum raum = rooms.get(message.getRaumId());
 			Video video = message.getVideo();
 			raum.setVideo(video);
+			raum.setPlayerState(1);
 			List<Message> messages = new ArrayList<>();
 
 			ChatMessage chatMessage = new ChatMessage();
@@ -282,6 +283,7 @@ public class SyncService {
 				responseMessage.setUserId(id);
 				responseMessage.setVideo(video);
 				responseMessage.setChatMessage(chatMessage);
+				responseMessage.setPlayerState(raum.getPlayerState());
 				messages.add(responseMessage);
 			}
 
@@ -662,18 +664,11 @@ public class SyncService {
 
 	public ArrayList<Message> processJoinTimeStamp(Message message) {
 
-		if (rooms.containsKey(message.getRaumId())) {
+		if (rooms.containsKey(message.getRaumId()) && message.getVideo() != null) {
 			Raum raum = getRaum(message.getRaumId());
-			raum.addTimeStamp(message.getUserId(), message.getVideo().getTimestamp());
-			System.out.println("[added timestamp: " + message.getVideo().getTimestamp() + "]");
-			if (raum.getTimeStampsCount() >= Math.min(maxUpdateJoinClients, raum.getUsersInRoomCount() - 1)) {
-				Long avgTimestamp = 0L;
-				for (int i = 0; i < Math.min(maxUpdateJoinClients, raum.getUsersInRoomCount() - 1); i++) {
-					avgTimestamp += raum.getTimeStampList().get(i);
-				}
-				avgTimestamp = avgTimestamp / Math.max(Math.min(maxUpdateJoinClients, raum.getUsersInRoomCount() - 1), 1);
-				avgTimestamp = avgTimestamp + 1;
-				raum.updateTimestamp(raum.getVideo().getVideoId() ,avgTimestamp);
+				Float ts = message.getVideo().getTimestamp();
+				System.out.println("[UPDATE TIMESTAMP " + raum.getVideo().getTimestamp() +" -> " + ts +"]");
+				raum.updateTimestamp(raum.getVideo().getVideoId() , ts);
 				
 				ArrayList<Message> responseMessages = new ArrayList<>();
 				for (User joiningUser : raum.getJoiningUserList()) {
@@ -682,14 +677,41 @@ public class SyncService {
 					responseMessage.setUser(joiningUser);
 					responseMessage.setRaumId(raum.getRaumId());
 					responseMessage.setVideo(raum.getVideo());
-					
+					responseMessage.setPlayerState(raum.getPlayerState());
 					responseMessages.add(responseMessage);
 				}
 				return responseMessages;
-
 			}
-		}
+		return null;
+	}
+	
 
+	public Message generateRequestSyncTimestampMessages(Message message) {
+		
+		if (rooms.containsKey(message.getRaumId())) {
+			Raum raum = getRaum(message.getRaumId());
+
+			ArrayList<User> onlyJoinedUsers = (ArrayList<User>) raum
+					.getUserList()
+					.stream()
+					.filter(anyUser -> !raum.isJoiningUser(anyUser)) //if (raum.getTimeStampsCount() >= Math.min(maxUpdateJoinClients, raum.getUsersInRoomCount() - raum.getJoiningUserList().size())) {
+					.collect(Collectors.toList());
+			System.out.println("[JOINED USERS: " + onlyJoinedUsers + " - SIZE: " + onlyJoinedUsers.size() +"]");
+			if(onlyJoinedUsers.size() > 0) {
+				Message responseMessage = new Message();
+				responseMessage.setType("request-sync-timestamp");
+				responseMessage.setUser(onlyJoinedUsers.get(0));
+				responseMessage.setRaumId(raum.getRaumId());
+				responseMessage.setPlaylist(raum.getPlaylist());
+
+				return responseMessage;
+			}else {
+				System.out.println("[no joined users found - no sync]");
+				return null;
+			}
+			
+		}
+				
 		return null;
 	}
 	
@@ -706,39 +728,4 @@ public class SyncService {
 			raum.cleartimestamps();
 		}
 	}
-
-	public List<Message> generateRequestSyncTimestampMessages(Message message) {
-		
-		if (rooms.containsKey(message.getRaumId())) {
-			Raum raum = getRaum(message.getRaumId());
-
-			ArrayList<Message> responseMessages = new ArrayList<>();
-			ArrayList<User> onlyJoinedUsers = (ArrayList<User>) raum
-					.getUserList()
-					.stream()
-					.filter(anyUser -> !raum.isJoiningUser(anyUser)) //if (raum.getTimeStampsCount() >= Math.min(maxUpdateJoinClients, raum.getUsersInRoomCount() - raum.getJoiningUserList().size())) {
-					.collect(Collectors.toList());
-			
-			ArrayList<User> randomJoinedUsers = new ArrayList<>();
-			for (int i = 0; i < Math.min(maxUpdateJoinClients, raum.getUsersInRoomCount() - raum.getJoiningUserList().size()); i++) {
-				int index = (int)(Math.random() * onlyJoinedUsers.size());
-				User randomUser = onlyJoinedUsers.remove(index);
-				randomJoinedUsers.add(randomUser);
-				
-			}
-			 
-			for (User user : randomJoinedUsers) {	
-				Message responseMessage = new Message();
-				responseMessage.setType("request-sync-timestamp");
-				responseMessage.setUser(user);
-				responseMessage.setRaumId(raum.getRaumId());
-				responseMessage.setPlaylist(raum.getPlaylist());
-				responseMessages.add(responseMessage);
-			}
-			return responseMessages;
-		}
-				
-		return null;
-	}
-
 }

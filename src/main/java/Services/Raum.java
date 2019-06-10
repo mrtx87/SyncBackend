@@ -15,7 +15,7 @@ public class Raum {
 	ArrayList<ChatMessage> chatMessages = new ArrayList<>();
 	HashMap<Long, User> users = new HashMap<>();
 	HashMap<String, Video> playlist = new HashMap<>();
-	HashMap<Long, Long> timeStamps = new HashMap<>();
+	HashMap<Long, Float> timeStamps = new HashMap<>();
 	HashMap<Long, User> joiningUsers = new HashMap<>();
 
 	public HashMap<Long, User> getJoiningUsers() {
@@ -26,11 +26,11 @@ public class Raum {
 		this.joiningUsers = joiningUsers;
 	}
 
-	public HashMap<Long, Long> getTimeStamps() {
+	public HashMap<Long, Float> getTimeStamps() {
 		return timeStamps;
 	}
 
-	public void setTimeStamps(HashMap<Long, Long> timeStamps) {
+	public void setTimeStamps(HashMap<Long, Float> timeStamps) {
 		this.timeStamps = timeStamps;
 	}
 
@@ -54,7 +54,7 @@ public class Raum {
 		return null;
 	}
 
-	public Video updateTimestamp(String videoId, Long timestamp) {
+	public Video updateTimestamp(String videoId, Float timestamp) {
 		if (isVideo(videoId)) {
 			video.setTimestamp(timestamp);
 			return video;
@@ -192,13 +192,13 @@ public class Raum {
 		this.playlist = playlist;
 	}
 
-	public void addTimeStamp(Long userId, Long timeStamp) {
+	public void addTimeStamp(Long userId, Float timeStamp) {
 		timeStamps.put(userId, timeStamp);
 	}
 
-	public ArrayList<Long> getTimeStampList() {
+	public ArrayList<Float> getTimeStampList() {
 
-		return (ArrayList<Long>) timeStamps.values().stream().collect(Collectors.toList());
+		return (ArrayList<Float>) timeStamps.values().stream().collect(Collectors.toList());
 	}
 
 	public int getTimeStampsCount() {
