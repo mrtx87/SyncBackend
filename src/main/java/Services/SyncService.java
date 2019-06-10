@@ -23,6 +23,7 @@ public class SyncService {
 
 	public  Video defaultVideo = new Video("w3qPMe_cCJk", 0L,"The Smiths - Please, Please, Please, Let Me Get What I Want");
 
+	
 	HashMap<Long, Raum> rooms = new HashMap<>();
 	public List<Message> generateToPublicRoomMessages;
 
@@ -664,6 +665,7 @@ public class SyncService {
 		if (rooms.containsKey(message.getRaumId())) {
 			Raum raum = getRaum(message.getRaumId());
 			raum.addTimeStamp(message.getUserId(), message.getVideo().getTimestamp());
+			System.out.println("[added timestamp: " + message.getVideo().getTimestamp() + "]");
 			if (raum.getTimeStampsCount() >= Math.min(maxUpdateJoinClients, raum.getUsersInRoomCount() - 1)) {
 				Long avgTimestamp = 0L;
 				for (int i = 0; i < Math.min(maxUpdateJoinClients, raum.getUsersInRoomCount() - 1); i++) {

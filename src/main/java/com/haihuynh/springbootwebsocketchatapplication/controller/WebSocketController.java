@@ -271,6 +271,8 @@ public class WebSocketController {
 			this.syncService.clearTimestamps(message.getRaumId());
 			
 		} else {
+			
+
 			//this.messageService.convertAndSend("/chat" + message.getUserId(), new Message("error"));
 		}
 	}
@@ -281,9 +283,14 @@ public class WebSocketController {
 		List<Message> responseMessages = this.syncService.generateRequestSyncTimestampMessages(message);
 		
 		if (responseMessages != null) {
-			System.out.println("[requested sync timestamps]");
-			for (Message responseMessage : responseMessages) {
-				this.messageService.convertAndSend("/chat/" + responseMessage.getUserId(), responseMessage);
+			if(responseMessages.isEmpty()) {
+				this.syncService.clearJoiningUsers(message.getRaumId());
+				this.syncService.clearTimestamps(message.getRaumId());
+			}else {
+				System.out.println("[requested sync timestamps]");
+				for (Message responseMessage : responseMessages) {
+					this.messageService.convertAndSend("/chat/" + responseMessage.getUserId(), responseMessage);
+				}
 			}
 		} else {
 			this.messageService.convertAndSend("/chat/" + message.getUserId(), new Message("error"));
