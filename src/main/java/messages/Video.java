@@ -2,6 +2,8 @@ package messages;
 
 public class Video {
 	
+	int playlistNr;
+
 	String videoId;
 	Float timestamp;
 	String title;
@@ -48,5 +50,12 @@ public class Video {
 		return new Video(this.videoId, this.timestamp, this.title);
 	}
 	
+	public int getPlaylistNr() {
+		return playlistNr;
+	}
+
+	public void setPlaylistNr(int playlistNr) {
+		this.playlistNr = playlistNr;
+	}
 
 }

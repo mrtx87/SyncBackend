@@ -15,9 +15,11 @@ public class Raum {
 	Video video;
 	Boolean raumStatus;
 	int playerState;
+	Video currentPlaylistVideo;
+
 	ArrayList<ChatMessage> chatMessages = new ArrayList<>();
 	HashMap<Long, User> users = new HashMap<>();
-	HashMap<String, Video> playlist = new HashMap<>();
+	HashMap<Integer, Video> playlist = new HashMap<>();
 	HashMap<Long, Float> timeStamps = new HashMap<>();
 	HashMap<Long, User> joiningUsers = new HashMap<>();
 
@@ -43,6 +45,14 @@ public class Raum {
 
 	public void setCreatedAt(String createdAt) {
 		this.createdAt = createdAt;
+	}
+	
+	public Video getCurrentPlaylistVideo() {
+		return currentPlaylistVideo;
+	}
+
+	public void setCurrentPlaylistVideo(Video currentPlaylistVideo) {
+		this.currentPlaylistVideo = currentPlaylistVideo;
 	}
 	
 	public String getTitle() {
@@ -208,14 +218,16 @@ public class Raum {
 	}
 
 	public void addVideoToPlaylist(Video video) {
-		playlist.put(video.getVideoId(), video);
+		int key = playlist.size()+1;
+		video.setPlaylistNr(key);
+		playlist.put(key, video);
 	}
 
 	public void removeVideoFromPlaylist(Video video) {
-		playlist.remove(video.getVideoId());
+		this.playlist.remove(video.getPlaylistNr());
 	}
 
-	public void setPlaylist(HashMap<String, Video> playlist) {
+	public void setPlaylist(HashMap<Integer, Video> playlist) {
 		this.playlist = playlist;
 	}
 

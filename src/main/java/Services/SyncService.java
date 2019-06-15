@@ -725,7 +725,11 @@ public class SyncService {
 	public void clearTimestamps(Long raumId) {
 		if(rooms.containsKey(raumId)) {
 			Raum raum = getRaum(raumId);
-			raum.cleartimestamps();
 		}
+	}
+
+	public List<Message> generateStartVideoFromPlaylistMessages(Message message) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

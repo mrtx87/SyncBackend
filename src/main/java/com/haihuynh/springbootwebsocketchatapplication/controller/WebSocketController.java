@@ -57,6 +57,8 @@ public class WebSocketController {
 		}
 	}
 
+	
+	
 
 	@MessageMapping("/send/chat-message")
 	public void onReceiveMessage(@Nullable final Message message) {
@@ -262,7 +264,20 @@ public class WebSocketController {
 		if (responseMessages != null) {
 			System.out.println("[user: " + message.getUserId() + " added video " + message.getVideo().getVideoId() + "to playlist]");
 			for (Message responseMessage : responseMessages) {
-				this.messageService.convertAndSend("/chat/" + responseMessage.getUser(), responseMessage);
+				this.messageService.convertAndSend("/chat/" + responseMessage.getUserId(), responseMessage);
+			}						
+		} else {
+			this.messageService.convertAndSend("/chat" + message.getUserId(), new Message("error"));
+		}
+	}
+	
+	@MessageMapping("/send/start-video-from-playlist")
+	public void onReceiveStartVideoFromPlaylist(@Nullable final Message message) {
+		List<Message> responseMessages = this.syncService.generateStartVideoFromPlaylistMessages(message);
+		if (responseMessages != null) {
+			System.out.println("[user: " + message.getUserId() + " added video " + message.getVideo().getVideoId() + "to playlist]");
+			for (Message responseMessage : responseMessages) {
+				this.messageService.convertAndSend("/chat/" + responseMessage.getUserId(), responseMessage);
 			}						
 		} else {
 			this.messageService.convertAndSend("/chat" + message.getUserId(), new Message("error"));
@@ -297,6 +312,8 @@ public class WebSocketController {
 			this.messageService.convertAndSend("/chat/" + message.getUser(), new Message("error"));
 		}
 	}
+
+	
 	
 	/*
 	 * @MessageMapping("/chat")
