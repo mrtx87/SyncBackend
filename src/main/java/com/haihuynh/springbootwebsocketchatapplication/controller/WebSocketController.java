@@ -18,6 +18,11 @@ import java.util.List;
  *    - controllen für video
  *    - chat schroll down
  *    - playlist fertig bauen (refesh konzept?)
+ *    - playlist funktionen implementieren
+ *    - löscehn fr jeden playlisteintrag
+ *    - playlist funkionalität im backend
+ *    - histoey
+ *    - make over styling etc
  */
 
 @Controller
