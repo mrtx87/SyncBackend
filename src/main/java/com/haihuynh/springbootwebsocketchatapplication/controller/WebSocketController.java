@@ -39,6 +39,23 @@ public class WebSocketController {
 			this.messageService.convertAndSend("/chat/"+ responseMessage.getUserId(), responseMessage);
 			System.out.println("[broadcast public Räume: " + message.getUserId() + "]");		
 	}
+	
+	
+	@MessageMapping("/send/set-description-title")
+	public void onReceiveSetDescriptionAndTitle(@Nullable final Message message) {
+		List<Message> responseMessages = null; // TODO
+		if (responseMessages.size() > 0) {
+			System.out.println("[user:" + message.getUserId() + " sharing video: " + message.getVideo().getVideoId() + "]");
+			for (Message responseMessage : responseMessages) {
+				if (responseMessage != null) {
+					this.messageService.convertAndSend("/chat/" + responseMessage.getUserId() , responseMessage);
+				}
+			}
+		} else {
+			this.messageService.convertAndSend("/chat/" + message.getUserId(), new Message("error"));
+
+		}
+	}
 
 
 	@MessageMapping("/send/chat-message")
