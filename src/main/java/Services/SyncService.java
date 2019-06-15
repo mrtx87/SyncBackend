@@ -134,9 +134,7 @@ public class SyncService {
 		try {
 			Long userID = message.getUserId();
 			Raum raum = new Raum();
-			// DEBUG ESTMAL
 			raum.setVideo(defaultVideo.clone());
-			// DEBUG
 			raum.setRaumStatus(message.getRaumStatus());
 			raum.setPlayerState(2);
 			saveRoom(raum);
@@ -703,10 +701,11 @@ public class SyncService {
 				responseMessage.setUser(onlyJoinedUsers.get(0));
 				responseMessage.setRaumId(raum.getRaumId());
 				responseMessage.setPlaylist(raum.getPlaylist());
-
+							
 				return responseMessage;
 			}else {
-				System.out.println("[no joined users found - no sync]");
+				raum.clearJoiningUsers();
+				System.out.println("[no joined users found - no sync - clearing joining users]");
 				return null;
 			}
 			

@@ -12,17 +12,12 @@ import java.util.List;
 /*
  *   @TODO
  *    FEAT: *    
- *    - resetRaumId für admins nur im privatenmodus
- *    - switch für privaten modus ob alle gleichberechtig oder nicht
- *    
+ *    - switch für privaten modus ob alle gleichberechtig oder nicht   
  *    - öffentliche raum kicken und auf blocklist setzen und cookie setzen bei usern mit userid 
- *    
- *    
  *    - copy link to clipboard
- *    - get playlist from api and video title(s)
- *    -controllen für video
- *    BUGS:
- * 	  -
+ *    - controllen für video
+ *    - chat schroll down
+ *    - playlist fertig bauen (refesh konzept?)
  */
 
 @Controller
