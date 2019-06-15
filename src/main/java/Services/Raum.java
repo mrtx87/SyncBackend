@@ -9,6 +9,9 @@ import messages.Video;
 public class Raum {
 
 	long raumId;
+	String title;
+	String description;
+	String createdAt;
 	Video video;
 	Boolean raumStatus;
 	int playerState;
@@ -21,7 +24,7 @@ public class Raum {
 	public HashMap<Long, User> getJoiningUsers() {
 		return joiningUsers;
 	}
-
+	
 	public void setJoiningUsers(HashMap<Long, User> joiningUsers) {
 		this.joiningUsers = joiningUsers;
 	}
@@ -34,6 +37,30 @@ public class Raum {
 		this.timeStamps = timeStamps;
 	}
 
+	public String getCreatedAt() {
+		return createdAt;
+	}
+
+	public void setCreatedAt(String createdAt) {
+		this.createdAt = createdAt;
+	}
+	
+	public String getTitle() {
+		return title;
+	}
+
+	public void setTitle(String title) {
+		this.title = title;
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
+	
 	public ArrayList<Video> getPlaylist() {
 		return (ArrayList<Video>) playlist.values().stream().collect(Collectors.toList());
 	}

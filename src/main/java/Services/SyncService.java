@@ -121,7 +121,7 @@ public class SyncService {
 		return time;
 	}
 
-	public String getCurrenTime() {
+	public String getCurrentTime() {
 		return LocalTime.now().toString().substring(0, 8);
 	}
 
@@ -134,6 +134,7 @@ public class SyncService {
 		try {
 			Long userID = message.getUserId();
 			Raum raum = new Raum();
+			raum.setCreatedAt(getCurrentTime());
 			raum.setVideo(defaultVideo.clone());
 			raum.setRaumStatus(message.getRaumStatus());
 			raum.setPlayerState(2);
@@ -158,7 +159,7 @@ public class SyncService {
 			createRaumMessage.setPlayerState(raum.getPlayerState());
 			ChatMessage chatMessage = new ChatMessage();
 			chatMessage.setMessageText("has created the Room");
-			chatMessage.setTimestamp(getCurrenTime());
+			chatMessage.setTimestamp(getCurrentTime());
 			chatMessage.setRaumId(raum.getRaumId());
 			chatMessage.setUser(user);
 
@@ -204,7 +205,7 @@ public class SyncService {
 
 			ChatMessage chatMessage = new ChatMessage();
 			chatMessage.setMessageText("has joined the Room");
-			chatMessage.setTimestamp(getCurrenTime());
+			chatMessage.setTimestamp(getCurrentTime());
 			chatMessage.setUser(user);
 			chatMessage.setRaumId(raum.getRaumId());
 
@@ -271,7 +272,7 @@ public class SyncService {
 			chatMessage.setVideo(raum.getVideo());
 			chatMessage.setRaumId(raum.getRaumId());
 			chatMessage.setUser(message.getUser());
-			chatMessage.setTimestamp(getCurrenTime());
+			chatMessage.setTimestamp(getCurrentTime());
 			saveChatMessage(chatMessage);
 			for (Long id : raum.getUserIds()) {
 
@@ -304,7 +305,7 @@ public class SyncService {
 			chatMessage.setMessageText("has left the Room");
 			chatMessage.setUser(message.getUser());
 			chatMessage.setRaumId(raum.getRaumId());
-			chatMessage.setTimestamp(getCurrenTime());
+			chatMessage.setTimestamp(getCurrentTime());
 			saveChatMessage(chatMessage);
 
 			for (User user : raum.getUserList()) {
@@ -407,7 +408,7 @@ public class SyncService {
 			ChatMessage chatMessage = new ChatMessage();
 			chatMessage.setUser(message.getUser());
 			chatMessage.setRaumId(message.getRaumId());
-			chatMessage.setTimestamp(getCurrenTime());
+			chatMessage.setTimestamp(getCurrentTime());
 			if (raum.getRaumStatus()) {
 				chatMessage.setMessageText("Room is now public");
 			} else {
@@ -438,7 +439,7 @@ public class SyncService {
 
 			ChatMessage chatMessage = new ChatMessage();
 			chatMessage.setUser(raum.getUser(message.getUserId()));
-			chatMessage.setTimestamp(getCurrenTime());
+			chatMessage.setTimestamp(getCurrentTime());
 			chatMessage.setMessageText(
 					"assigned " + raum.getUser(message.getAssignedUser().getUserId()).getUserName() + " as Admin");
 
@@ -492,7 +493,7 @@ public class SyncService {
 
 			ChatMessage chatMessage = new ChatMessage();
 			chatMessage.setUser(raum.getUser(message.getUserId()));
-			chatMessage.setTimestamp(getCurrenTime());
+			chatMessage.setTimestamp(getCurrentTime());
 			chatMessage.setMessageText("has changed the Room to Public");
 
 			ArrayList<Message> responseMessages = new ArrayList<>();
@@ -522,7 +523,7 @@ public class SyncService {
 
 			ChatMessage chatMessage = new ChatMessage();
 			chatMessage.setUser(raum.getUser(message.getUserId()));
-			chatMessage.setTimestamp(getCurrenTime());
+			chatMessage.setTimestamp(getCurrentTime());
 			chatMessage.setMessageText("has changed the Room to Private");
 
 			ArrayList<Message> responseMessages = new ArrayList<>();
@@ -557,7 +558,7 @@ public class SyncService {
 			if (kickedUser != null) {
 				ChatMessage chatMessage = new ChatMessage();
 				chatMessage.setUser(raum.getUser(message.getUserId()));
-				chatMessage.setTimestamp(getCurrenTime());
+				chatMessage.setTimestamp(getCurrentTime());
 				chatMessage.setMessageText("has kicked :" + kickedUser.getUserName());
 
 				Message kickedUserMessage = new Message();
@@ -595,7 +596,7 @@ public class SyncService {
 
 			ChatMessage chatMessage = new ChatMessage();
 			chatMessage.setUser(raum.getUser(message.getUserId()));
-			chatMessage.setTimestamp(getCurrenTime());
+			chatMessage.setTimestamp(getCurrentTime());
 			chatMessage.setMessageText("has refreshed RoomId to :" + raum.getRaumId());
 
 			ArrayList<Message> responseMessages = new ArrayList<>();
@@ -641,7 +642,7 @@ public class SyncService {
 
 			ChatMessage chatMessage = new ChatMessage();
 			chatMessage.setUser(raum.getUser(message.getUserId()));
-			chatMessage.setTimestamp(getCurrenTime());
+			chatMessage.setTimestamp(getCurrentTime());
 			chatMessage.setMessageText(raum.getVideo().getVideoId());
 
 			ArrayList<Message> responseMessages = new ArrayList<>();

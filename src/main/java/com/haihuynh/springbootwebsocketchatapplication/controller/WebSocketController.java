@@ -44,7 +44,7 @@ public class WebSocketController {
 	@MessageMapping("/send/chat-message")
 	public void onReceiveMessage(@Nullable final Message message) {
 			message.setType("chat-message");
-			message.getChatMessage().setTimestamp(this.syncService.getCurrenTime());
+			message.getChatMessage().setTimestamp(this.syncService.getCurrentTime());
 			List<Long> userIds = syncService.saveChatMessage(message);
 			if(userIds != null) {
 				for (Long userId : userIds) {
