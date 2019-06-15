@@ -10,6 +10,7 @@ public class RaumMapper {
 		raumDTO.setCreatedAt(raum.getCreatedAt());
 		raumDTO.setDescription(raum.getDescription());
 		raumDTO.setTitle(raum.getTitle());
+		raumDTO.setRaumStatus(raum.getRaumStatus());
 		return raumDTO;
 	}
 	

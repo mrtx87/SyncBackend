@@ -732,4 +732,9 @@ public class SyncService {
 		// TODO Auto-generated method stub
 		return null;
 	}
+
+	public List<Message> generateUpdateDescriptionAndTitleMessages(Message message) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

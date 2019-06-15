@@ -14,8 +14,15 @@ public class RaumDTO {
 	String title;
 	int size; 
 	Video video;
+	Boolean raumStatus;
 	
 	
+	public Boolean getRaumStatus() {
+		return raumStatus;
+	}
+	public void setRaumStatus(Boolean raumStatus) {
+		this.raumStatus = raumStatus;
+	}
 	public String getCreatedAt() {
 		return createdAt;
 	}

@@ -41,9 +41,9 @@ public class WebSocketController {
 	}
 	
 	
-	@MessageMapping("/send/set-description-title")
-	public void onReceiveSetDescriptionAndTitle(@Nullable final Message message) {
-		List<Message> responseMessages = null; // TODO
+	@MessageMapping("/send/update-title-and-description")
+	public void onReceiveUpdateDescriptionAndTitle(@Nullable final Message message) {
+		List<Message> responseMessages = syncService.generateUpdateDescriptionAndTitleMessages(message);
 		if (responseMessages.size() > 0) {
 			System.out.println("[user:" + message.getUserId() + " sharing video: " + message.getVideo().getVideoId() + "]");
 			for (Message responseMessage : responseMessages) {
