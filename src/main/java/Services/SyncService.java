@@ -135,7 +135,7 @@ public class SyncService {
 			Long userID = message.getUserId();
 			Raum raum = new Raum();
 			raum.setCreatedAt(getCurrentTime());
-			raum.setVideo(defaultVideo.clone());
+			//raum.setVideo(defaultVideo.clone());
 			raum.setRaumStatus(message.getRaumStatus());
 			raum.setPlayerState(2);
 			saveRoom(raum);
@@ -154,7 +154,7 @@ public class SyncService {
 			createRaumMessage.setUser(user);
 			createRaumMessage.setRaumId(raum.raumId);
 			createRaumMessage.setUsers(raum.getUserList());
-			createRaumMessage.setVideo(raum.getVideo());
+			//createRaumMessage.setVideo(raum.getVideo());
 			createRaumMessage.setRaumStatus(raum.getRaumStatus());
 			createRaumMessage.setPlayerState(raum.getPlayerState());
 			ChatMessage chatMessage = new ChatMessage();
@@ -641,9 +641,10 @@ public class SyncService {
 			raum.addVideoToPlaylist(message.getVideo());
 
 			ChatMessage chatMessage = new ChatMessage();
+			chatMessage.setType("insert-video");
 			chatMessage.setUser(raum.getUser(message.getUserId()));
 			chatMessage.setTimestamp(getCurrentTime());
-			chatMessage.setMessageText(raum.getVideo().getVideoId());
+			chatMessage.setMessageText(message.getVideo().getVideoId());
 
 			ArrayList<Message> responseMessages = new ArrayList<>();
 			for (User user : raum.getUserList()) {
