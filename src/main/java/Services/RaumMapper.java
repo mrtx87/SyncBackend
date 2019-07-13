@@ -6,7 +6,7 @@ public class RaumMapper {
 		RaumDTO raumDTO = new RaumDTO();
 		raumDTO.setRaumId(raum.getRaumId());
 		raumDTO.setSize(raum.getSize());
-		raumDTO.setVideo(raum.getVideo());
+		raumDTO.setVideo(raum.getCurrentVideo());
 		raumDTO.setCreatedAt(raum.getCreatedAt());
 		raumDTO.setDescription(raum.getDescription());
 		raumDTO.setTitle(raum.getTitle());

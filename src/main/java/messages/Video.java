@@ -1,14 +1,33 @@
 package messages;
 
+import java.util.Date;
+
 public class Video {
 	
-	int playlistNr;
+	String id;
 
 	String videoId;
 	Float timestamp;
 	String title;
 	String description;
-	
+    Date publishedAt;
+    
+	public String getId() {
+		return id;
+	}
+
+	public void setId(String id) {
+		this.id = id;
+	}
+
+	public Date getPublishedAt() {
+		return publishedAt;
+	}
+
+	public void setPublishedAt(Date publishedAt) {
+		this.publishedAt = publishedAt;
+	}
+
 	public String getDescription() {
 		return description;
 	}
@@ -49,13 +68,9 @@ public class Video {
 	public Video clone() {
 		return new Video(this.videoId, this.timestamp, this.title);
 	}
-	
-	public int getPlaylistNr() {
-		return playlistNr;
-	}
 
-	public void setPlaylistNr(int playlistNr) {
-		this.playlistNr = playlistNr;
+	public boolean equalsTo(Video video) {
+		return video.getId().equals(getId());
 	}
 
 }

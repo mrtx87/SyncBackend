@@ -16,6 +16,7 @@ import interceptor.HttpRequestInterceptor;
 @SuppressWarnings("deprecation")
 @Configuration
 @EnableWebSocketMessageBroker
+
 @EnableWebSocket
 public class WebSocketConfiguration extends AbstractWebSocketMessageBrokerConfigurer {
 

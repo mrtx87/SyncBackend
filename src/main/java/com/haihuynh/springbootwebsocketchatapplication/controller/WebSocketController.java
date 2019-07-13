@@ -36,7 +36,7 @@ public class WebSocketController {
 		this.messageService = template;
 		this.syncService = syncService;
 	}
-	
+
 	
 	@MessageMapping("/send/request-public-raeume")
 	public void onRequestPublicRaeume(@Nullable final Message message) {
@@ -265,9 +265,9 @@ public class WebSocketController {
 	
 	@MessageMapping("/send/add-video-to-playlist")
 	public void onReceiveAddVideoToPlaylist(@Nullable final Message message) {
-		List<Message> responseMessages = this.syncService.addVideoToPlaylistMessages(message);
+		List<Message> responseMessages = this.syncService.addVideoToPlaylistMessages(message, SyncService.AddVideoMode.LAST);
 		if (responseMessages != null) {
-			System.out.println("[user: " + message.getUserId() + " added video " + message.getVideo().getVideoId() + "to playlist]");
+			System.out.println("[user: " + message.getUserId() + " added video " + message.getPlaylistVideo().getVideoId() + "to playlist as Last]");
 			for (Message responseMessage : responseMessages) {
 				this.messageService.convertAndSend("/chat/" + responseMessage.getUserId(), responseMessage);
 			}						
@@ -276,11 +276,11 @@ public class WebSocketController {
 		}
 	}
 	
-	@MessageMapping("/send/start-video-from-playlist")
-	public void onReceiveStartVideoFromPlaylist(@Nullable final Message message) {
-		List<Message> responseMessages = this.syncService.generateStartVideoFromPlaylistMessages(message);
+	@MessageMapping("/send/add-video-to-playlist-asnext")
+	public void onReceiveAddVideoToPlaylistAsNext(@Nullable final Message message) {
+		List<Message> responseMessages = this.syncService.addVideoToPlaylistMessages(message, SyncService.AddVideoMode.NEXT);
 		if (responseMessages != null) {
-			System.out.println("[user: " + message.getUserId() + " added video " + message.getVideo().getVideoId() + "to playlist]");
+			System.out.println("[user: " + message.getUserId() + " added video " + message.getPlaylistVideo().getVideoId() + "to playlist as Next]");
 			for (Message responseMessage : responseMessages) {
 				this.messageService.convertAndSend("/chat/" + responseMessage.getUserId(), responseMessage);
 			}						
@@ -288,6 +288,63 @@ public class WebSocketController {
 			this.messageService.convertAndSend("/chat" + message.getUserId(), new Message("error"));
 		}
 	}
+	
+	@MessageMapping("/send/add-video-to-playlist-ascurrent")
+	public void onReceiveAddVideoToPlaylistAsCurrent(@Nullable final Message message) {
+		List<Message> responseMessages = this.syncService.addVideoToPlaylistMessages(message, SyncService.AddVideoMode.CURRENT);
+		if (responseMessages != null) {
+			System.out.println("[user: " + message.getUserId() + " added video " + message.getPlaylistVideo().getVideoId() + "to playlist as current]");
+			for (Message responseMessage : responseMessages) {
+				this.messageService.convertAndSend("/chat/" + responseMessage.getUserId(), responseMessage);
+			}						
+		} else {
+			this.messageService.convertAndSend("/chat" + message.getUserId(), new Message("error"));
+		}
+	}
+	
+	@MessageMapping("/send/remove-video-from-playlist")
+	public void onReceiveRemoveVideoFromPlaylist(@Nullable final Message message) {
+		
+		List<Message> responseMessages = this.syncService.generateRemoveVideoFromPlaylistMessages(message);
+		if (responseMessages != null) {
+			System.out.println("[video removed from playlist by user " + message.getUser() + "]");
+			for (Message responseMessage : responseMessages) {
+				this.messageService.convertAndSend("/chat/" + responseMessage.getUserId(), responseMessage);
+			}			
+		} else {
+			this.messageService.convertAndSend("/chat/" + message.getUser(), new Message("error"));
+		}
+	}
+	
+	
+	
+	@MessageMapping("/send/switch-playlist-video")
+	public void onReceiveSwitchPlaylistVideo(@Nullable final Message message) {
+		
+		List<Message> responseMessages = this.syncService.generateSwitchPlaylistVideoMessages(message);
+		if (responseMessages != null) {
+			System.out.println("[switched playlist video by user " + message.getUser() + " to " + message.getPlaylistVideo().getTitle() + "]");
+			for (Message responseMessage : responseMessages) {
+				this.messageService.convertAndSend("/chat/" + responseMessage.getUserId(), responseMessage);
+			}			
+		} else {
+			this.messageService.convertAndSend("/chat/" + message.getUser(), new Message("error"));
+		}
+	}
+	
+	/*
+	@MessageMapping("/send/import-playlist")
+	public void onReceiveImportPlaylist(@Nullable final Message message) {
+		List<Message> responseMessages = this.syncService.importPlaylistMessages(message);
+		if (responseMessages != null) {
+			System.out.println("[user: " + message.getUserId() + " imported playlist" + message.getImportedPlaylist() + "]");
+			for (Message responseMessage : responseMessages) {
+				this.messageService.convertAndSend("/chat/" + responseMessage.getUserId(), responseMessage);
+			}						
+		} else {
+			this.messageService.convertAndSend("/chat" + message.getUserId(), new Message("error"));
+		}
+	}*/
 	
 	@MessageMapping("/send/current-timestamp")
 	public void onReceiveCurrentTimestamp(@Nullable final Message message) {
@@ -301,7 +358,6 @@ public class WebSocketController {
 				this.messageService.convertAndSend("/chat/" + responseMessage.getUserId(), responseMessage);
 			}
 			this.syncService.clearJoiningUsers(message.getRaumId());
-			this.syncService.clearTimestamps(message.getRaumId());
 			
 		} 
 	}
@@ -317,6 +373,7 @@ public class WebSocketController {
 			this.messageService.convertAndSend("/chat/" + message.getUser(), new Message("error"));
 		}
 	}
+	
 
 	
 	

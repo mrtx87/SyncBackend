@@ -1,6 +1,8 @@
 package messages;
 
 import java.util.ArrayList;
+
+import Services.ImportedPlaylist;
 import Services.RaumDTO;
 import Services.User;
 
@@ -18,8 +20,8 @@ public class Message {
 	Boolean raumStatus;
 	ArrayList<RaumDTO> publicRaeume;
 	User assignedUser;
-	ArrayList<Video> playlist;
-   
+	Video playlistVideo;
+
 	public Video getVideo() {
 		return video;
 	}
@@ -28,12 +30,12 @@ public class Message {
 		this.video = video;
 	}
 
-	public ArrayList<Video> getPlaylist() {
-		return playlist;
+	public Video getPlaylistVideo() {
+		return playlistVideo;
 	}
 
-	public void setPlaylist(ArrayList<Video> playlist) {
-		this.playlist = playlist;
+	public void setPlaylistVideo(Video playlistVideo) {
+		this.playlistVideo = playlistVideo;
 	}
 
 	public User getAssignedUser() {

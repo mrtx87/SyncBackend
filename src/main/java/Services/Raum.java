@@ -12,14 +12,13 @@ public class Raum {
 	String title;
 	String description;
 	String createdAt;
-	Video video;
+	Video currentVideo;
 	Boolean raumStatus;
 	int playerState;
-	Video currentPlaylistVideo;
 
 	ArrayList<ChatMessage> chatMessages = new ArrayList<>();
 	HashMap<Long, User> users = new HashMap<>();
-	HashMap<Integer, Video> playlist = new HashMap<>();
+	ArrayList<Video> playlist = new ArrayList();
 	HashMap<Long, Float> timeStamps = new HashMap<>();
 	HashMap<Long, User> joiningUsers = new HashMap<>();
 
@@ -47,14 +46,6 @@ public class Raum {
 		this.createdAt = createdAt;
 	}
 	
-	public Video getCurrentPlaylistVideo() {
-		return currentPlaylistVideo;
-	}
-
-	public void setCurrentPlaylistVideo(Video currentPlaylistVideo) {
-		this.currentPlaylistVideo = currentPlaylistVideo;
-	}
-	
 	public String getTitle() {
 		return title;
 	}
@@ -72,29 +63,29 @@ public class Raum {
 	}
 	
 	public ArrayList<Video> getPlaylist() {
-		return (ArrayList<Video>) playlist.values().stream().collect(Collectors.toList());
+		return this.playlist;
 	}
 
 	public boolean isVideo(Video _video) {
-		return video.getVideoId().equals(_video.getVideoId());
+		return currentVideo.getVideoId().equals(_video.getVideoId());
 	}
 
 	public boolean isVideo(String videoId) {
-		return video.getVideoId().equals(videoId);
+		return currentVideo.getVideoId().equals(videoId);
 	}
 
 	public Video updateTimestamp(Video _video) {
 		if (isVideo(_video)) {
-			video.setTimestamp(_video.getTimestamp());
-			return video;
+			currentVideo.setTimestamp(_video.getTimestamp());
+			return currentVideo;
 		}
 		return null;
 	}
 
 	public Video updateTimestamp(String videoId, Float timestamp) {
 		if (isVideo(videoId)) {
-			video.setTimestamp(timestamp);
-			return video;
+			currentVideo.setTimestamp(timestamp);
+			return currentVideo;
 		}
 		return null;
 	}
@@ -159,12 +150,12 @@ public class Raum {
 
 	}
 
-	public Video getVideo() {
-		return video;
+	public Video getCurrentVideo() {
+		return currentVideo;
 	}
 
-	public void setVideo(Video video) {
-		this.video = video;
+	public void setCurrentVideo(Video video) {
+		this.currentVideo = video;
 	}
 
 	public void addUser(User user) {
@@ -217,17 +208,90 @@ public class Raum {
 		return users.remove(userId);
 	}
 
-	public void addVideoToPlaylist(Video video) {
-		int key = playlist.size()+1;
-		video.setPlaylistNr(key);
-		playlist.put(key, video);
+	public Video addVideoToPlaylist(Video video) {
+		if(hasCurrentVideo()) {
+			playlist.add(playlist.size(), video);
+			return null;
+		}else {
+			playlist.add(playlist.size(), video);
+			setCurrentVideo(video);
+			return video;
+		}
+	}
+	
+	public int indexOf(Video video) {
+		for(int i = 0; i < playlist.size(); i++) {
+			if(video.equalsTo(playlist.get(i))) {
+				return i;
+			}
+		}
+		return -1;
+	}
+	
+	public Video addVideoToPlaylistAsNext(Video video) {
+		if(hasCurrentVideo()) {
+			int index = indexOf(video)+1;
+			playlist.add(video);
+			return null;
+		}else {
+			playlist.add(playlist.size(), video);
+			setCurrentVideo(video);
+			return video;
+		}
 	}
 
-	public void removeVideoFromPlaylist(Video video) {
-		this.playlist.remove(video.getPlaylistNr());
+	
+	public Video addVideoToPlaylistAsCurrent(Video video) {
+		if(hasCurrentVideo()) {
+			int index = indexOf(video)+1;
+			playlist.add(index, video);
+			setCurrentVideo(video);
+			return video;
+		}else {
+			playlist.add(video);
+			setCurrentVideo(video);
+			return video;
+		}
+	}
+	
+	private int removeVideoFromPlaylistById(String videoId) {
+		for(int i = 0; i < playlist.size(); i++) {
+			if(videoId.equals(playlist.get(i).getVideoId())) {
+				playlist.remove(i);
+				return i;
+			}
+		}
+		return -1;
+	}
+	
+	public int removeVideoFromPlaylist(Video video) {
+		int removeIndex = this.removeVideoFromPlaylistById(video.getVideoId());
+		int mode = 0;
+		if(removeIndex > -1) {
+			if(currentVideo.equalsTo(video)) {
+				if(removeIndex < playlist.size()-1) {
+					setCurrentVideo(playlist.get(removeIndex));
+				}else {
+					if(this.playlist.isEmpty()) {
+						setCurrentVideo(null);
+					}else {
+						setCurrentVideo(this.playlist.get(0));
+					}
+				}
+				mode = 1;
+			}
+						
+		}
+		
+		return mode;
+	}
+	
+	
+	public void switchCurrentPlaylistVideo(Video video) {
+		setCurrentVideo(video);
 	}
 
-	public void setPlaylist(HashMap<Integer, Video> playlist) {
+	public void setPlaylist(ArrayList<Video> playlist) {
 		this.playlist = playlist;
 	}
 
@@ -277,5 +341,27 @@ public class Raum {
 		return joiningUsers.containsKey(user.getUserId());
 		
 	}
+	
+	public String generateVideoObjectId() {
+		return SyncService.generateVideoObjectId();
+	}
 
+	public boolean importPlaylist(ImportedPlaylist importedPlaylist) {
+		if(importedPlaylist.getMode() == 0)  {
+			importedPlaylist.items.stream().forEach(v -> v.setId(generateVideoObjectId()));
+			ArrayList<Video> processedPlaylist =  importedPlaylist.items;
+			this.setPlaylist(processedPlaylist);
+			return true;
+		}else if(importedPlaylist.getMode() == 1) {
+			//TODO
+			return false;
+		}
+		System.out.println("[WRONG MODE - PLAYLIST NOT IMPORTED]");
+		return false;
+		
+	}
+	
+	public boolean hasCurrentVideo() {
+		return (getCurrentVideo() != null)? true : false;
+	}
 }

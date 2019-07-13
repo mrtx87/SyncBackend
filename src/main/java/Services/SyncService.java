@@ -6,6 +6,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import com.haihuynh.springbootwebsocketchatapplication.configuration.WebSocketConfiguration;
@@ -20,6 +22,12 @@ public class SyncService {
 	public static int maxUpdateJoinClients = 3;
 	public static Boolean publicRaum = false;
 	public static Boolean privateRaum = true;
+	
+	public static enum AddVideoMode {
+		NEXT,
+		CURRENT,
+		LAST
+	}
 
 	public  Video defaultVideo = new Video("WBG7TFLj4YQ", 0.0f,"Unter Wasser: Megacitys in Gefahr | Doku | ARTE\r\n");
 
@@ -106,6 +114,10 @@ public class SyncService {
 			"Damon Wildeve", "Pudd’nhead Wilson", "Lord Peter Wimsey", "Wingfield family", "Wise Men of Gotham",
 			"Wolfdietrich", "Nero Wolfe", "Emma Woodhouse", "Bertie Wooster", "Clym Yeobright",
 			"Captain John Yossarian", "Zorro" };
+	
+	@Autowired
+	private SimpMessagingTemplate messageService;
+
 
 	public HashMap<Long, Raum> getRooms() {
 		return rooms;
@@ -198,10 +210,9 @@ public class SyncService {
 			joinMessage.setUser(user);
 			joinMessage.setUsers(raum.getUserList());
 			joinMessage.setRaumId(raum.getRaumId());
-			joinMessage.setVideo(raum.getVideo());
+			joinMessage.setVideo(raum.getCurrentVideo());
 			joinMessage.setRaumStatus(raum.getRaumStatus());
 			joinMessage.setPlayerState(raum.getPlayerState());
-			joinMessage.setPlaylist(raum.getPlaylist());
 
 			ChatMessage chatMessage = new ChatMessage();
 			chatMessage.setMessageText("has joined the Room");
@@ -263,13 +274,13 @@ public class SyncService {
 		if (rooms.containsKey(message.getRaumId()) && message.getVideo() != null) {
 			Raum raum = rooms.get(message.getRaumId());
 			Video video = message.getVideo();
-			raum.setVideo(video);
+			raum.setCurrentVideo(video);
 			raum.setPlayerState(1);
 			List<Message> messages = new ArrayList<>();
 
 			ChatMessage chatMessage = new ChatMessage();
 			chatMessage.setType("insert-video");
-			chatMessage.setVideo(raum.getVideo());
+			chatMessage.setVideo(raum.getCurrentVideo());
 			chatMessage.setRaumId(raum.getRaumId());
 			chatMessage.setUser(message.getUser());
 			chatMessage.setTimestamp(getCurrentTime());
@@ -363,7 +374,7 @@ public class SyncService {
 				Message responseMessage = new Message();
 				responseMessage.setUserId(userId);
 				responseMessage.setType("seekto-timestamp");
-				responseMessage.setVideo(raum.getVideo());
+				responseMessage.setVideo(raum.getCurrentVideo());
 				responseMessage.setRaumId(raum.getRaumId());
 				messages.add(responseMessage);
 			}
@@ -388,7 +399,7 @@ public class SyncService {
 				responseMessage.setUserId(userId);
 				responseMessage.setRaumId(raum.getRaumId());
 				responseMessage.setPlayerState(raum.getPlayerState());
-				responseMessage.setVideo(raum.getVideo());
+				responseMessage.setVideo(raum.getCurrentVideo());
 				messages.add(responseMessage);
 			}
 			return messages;
@@ -414,6 +425,8 @@ public class SyncService {
 			} else {
 				chatMessage.setMessageText("Room is now private");
 			}
+
+			saveChatMessage(chatMessage);
 
 			for (User user : raum.getUserList()) {
 				Message responseMessage = new Message();
@@ -442,6 +455,7 @@ public class SyncService {
 			chatMessage.setTimestamp(getCurrentTime());
 			chatMessage.setMessageText(
 					"assigned " + raum.getUser(message.getAssignedUser().getUserId()).getUserName() + " as Admin");
+			saveChatMessage(chatMessage);
 
 			Message assignAdminMessage = new Message();
 			assignAdminMessage.setType("assigned-as-admin");
@@ -495,6 +509,7 @@ public class SyncService {
 			chatMessage.setUser(raum.getUser(message.getUserId()));
 			chatMessage.setTimestamp(getCurrentTime());
 			chatMessage.setMessageText("has changed the Room to Public");
+			saveChatMessage(chatMessage);
 
 			ArrayList<Message> responseMessages = new ArrayList<>();
 
@@ -525,6 +540,7 @@ public class SyncService {
 			chatMessage.setUser(raum.getUser(message.getUserId()));
 			chatMessage.setTimestamp(getCurrentTime());
 			chatMessage.setMessageText("has changed the Room to Private");
+			saveChatMessage(chatMessage);
 
 			ArrayList<Message> responseMessages = new ArrayList<>();
 
@@ -560,6 +576,7 @@ public class SyncService {
 				chatMessage.setUser(raum.getUser(message.getUserId()));
 				chatMessage.setTimestamp(getCurrentTime());
 				chatMessage.setMessageText("has kicked :" + kickedUser.getUserName());
+				saveChatMessage(chatMessage);
 
 				Message kickedUserMessage = new Message();
 				kickedUserMessage.setType("kicked-user");
@@ -598,6 +615,7 @@ public class SyncService {
 			chatMessage.setUser(raum.getUser(message.getUserId()));
 			chatMessage.setTimestamp(getCurrentTime());
 			chatMessage.setMessageText("has refreshed RoomId to :" + raum.getRaumId());
+			saveChatMessage(chatMessage);
 
 			ArrayList<Message> responseMessages = new ArrayList<>();
 			for (User user : raum.getUserList()) {
@@ -622,6 +640,10 @@ public class SyncService {
 		raum.setRaumId(generateRaumId());
 		rooms.put(raum.getRaumId(), raum);
 	}
+	
+	public static String generateVideoObjectId() {
+		return "v_" + System.nanoTime() + "r_" + ((char) (97 + (int) (Math.random() * 24))) + (int) (Math.random() * 10000) + ((char) (97 + (int) (Math.random() * 24)));
+	}
 
 	public Message addUserTimeStamp(Message message) {
 		if (rooms.containsKey(message.getRaumId())) {
@@ -634,26 +656,46 @@ public class SyncService {
 		return null;
 	}
 
-	public List<Message> addVideoToPlaylistMessages(Message message) {
+	public List<Message> addVideoToPlaylistMessages(Message message, AddVideoMode mode) {
 
 		if (rooms.containsKey(message.getRaumId()) && isAdmin(message.getRaumId(), message.getUserId())) {
 			Raum raum = getRaum(message.getRaumId());
-			raum.addVideoToPlaylist(message.getVideo());
+			Video newCurrentVideo = null;
+			Video playlistVideo = message.getPlaylistVideo();
+			playlistVideo.setId(generateVideoObjectId());
+			switch(mode) {
+				case CURRENT : {
+					newCurrentVideo = raum.addVideoToPlaylistAsCurrent(playlistVideo);
+				}break;
+				case NEXT: {
+					newCurrentVideo = raum.addVideoToPlaylistAsNext(playlistVideo);
+				}break;
+				case LAST : {
+					newCurrentVideo = raum.addVideoToPlaylist(playlistVideo);
+				}break;
+			}
+			
+			//raum.addVideoToPlaylist(message.getPlaylistVideo());
 
 			ChatMessage chatMessage = new ChatMessage();
 			chatMessage.setType("insert-video");
 			chatMessage.setUser(raum.getUser(message.getUserId()));
 			chatMessage.setTimestamp(getCurrentTime());
-			chatMessage.setMessageText(message.getVideo().getVideoId());
+			chatMessage.setVideo(message.getPlaylistVideo());
+			//chatMessage.setMessageText(message.getPlaylistVideo().getVideoId());
+			saveChatMessage(chatMessage);
 
 			ArrayList<Message> responseMessages = new ArrayList<>();
 			for (User user : raum.getUserList()) {
 				Message responseMessage = new Message();
-				responseMessage.setType("add-video-to-playlist");
+				responseMessage.setType("update-playlist");
 				responseMessage.setUser(user);
+				if(newCurrentVideo != null) {
+					responseMessage.setVideo(newCurrentVideo);
+					responseMessage.setPlayerState(1);
+				}
 				responseMessage.setRaumId(raum.getRaumId());
 				responseMessage.setChatMessage(chatMessage);
-				responseMessage.setPlaylist(raum.getPlaylist());
 				responseMessages.add(responseMessage);
 			}
 			return responseMessages;
@@ -667,8 +709,8 @@ public class SyncService {
 		if (rooms.containsKey(message.getRaumId()) && message.getVideo() != null) {
 			Raum raum = getRaum(message.getRaumId());
 				Float ts = message.getVideo().getTimestamp();
-				System.out.println("[UPDATE TIMESTAMP " + raum.getVideo().getTimestamp() +" -> " + ts +"]");
-				raum.updateTimestamp(raum.getVideo().getVideoId() , ts);
+				System.out.println("[UPDATE TIMESTAMP " + raum.getCurrentVideo().getTimestamp() +" -> " + ts +"]");
+				raum.updateTimestamp(raum.getCurrentVideo().getVideoId() , ts);
 				
 				ArrayList<Message> responseMessages = new ArrayList<>();
 				for (User joiningUser : raum.getJoiningUserList()) {
@@ -676,7 +718,7 @@ public class SyncService {
 					responseMessage.setType("seekto-timestamp");
 					responseMessage.setUser(joiningUser);
 					responseMessage.setRaumId(raum.getRaumId());
-					responseMessage.setVideo(raum.getVideo());
+					responseMessage.setVideo(raum.getCurrentVideo());
 					responseMessage.setPlayerState(raum.getPlayerState());
 					responseMessages.add(responseMessage);
 				}
@@ -701,9 +743,7 @@ public class SyncService {
 				Message responseMessage = new Message();
 				responseMessage.setType("request-sync-timestamp");
 				responseMessage.setUser(onlyJoinedUsers.get(0));
-				responseMessage.setRaumId(raum.getRaumId());
-				responseMessage.setPlaylist(raum.getPlaylist());
-							
+				responseMessage.setRaumId(raum.getRaumId());							
 				return responseMessage;
 			}else {
 				raum.clearJoiningUsers();
@@ -723,19 +763,86 @@ public class SyncService {
 		}
 	}
 	
-	public void clearTimestamps(Long raumId) {
-		if(rooms.containsKey(raumId)) {
-			Raum raum = getRaum(raumId);
-		}
-	}
 
-	public List<Message> generateStartVideoFromPlaylistMessages(Message message) {
+	public List<Message> generateUpdateDescriptionAndTitleMessages(Message message) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-	public List<Message> generateUpdateDescriptionAndTitleMessages(Message message) {
-		// TODO Auto-generated method stub
+
+	public List<Message> generateRemoveVideoFromPlaylistMessages(Message message) {
+
+		if (rooms.containsKey(message.getRaumId()) && isAdmin(message.getRaumId(), message.getUserId())) {
+			Raum raum = getRaum(message.getRaumId());
+			
+			int mode = raum.removeVideoFromPlaylist(message.getPlaylistVideo());
+			
+			ArrayList<Message> responseMessages = new ArrayList<>();
+			for (User user : raum.getUserList()) {
+				Message responseMessage = new Message();
+				responseMessage.setType("remove-video-playlist");
+				responseMessage.setUser(user);
+				responseMessage.setRaumId(raum.getRaumId());
+				if(mode == 1) {
+					responseMessage.setVideo(raum.getCurrentVideo());
+					responseMessage.setPlayerState(1);
+				}
+				
+				responseMessages.add(responseMessage);
+			}
+			return responseMessages;
+		}
+
+		return null;
+	}
+	
+	public boolean raumExists(Long raumId) {
+		return rooms.containsKey(raumId);
+	}
+	
+	
+	public ArrayList<Video> getRaumPlaylist(Long raumId) {
+		if(raumExists(raumId)) {
+			return getRaum(raumId).getPlaylist();
+		}
+		return null;
+	}
+
+	public boolean importPlaylist(Long raumId, ImportedPlaylist importedPlaylist) {
+		if(raumExists(raumId)){ 
+			Raum raum = getRaum(raumId);
+			if(raum.importPlaylist(importedPlaylist)) {
+				Message responseMessage = new Message();
+				responseMessage.setType("update-playlist");
+				responseMessage.setRaumId(raumId);			
+				for(Long userId : getRaum(raumId).getUserIds()) {
+					this.messageService.convertAndSend("/chat/" + userId, responseMessage);
+				}
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public List<Message> generateSwitchPlaylistVideoMessages(Message message) {
+		if (rooms.containsKey(message.getRaumId()) && isAdmin(message.getRaumId(), message.getUserId())) {
+			Raum raum = getRaum(message.getRaumId());
+			
+			raum.switchCurrentPlaylistVideo(message.getPlaylistVideo());
+						
+			ArrayList<Message> responseMessages = new ArrayList<>();
+			for (User user : raum.getUserList()) {
+				Message responseMessage = new Message();
+				responseMessage.setType("update-playlist");
+				responseMessage.setUser(user);
+				responseMessage.setRaumId(raum.getRaumId());
+				responseMessage.setVideo(raum.getCurrentVideo());
+				responseMessage.setPlayerState(1);
+				responseMessages.add(responseMessage);
+			}
+			return responseMessages;
+		}
+
 		return null;
 	}
 }
