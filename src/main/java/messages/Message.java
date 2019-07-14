@@ -25,6 +25,16 @@ public class Message {
 	int loop; //0 noloop, 1 loop all, 2 loop single video
 	boolean randomOrder; //false sequentiell, true random
 	
+	float currentPlaybackRate;
+	
+	public float getCurrentPlaybackRate() {
+		return currentPlaybackRate;
+	}
+
+	public void setCurrentPlaybackRate(float currentPlaybackRate) {
+		this.currentPlaybackRate = currentPlaybackRate;
+	}
+
 	public Video getVideo() {
 		return video;
 	}

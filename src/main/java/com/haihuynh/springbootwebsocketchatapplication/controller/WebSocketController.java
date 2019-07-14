@@ -215,6 +215,13 @@ public class WebSocketController {
 		sendResponseMessages(responseMessages, message,"[playlist-running-order toggled by user " + message.getUser() + "]");
 	}
 	
+	@MessageMapping("/send/change-playback-rate")
+	public void onReceiveChangePlaybackRate(@Nullable final Message message) {
+		
+		List<Message> responseMessages = this.syncService.generateChangePlaybackRateMessages(message);
+		sendResponseMessages(responseMessages, message,"[change-playback-rate by User " + message.getUser() + "]");
+	}
+	
 	
 	@MessageMapping("/send/current-timestamp")
 	public void onReceiveCurrentTimestamp(@Nullable final Message message) {

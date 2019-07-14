@@ -19,6 +19,8 @@ public class Raum {
 	
 	boolean randomOrder = false;
 	int loop = 0;
+	
+	float currentPlaybackRate = 1;
 
 	ArrayList<ChatMessage> chatMessages = new ArrayList<>();
 	HashMap<Long, User> users = new HashMap<>();
@@ -43,6 +45,14 @@ public class Raum {
 	
 	public void resetCountingNextVidRequests() {
 		countingNextVidRequests = 0;
+	}
+
+	public float getCurrentPlaybackRate() {
+		return currentPlaybackRate;
+	}
+
+	public void setCurrentPlaybackRate(float currentPlaybackRate) {
+		this.currentPlaybackRate = currentPlaybackRate;
 	}
 
 	public HashMap<Long, User> getJoiningUsers() {

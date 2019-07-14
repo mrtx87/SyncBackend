@@ -168,6 +168,7 @@ public class SyncService {
 			raum.setRaumStatus(message.getRaumStatus());
 			raum.setPlayerState(2);
 			saveRoom(raum);
+			raum.setCurrentPlaybackRate(1);
 
 			String name = randomName();
 			User user = new User();
@@ -183,6 +184,7 @@ public class SyncService {
 			createRaumMessage.setUser(user);
 			createRaumMessage.setRaumId(raum.raumId);
 			createRaumMessage.setUsers(raum.getUserList());
+			createRaumMessage.setCurrentPlaybackRate(raum.getCurrentPlaybackRate());
 			//createRaumMessage.setVideo(raum.getVideo());
 			createRaumMessage.setRaumStatus(raum.getRaumStatus());
 			createRaumMessage.setPlayerState(raum.getPlayerState());
@@ -224,6 +226,7 @@ public class SyncService {
 			joinMessage.setVideo(raum.getCurrentVideo());
 			joinMessage.setRaumStatus(raum.getRaumStatus());
 			joinMessage.setPlayerState(raum.getPlayerState());
+			joinMessage.setCurrentPlaybackRate(raum.getCurrentPlaybackRate());
 			ChatMessage chatMessage = createAndSaveChatMessage(user, raum.getRaumId(), "has joined the Room", null);
 			joinMessage.setChatMessages(raum.getChatMessages());
 
@@ -808,6 +811,7 @@ public class SyncService {
 		if (rooms.containsKey(message.getRaumId()) && isAdmin(message.getRaumId(), message.getUserId())) {
 			Raum raum = getRaum(message.getRaumId());
 			Video video = raum.switchCurrentPlaylistVideo(message.getPlaylistVideo());
+			raum.setCurrentPlaybackRate(1);
 			if(video != null)	{		
 				ArrayList<Message> responseMessages = new ArrayList<>();
 				for (User user : raum.getUserList()) {
@@ -817,6 +821,7 @@ public class SyncService {
 					responseMessage.setRaumId(raum.getRaumId());
 					responseMessage.setVideo(raum.getCurrentVideo());
 					responseMessage.setPlayerState(1);
+					responseMessage.setCurrentPlaybackRate(raum.getCurrentPlaybackRate());
 					responseMessages.add(responseMessage);
 				}
 				return responseMessages;
@@ -871,6 +876,25 @@ public class SyncService {
 					responseMessage.setRaumId(raum.getRaumId());
 					responseMessage.setVideo(raum.getCurrentVideo());
 					responseMessage.setRandomOrder(randomOrder);
+					responseMessages.add(responseMessage);
+				}
+				return responseMessages;
+		}
+		return null;
+	}
+
+	public List<Message> generateChangePlaybackRateMessages(Message message) {
+		if (rooms.containsKey(message.getRaumId()) && isAdmin(message.getRaumId(), message.getUserId())) {
+			Raum raum = getRaum(message.getRaumId());
+			raum.setCurrentPlaybackRate(message.getCurrentPlaybackRate());
+				ArrayList<Message> responseMessages = new ArrayList<>();
+				for (User user : raum.getUserList()) {
+					Message responseMessage = new Message();
+					responseMessage.setType("change-playback-rate");
+					responseMessage.setUser(user);
+					responseMessage.setRaumId(raum.getRaumId());
+					responseMessage.setVideo(raum.getCurrentVideo());
+					responseMessage.setCurrentPlaybackRate(raum.getCurrentPlaybackRate());
 					responseMessages.add(responseMessage);
 				}
 				return responseMessages;
