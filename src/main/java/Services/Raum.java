@@ -13,14 +13,37 @@ public class Raum {
 	String description;
 	String createdAt;
 	Video currentVideo;
+	int currentVideoIndex;
 	Boolean raumStatus;
 	int playerState;
+	
+	boolean randomOrder = false;
+	int loop = 0;
 
 	ArrayList<ChatMessage> chatMessages = new ArrayList<>();
 	HashMap<Long, User> users = new HashMap<>();
-	ArrayList<Video> playlist = new ArrayList();
+	ArrayList<Video> playlist = new ArrayList<>();
 	HashMap<Long, Float> timeStamps = new HashMap<>();
 	HashMap<Long, User> joiningUsers = new HashMap<>();
+	
+	int countingNextVidRequests = 0;
+
+	public int getCountingNextVidRequests() {
+		return countingNextVidRequests;
+	}
+
+	public void setCountingNextVidRequests(int countingNextVidRequests) {
+		this.countingNextVidRequests = countingNextVidRequests;
+	}
+	
+	public int countNextVidRequest() {
+		countingNextVidRequests += 1;
+		return countingNextVidRequests;
+	}
+	
+	public void resetCountingNextVidRequests() {
+		countingNextVidRequests = 0;
+	}
 
 	public HashMap<Long, User> getJoiningUsers() {
 		return joiningUsers;
@@ -37,6 +60,46 @@ public class Raum {
 	public void setTimeStamps(HashMap<Long, Float> timeStamps) {
 		this.timeStamps = timeStamps;
 	}
+	
+	
+	
+	public boolean isRandomOrder() {
+		return randomOrder;
+	}
+
+	public void setRandomOrder(boolean randomOrder) {
+		this.randomOrder = randomOrder;
+	}
+	
+	public boolean toggleRandomOrder() {
+		randomOrder = !randomOrder;
+		return randomOrder;
+	}
+
+	public int getLoop() {
+		return loop;
+	}
+
+	public void setLoop(int loop) {
+		this.loop = loop;
+	}
+
+	public int toggleLoop() {
+		loop =+1;
+		if(loop > 2) {
+			loop = 0;
+		}
+		return loop;
+	}
+	
+	public int getCurrentVideoIndex() {
+		return currentVideoIndex;
+	}
+
+	public void setCurrentVideoIndex(int currentVideoIndex) {
+		this.currentVideoIndex = currentVideoIndex;
+	}
+
 
 	public String getCreatedAt() {
 		return createdAt;
@@ -119,6 +182,13 @@ public class Raum {
 		this.users = users;
 	}
 
+	public Video getPlaylistVideo(int index) {
+		if(playlist.size() > index) {
+			return playlist.get(index);
+		}
+		return null;
+	}
+	
 	public ArrayList<ChatMessage> getChatMessages() {
 		return chatMessages;
 	}
@@ -156,14 +226,15 @@ public class Raum {
 
 	public void setCurrentVideo(Video video) {
 		this.currentVideo = video;
+		this.currentVideoIndex = this.getIndexOfVideo(video);
 	}
 
 	public void addUser(User user) {
 		users.put(user.getUserId(), user);
 	}
 
-	public void remove(Long id) {
-		users.remove(id);
+	public User remove(Long id) {
+		return users.remove(id);
 	}
 
 	public void addChatMessage(ChatMessage message) {
@@ -219,19 +290,10 @@ public class Raum {
 		}
 	}
 	
-	public int indexOf(Video video) {
-		for(int i = 0; i < playlist.size(); i++) {
-			if(video.equalsTo(playlist.get(i))) {
-				return i;
-			}
-		}
-		return -1;
-	}
-	
 	public Video addVideoToPlaylistAsNext(Video video) {
 		if(hasCurrentVideo()) {
-			int index = indexOf(video)+1;
-			playlist.add(video);
+			int index = getIndexOfVideo(getCurrentVideo())+1;
+			playlist.add(index,video);
 			return null;
 		}else {
 			playlist.add(playlist.size(), video);
@@ -243,7 +305,7 @@ public class Raum {
 	
 	public Video addVideoToPlaylistAsCurrent(Video video) {
 		if(hasCurrentVideo()) {
-			int index = indexOf(video)+1;
+			int index = getIndexOfVideo(getCurrentVideo())+1;
 			playlist.add(index, video);
 			setCurrentVideo(video);
 			return video;
@@ -254,41 +316,28 @@ public class Raum {
 		}
 	}
 	
-	private int removeVideoFromPlaylistById(String videoId) {
+	private Video removeVideoFromPlaylistById(String Id) {
 		for(int i = 0; i < playlist.size(); i++) {
-			if(videoId.equals(playlist.get(i).getVideoId())) {
-				playlist.remove(i);
-				return i;
+			if(Id.equals(playlist.get(i).getId())) {
+				return playlist.remove(i);
 			}
 		}
-		return -1;
+		return null;
 	}
 	
-	public int removeVideoFromPlaylist(Video video) {
-		int removeIndex = this.removeVideoFromPlaylistById(video.getVideoId());
-		int mode = 0;
-		if(removeIndex > -1) {
-			if(currentVideo.equalsTo(video)) {
-				if(removeIndex < playlist.size()-1) {
-					setCurrentVideo(playlist.get(removeIndex));
-				}else {
-					if(this.playlist.isEmpty()) {
-						setCurrentVideo(null);
-					}else {
-						setCurrentVideo(this.playlist.get(0));
-					}
-				}
-				mode = 1;
-			}
-						
-		}
+	public Video removeVideoFromPlaylist(Video video) {
+		return removeVideoFromPlaylistById(video.getId());
+	}
 		
-		return mode;
-	}
 	
-	
-	public void switchCurrentPlaylistVideo(Video video) {
-		setCurrentVideo(video);
+	public Video switchCurrentPlaylistVideo(Video video) {
+		int index = playlistContains(video);
+		if(index > -1) {
+			setCurrentVideoIndex(index);
+			setCurrentVideo(video);
+			return video;
+		}
+		return null;
 	}
 
 	public void setPlaylist(ArrayList<Video> playlist) {
@@ -297,6 +346,13 @@ public class Raum {
 
 	public void addTimeStamp(Long userId, Float timeStamp) {
 		timeStamps.put(userId, timeStamp);
+	}
+	
+	public int getIndexOfVideo(Video video) {
+		if(video != null) {
+			return playlistContains(video);
+		}
+		return -1;
 	}
 
 	public ArrayList<Float> getTimeStampList() {
@@ -362,6 +418,16 @@ public class Raum {
 	}
 	
 	public boolean hasCurrentVideo() {
-		return (getCurrentVideo() != null)? true : false;
+		return getCurrentVideo() != null;
 	}
+	
+	public int playlistContains(Video video) {
+		for(int i = 0; i < playlist.size(); i++) {
+			if(playlist.get(i).equalsTo(video)) {
+				return i;
+			}
+		}
+		return -1;
+	}
+	
 }

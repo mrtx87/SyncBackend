@@ -41,35 +41,22 @@ public class WebSocketController {
 	@MessageMapping("/send/request-public-raeume")
 	public void onRequestPublicRaeume(@Nullable final Message message) {
 			Message responseMessage = syncService.generatePublicRaeumeMessage(message);
-			this.messageService.convertAndSend("/chat/"+ responseMessage.getUserId(), responseMessage);
-			System.out.println("[broadcast public Räume: " + message.getUserId() + "]");		
+			sendResponseMessage(responseMessage, message, "[broadcast public Räume: " + message.getUserId() + "]");		
 	}
 	
 	
 	@MessageMapping("/send/update-title-and-description")
 	public void onReceiveUpdateDescriptionAndTitle(@Nullable final Message message) {
 		List<Message> responseMessages = syncService.generateUpdateDescriptionAndTitleMessages(message);
-		if (responseMessages.size() > 0) {
-			System.out.println("[user:" + message.getUserId() + " sharing video: " + message.getVideo().getVideoId() + "]");
-			for (Message responseMessage : responseMessages) {
-				if (responseMessage != null) {
-					this.messageService.convertAndSend("/chat/" + responseMessage.getUserId() , responseMessage);
-				}
-			}
-		} else {
-			this.messageService.convertAndSend("/chat/" + message.getUserId(), new Message("error"));
-
-		}
+		sendResponseMessages(responseMessages, message, "[user:" + message.getUserId() + " sharing video: " + message.getVideo().getVideoId() + "]");
 	}
 
 	
-	
-
 	@MessageMapping("/send/chat-message")
 	public void onReceiveMessage(@Nullable final Message message) {
 			message.setType("chat-message");
 			message.getChatMessage().setTimestamp(this.syncService.getCurrentTime());
-			List<Long> userIds = syncService.saveChatMessage(message);
+			List<Long> userIds = syncService.generateSaveChatMessageResponse(message);
 			if(userIds != null) {
 				for (Long userId : userIds) {
 					this.messageService.convertAndSend("/chat/"+userId, message);
@@ -82,82 +69,41 @@ public class WebSocketController {
 	public void onCreateRaum(@Nullable final Message message) {
 		System.err.println("Trying to Create Room by UseId: " + message.getUserId());
 		Message responseMessage = syncService.createRaum(message);
-		if (responseMessage != null) {
-			this.messageService.convertAndSend("/chat/" + message.getUserId(), responseMessage);
-			System.err.println("userId: " + responseMessage.getUserId() + " -> [created room - " + responseMessage.getRaumId() + " |  status: " + syncService.getRaum(responseMessage.getRaumId()).getRaumStatus() + "]");
-		} else {
-			this.messageService.convertAndSend("/chat" + message.getUserId(), new Message("error"));
-		}
-
+		sendResponseMessage(responseMessage, message, "userId: " + responseMessage.getUserId() + " -> [created room - " + responseMessage.getRaumId() + " |  status: " + syncService.getRaum(responseMessage.getRaumId()).getRaumStatus() + "]");
 	}
 
-	// onReceiveNewVideo
+	// old function for non playlist video sync
 	@MessageMapping("/send/receive-new-video")
 	public void onReceiveNewVideo(@Nullable final Message message) {
 		List<Message> responseMessages = syncService.addAndShareNewVideo(message);
 		if (responseMessages.size() > 0) {
-			System.out.println("[user:" + message.getUserId() + " sharing video: " + message.getVideo().getVideoId() + "]");
-			for (Message responseMessage : responseMessages) {
-				if (responseMessage != null) {
-					this.messageService.convertAndSend("/chat/" + responseMessage.getUserId() , responseMessage);
-				}
-			}
-		} else {
-			this.messageService.convertAndSend("/chat/" + message.getUserId(), new Message("error"));
-
+			sendResponseMessages(responseMessages, message, "[user:" + message.getUserId() + " sharing video: " + message.getVideo().getVideoId() + "]");
 		}
-
 	}
 
 	@MessageMapping("/send/join-room")
 	public void onJoinRoom(@Nullable final Message message) {
 		List<Message> responseMessages = syncService.joinRaum(message);
-		
-		if (responseMessages != null) {
-			for (Message responseMessage : responseMessages) {
-				this.messageService.convertAndSend("/chat/" + responseMessage.getUserId(), responseMessage);
-			}
-			System.err.println("user: " + message.getUserId() + " -> [joined room - " + message.getRaumId() + "]");
-		}else {
-			this.messageService.convertAndSend("/chat/" + message.getUserId(), new Message("error"));
-		}
-
+		sendResponseMessages(responseMessages, message, "user: " + message.getUserId() + " -> [joined room - " + message.getRaumId() + "]");
 	}
 
 	@MessageMapping("/send/disconnect-client")
 	public void onDisconnectClient(@Nullable final Message message) {
 		List<Message> responseMessages = syncService.disconnectClient(message);
-		System.out.println("user: " + message.getUserId() + " -> [left room - " + message.getRaumId() + "]");
-		for (Message responseMessage : responseMessages) {
-			this.messageService.convertAndSend("/chat/" + responseMessage.getUserId(), responseMessage);
-		}
-
+		sendResponseMessages(responseMessages, message, "user: " + message.getUserId() + " -> [left room - " + message.getRaumId() + "]");
 	}
 
 	@MessageMapping("/send/sync-timestamp")
 	public void onReceiveSyncTimeStamp(@Nullable final Message message) {
 		Message responseMessage = syncService.addUserTimeStamp(message);
-		if (responseMessage != null) {
-			this.messageService.convertAndSend("/chat/" + message.getUserId(), responseMessage);
-		} else {
-			this.messageService.convertAndSend("/chat" + message.getUserId(), new Message("error"));
-		}
-
+		sendResponseMessage(responseMessage, message, "[receive sync timestamp from User " + responseMessage.getUser() + "]");
 	}
 	
 	
 	@MessageMapping("/send/seekto-timestamp")
 	public void onReceiveSeekToTimeStamp(@Nullable final Message message) {
 		List<Message> responseMessages = this.syncService.generateSyncSeekToMessages(message);
-		if (responseMessages != null) {
-			System.out.println("user: " + message.getUserId() + "-> [jumps in room - " + message.getRaumId() + "]");
-			for (Message responseMessage : responseMessages) {
-				this.messageService.convertAndSend("/chat/" + responseMessage.getUserId(), responseMessage);
-			}						
-		} else {
-			this.messageService.convertAndSend("/chat" + message.getUserId(), new Message("error"));
-		}
-
+		sendResponseMessages(responseMessages, message, "user: " + message.getUserId() + "-> [jumps in room - " + message.getRaumId() + "]");
 	}
 	
 	
@@ -179,186 +125,105 @@ public class WebSocketController {
 	@MessageMapping("/send/sync-roomstate")
 	public void onReceiveRoomState(@Nullable final Message message) {
 		List<Message> responseMessages = this.syncService.generateSyncRoomStateMessages(message);
-		if (responseMessages != null) {
-			System.out.println("user: " + message.getUserId() + " -> [switch Roomstate - " + message.getRaumStatus() + "]");
-			for (Message responseMessage : responseMessages) {
-				this.messageService.convertAndSend("/chat/" + responseMessage.getUserId(), responseMessage);
-			}						
-		} else {
-			this.messageService.convertAndSend("/chat" + message.getUserId(), new Message("error"));
-		}
-
+		sendResponseMessages(responseMessages, message, "user: " + message.getUserId() + " -> [switch Roomstate - " + message.getRaumStatus() + "]");
 	}
 	
 	
 	@MessageMapping("/send/assign-admin")
 	public void onReceiveAssignAdmin(@Nullable final Message message) {
 		List<Message> responseMessages = this.syncService.generateAssignedAdminMessages(message);
-		if (responseMessages != null) {
-			System.out.println("[user: " + message.getAssignedUser().getUserId() + " has been assigned admin by " + message.getUserId() + "]");
-			for (Message responseMessage : responseMessages) {
-				this.messageService.convertAndSend("/chat/" + responseMessage.getUserId(), responseMessage);
-			}						
-		} else {
-			this.messageService.convertAndSend("/chat" + message.getUserId(), new Message("error"));
-		}
-
+		sendResponseMessages(responseMessages, message, "[user: " + message.getAssignedUser().getUserId() + " has been assigned admin by " + message.getUserId() + "]");
 	}
-	
-	
 	
 	@MessageMapping("/send/to-public-room")
 	public void onReceiveToPublicRoomRequest(@Nullable final Message message) {
 		List<Message> responseMessages = this.syncService.generateToPublicRoomMessages(message);
-		if (responseMessages != null) {
-			System.out.println("[user: " + message.getUserId() + " has set room " + message.getRaumId() + " to public]");
-			for (Message responseMessage : responseMessages) {
-				this.messageService.convertAndSend("/chat/" + responseMessage.getUserId(), responseMessage);
-			}						
-		} else {
-			this.messageService.convertAndSend("/chat" + message.getUserId(), new Message("error"));
-		}
-
+		sendResponseMessages(responseMessages, message, "[user: " + message.getUserId() + " has set room " + message.getRaumId() + " to public]");
 	}
 	
 	
 	@MessageMapping("/send/to-private-room")
 	public void onReceiveToPrivateRoomRequest(@Nullable final Message message) {
 		List<Message> responseMessages = this.syncService.generateToPrivateRoomMessages(message);
-		if (responseMessages != null) {
-			System.out.println("[user: " + message.getUserId() + " has set room " + message.getRaumId() + " to public]");
-			for (Message responseMessage : responseMessages) {
-				this.messageService.convertAndSend("/chat/" + responseMessage.getUserId(), responseMessage);
-			}						
-		} else {
-			this.messageService.convertAndSend("/chat" + message.getUserId(), new Message("error"));
-		}
-
+		sendResponseMessages(responseMessages, message, "[user: " + message.getUserId() + " has set room " + message.getRaumId() + " to public]");
 	} 
 	
 	@MessageMapping("/send/kick-user")
 	public void onReceiveKickUser(@Nullable final Message message) {
 		List<Message> responseMessages = this.syncService.generateKickMessages(message);
-		if (responseMessages != null) {
-			System.out.println("[user: " + message.getUserId() + " has kicked User: "+ message.getAssignedUser().getUserId() + "from room:" + message.getRaumId() + "]");
-			for (Message responseMessage : responseMessages) {
-				this.messageService.convertAndSend("/chat/" + responseMessage.getUserId(), responseMessage);
-			}						
-		} else {
-			this.messageService.convertAndSend("/chat" + message.getUserId(), new Message("error"));
-		}
-
+		sendResponseMessages(responseMessages, message, "[user: " + message.getUserId() + " has kicked User: "+ message.getAssignedUser().getUserId() + "from room:" + message.getRaumId() + "]");
 	}
 	
 	@MessageMapping("/send/refresh-raumid")
 	public void onReceiveRefreshRaumId(@Nullable final Message message) {
 		List<Message> responseMessages = this.syncService.generateRefreshRaumIdMessages(message);
-		if (responseMessages != null) {
-			System.out.println("[user: " + message.getUserId() + " has wants to resfresh Raumid: " + message.getRaumId() + "]");
-			for (Message responseMessage : responseMessages) {
-				this.messageService.convertAndSend("/chat/" + responseMessage.getUserId(), responseMessage);
-			}						
-		} else {
-			this.messageService.convertAndSend("/chat" + message.getUserId(), new Message("error"));
-		}
+		sendResponseMessages(responseMessages, message, "[user: " + message.getUserId() + " has wants to resfresh Raumid: " + message.getRaumId() + "]");
 	}
 	
 	@MessageMapping("/send/add-video-to-playlist")
 	public void onReceiveAddVideoToPlaylist(@Nullable final Message message) {
 		List<Message> responseMessages = this.syncService.addVideoToPlaylistMessages(message, SyncService.AddVideoMode.LAST);
-		if (responseMessages != null) {
-			System.out.println("[user: " + message.getUserId() + " added video " + message.getPlaylistVideo().getVideoId() + "to playlist as Last]");
-			for (Message responseMessage : responseMessages) {
-				this.messageService.convertAndSend("/chat/" + responseMessage.getUserId(), responseMessage);
-			}						
-		} else {
-			this.messageService.convertAndSend("/chat" + message.getUserId(), new Message("error"));
-		}
+		sendResponseMessages(responseMessages, message, "[user: " + message.getUserId() + " added video " + message.getPlaylistVideo().getVideoId() + "to playlist as Last]");
 	}
 	
 	@MessageMapping("/send/add-video-to-playlist-asnext")
 	public void onReceiveAddVideoToPlaylistAsNext(@Nullable final Message message) {
 		List<Message> responseMessages = this.syncService.addVideoToPlaylistMessages(message, SyncService.AddVideoMode.NEXT);
-		if (responseMessages != null) {
-			System.out.println("[user: " + message.getUserId() + " added video " + message.getPlaylistVideo().getVideoId() + "to playlist as Next]");
-			for (Message responseMessage : responseMessages) {
-				this.messageService.convertAndSend("/chat/" + responseMessage.getUserId(), responseMessage);
-			}						
-		} else {
-			this.messageService.convertAndSend("/chat" + message.getUserId(), new Message("error"));
-		}
+		sendResponseMessages(responseMessages, message, "[user: " + message.getUserId() + " added video " + message.getPlaylistVideo().getVideoId() + "to playlist as Next]");
 	}
 	
 	@MessageMapping("/send/add-video-to-playlist-ascurrent")
 	public void onReceiveAddVideoToPlaylistAsCurrent(@Nullable final Message message) {
 		List<Message> responseMessages = this.syncService.addVideoToPlaylistMessages(message, SyncService.AddVideoMode.CURRENT);
-		if (responseMessages != null) {
-			System.out.println("[user: " + message.getUserId() + " added video " + message.getPlaylistVideo().getVideoId() + "to playlist as current]");
-			for (Message responseMessage : responseMessages) {
-				this.messageService.convertAndSend("/chat/" + responseMessage.getUserId(), responseMessage);
-			}						
-		} else {
-			this.messageService.convertAndSend("/chat" + message.getUserId(), new Message("error"));
-		}
+		sendResponseMessages(responseMessages, message, "[user: " + message.getUserId() + " added video " + message.getPlaylistVideo().getVideoId() + "to playlist as current]");
 	}
 	
 	@MessageMapping("/send/remove-video-from-playlist")
 	public void onReceiveRemoveVideoFromPlaylist(@Nullable final Message message) {
 		
 		List<Message> responseMessages = this.syncService.generateRemoveVideoFromPlaylistMessages(message);
-		if (responseMessages != null) {
-			System.out.println("[video removed from playlist by user " + message.getUser() + "]");
-			for (Message responseMessage : responseMessages) {
-				this.messageService.convertAndSend("/chat/" + responseMessage.getUserId(), responseMessage);
-			}			
-		} else {
-			this.messageService.convertAndSend("/chat/" + message.getUser(), new Message("error"));
-		}
+		sendResponseMessages(responseMessages, message,"[video removed from playlist by user " + message.getUser() + "]");
 	}
-	
 	
 	
 	@MessageMapping("/send/switch-playlist-video")
 	public void onReceiveSwitchPlaylistVideo(@Nullable final Message message) {
 		
 		List<Message> responseMessages = this.syncService.generateSwitchPlaylistVideoMessages(message);
-		if (responseMessages != null) {
-			System.out.println("[switched playlist video by user " + message.getUser() + " to " + message.getPlaylistVideo().getTitle() + "]");
-			for (Message responseMessage : responseMessages) {
-				this.messageService.convertAndSend("/chat/" + responseMessage.getUserId(), responseMessage);
-			}			
-		} else {
-			this.messageService.convertAndSend("/chat/" + message.getUser(), new Message("error"));
-		}
+		sendResponseMessages(responseMessages, message, "[switched playlist video by user " + message.getUser() + " to " + message.getPlaylistVideo().getTitle() + "]");
 	}
 	
-	/*
-	@MessageMapping("/send/import-playlist")
-	public void onReceiveImportPlaylist(@Nullable final Message message) {
-		List<Message> responseMessages = this.syncService.importPlaylistMessages(message);
-		if (responseMessages != null) {
-			System.out.println("[user: " + message.getUserId() + " imported playlist" + message.getImportedPlaylist() + "]");
-			for (Message responseMessage : responseMessages) {
-				this.messageService.convertAndSend("/chat/" + responseMessage.getUserId(), responseMessage);
-			}						
-		} else {
-			this.messageService.convertAndSend("/chat" + message.getUserId(), new Message("error"));
-		}
-	}*/
+	@MessageMapping("/send/auto-next-playlist-video")
+	public void onReceiveAutoNextPlaylistVideo(@Nullable final Message message) {
+		
+		List<Message> responseMessages = this.syncService.processAutoNextPlaylistVideo(message);
+		sendResponseMessages(responseMessages, message,"[auto-next-playlist-video send to clients]");
+	}
+	
+	
+	@MessageMapping("/send/toggle-playlist-loop")
+	public void onReceiveTogglePlaylistLoop(@Nullable final Message message) {
+		
+		List<Message> responseMessages = this.syncService.generateTogglePlaylistLoopMessages(message);
+		sendResponseMessages(responseMessages, message,"[playlist-loop toggled by User " + message.getUser() + "]");
+	}
+	
+	@MessageMapping("/send/toggle-playlist-running-order")
+	public void onReceiveTogglePlaylistRunningOrder(@Nullable final Message message) {
+		
+		List<Message> responseMessages = this.syncService.generateTogglePlaylistRunningOrderMessages(message);
+		sendResponseMessages(responseMessages, message,"[playlist-running-order toggled by user " + message.getUser() + "]");
+	}
+	
 	
 	@MessageMapping("/send/current-timestamp")
 	public void onReceiveCurrentTimestamp(@Nullable final Message message) {
 		
 		List<Message> responseMessages = this.syncService.processJoinTimeStamp(message);
 		System.out.println("[" + responseMessages.size() + " Users getting synced]");
+		sendResponseMessages(responseMessages, message, "[have send sync timestamps to users]");
 		if (responseMessages != null) {
-			for (Message responseMessage : responseMessages) {
-				System.out.println("[joining user " + responseMessage.getUser() + " synced ]");
-
-				this.messageService.convertAndSend("/chat/" + responseMessage.getUserId(), responseMessage);
-			}
 			this.syncService.clearJoiningUsers(message.getRaumId());
-			
 		} 
 	}
 	
@@ -366,16 +231,29 @@ public class WebSocketController {
 	public void onReceiveRequestSyncTimestamp(@Nullable final Message message) {
 		
 		Message responseMessage = this.syncService.generateRequestSyncTimestampMessages(message);
-		if (responseMessage != null) {
-			System.out.println("[requested sync timestamp from User " + responseMessage.getUser() + "]");
-			this.messageService.convertAndSend("/chat/" + responseMessage.getUserId(), responseMessage);
-		} else {
-			this.messageService.convertAndSend("/chat/" + message.getUser(), new Message("error"));
-		}
+		sendResponseMessage(responseMessage, message, "[requested sync timestamp from User " + responseMessage.getUser() + "]");
 	}
 	
 
+	private void sendResponseMessages(List<Message> responseMessages, Message requestMessage, String log) {
+		if (responseMessages != null) {
+			for (Message responseMessage : responseMessages) {
+				this.messageService.convertAndSend("/chat/" + responseMessage.getUserId(), responseMessage);
+			}			
+			System.out.println(log);
+		} else {
+			this.messageService.convertAndSend("/chat/" + requestMessage.getUser(), new Message("error"));
+		}
+	}
 	
+	private void sendResponseMessage(Message responseMessage, Message requestMessage, String log) {
+		if (responseMessage != null) {
+			this.messageService.convertAndSend("/chat/" + responseMessage.getUserId(), responseMessage);
+			System.out.println(log);
+		} else {
+			this.messageService.convertAndSend("/chat/" + requestMessage.getUser(), new Message("error"));
+		}
+	}
 	
 	/*
 	 * @MessageMapping("/chat")

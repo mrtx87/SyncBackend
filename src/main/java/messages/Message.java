@@ -20,8 +20,11 @@ public class Message {
 	Boolean raumStatus;
 	ArrayList<RaumDTO> publicRaeume;
 	User assignedUser;
+	
 	Video playlistVideo;
-
+	int loop; //0 noloop, 1 loop all, 2 loop single video
+	boolean randomOrder; //false sequentiell, true random
+	
 	public Video getVideo() {
 		return video;
 	}
@@ -140,6 +143,22 @@ public class Message {
 
 	public void setRaumId(long raumId) {
 		this.raumId = raumId;
+	}
+
+	public int getLoop() {
+		return loop;
+	}
+
+	public void setLoop(int loop) {
+		this.loop = loop;
+	}
+
+	public boolean isRandomOrder() {
+		return randomOrder;
+	}
+
+	public void setRandomOrder(boolean randomOrder) {
+		this.randomOrder = randomOrder;
 	}
 
 	public Long getUserId() {

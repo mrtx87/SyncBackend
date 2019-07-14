@@ -70,7 +70,15 @@ public class Video {
 	}
 
 	public boolean equalsTo(Video video) {
-		return video.getId().equals(getId());
+		if(video != null)
+			return video.getId().equals(getId());
+		return false;
+	}
+	
+	public boolean equalsTo(String id) {
+		if(id != null)
+			return id.equals(getId());
+		return false;
 	}
 
 }
