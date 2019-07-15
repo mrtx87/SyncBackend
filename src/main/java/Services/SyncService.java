@@ -854,10 +854,16 @@ public class SyncService {
 					if(raum.isRandomOrder()) {
 						newCurrentVid = raum.getRandomPlaylistVideo();
 					}else {
-						newCurrentVid = raum.getPlaylistVideo(raum.getIndexOfVideo(raum.getCurrentVideo()) + 1);
+						if(raum.getIndexOfVideo(raum.getCurrentVideo()) < raum.getPlaylist().size()) { //nicht letztes video
+							newCurrentVid = raum.getPlaylistVideo(raum.getIndexOfVideo(raum.getCurrentVideo()) + 1);
+						}
 					}
 				}else if(raum.getLoop() == LOOP_ALL) {
-					newCurrentVid = raum.getPlaylistVideo(raum.getIndexOfVideo(raum.getCurrentVideo()) + 1);
+					if(raum.getIndexOfVideo(raum.getCurrentVideo()) < raum.getPlaylist().size()-1) { //nicht letztes video
+						newCurrentVid = raum.getPlaylistVideo(raum.getIndexOfVideo(raum.getCurrentVideo()) + 1);
+					}else { //letztes video
+						newCurrentVid = raum.getPlaylistVideo(0);
+					}
 				}else if(raum.getLoop() == LOOP_SINGLE) {
 					newCurrentVid = raum.getCurrentVideo();
 				}
