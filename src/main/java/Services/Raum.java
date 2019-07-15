@@ -71,6 +71,9 @@ public class Raum {
 		this.timeStamps = timeStamps;
 	}
 	
+	public Video getRandomPlaylistVideo() {
+		return playlist.get((int) (playlist.size() * Math.random()));
+	}
 	
 	
 	public boolean isRandomOrder() {
@@ -95,7 +98,7 @@ public class Raum {
 	}
 
 	public int toggleLoop() {
-		loop =+1;
+		loop +=1;
 		if(loop > 2) {
 			loop = 0;
 		}

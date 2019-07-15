@@ -795,9 +795,15 @@ public class SyncService {
 		if(raumExists(raumId)){ 
 			Raum raum = getRaum(raumId);
 			if(raum.importPlaylist(importedPlaylist)) {
+				raum.setCurrentVideo(raum.getPlaylistVideo(0));
 				Message responseMessage = new Message();
 				responseMessage.setType("update-playlist");
-				responseMessage.setRaumId(raumId);			
+				responseMessage.setRaumId(raumId);
+				raum.setPlayerState(1);
+				responseMessage.setPlayerState(1);		
+				responseMessage.setVideo(raum.getCurrentVideo());
+				raum.setCurrentPlaybackRate(1);
+				responseMessage.setCurrentPlaybackRate(1);
 				for(Long userId : getRaum(raumId).getUserIds()) {
 					this.messageService.convertAndSend("/chat/" + userId, responseMessage);
 				}
@@ -811,6 +817,7 @@ public class SyncService {
 		if (rooms.containsKey(message.getRaumId()) && isAdmin(message.getRaumId(), message.getUserId())) {
 			Raum raum = getRaum(message.getRaumId());
 			Video video = raum.switchCurrentPlaylistVideo(message.getPlaylistVideo());
+			video.setTimestamp(0f);
 			raum.setCurrentPlaybackRate(1);
 			if(video != null)	{		
 				ArrayList<Message> responseMessages = new ArrayList<>();
@@ -820,6 +827,7 @@ public class SyncService {
 					responseMessage.setUser(user);
 					responseMessage.setRaumId(raum.getRaumId());
 					responseMessage.setVideo(raum.getCurrentVideo());
+					raum.setPlayerState(1);
 					responseMessage.setPlayerState(1);
 					responseMessage.setCurrentPlaybackRate(raum.getCurrentPlaybackRate());
 					responseMessages.add(responseMessage);
@@ -830,14 +838,32 @@ public class SyncService {
 		return null;
 	}
 
+	static int NO_LOOP = 0;
+	static int LOOP_ALL = 1;
+	static int LOOP_SINGLE = 2;
+	
 	public List<Message> processAutoNextPlaylistVideo(Message message) {
 		if (rooms.containsKey(message.getRaumId())) {
 			Raum raum = getRaum(message.getRaumId());
 			int requests = raum.countNextVidRequest();
+			Video newCurrentVid = null;
 			if(requests >= raum.getSize()) {
-				Video newCurrentVid = raum.getPlaylistVideo(raum.getIndexOfVideo(raum.getCurrentVideo()) + 1);
-				message.setPlaylistVideo(newCurrentVid);
 				requests = 0;
+
+				if(raum.getLoop() == NO_LOOP) {
+					if(raum.isRandomOrder()) {
+						newCurrentVid = raum.getRandomPlaylistVideo();
+					}else {
+						newCurrentVid = raum.getPlaylistVideo(raum.getIndexOfVideo(raum.getCurrentVideo()) + 1);
+					}
+				}else if(raum.getLoop() == LOOP_ALL) {
+					newCurrentVid = raum.getPlaylistVideo(raum.getIndexOfVideo(raum.getCurrentVideo()) + 1);
+				}else if(raum.getLoop() == LOOP_SINGLE) {
+					newCurrentVid = raum.getCurrentVideo();
+				}
+				
+				newCurrentVid.setTimestamp(0f);
+				message.setPlaylistVideo(newCurrentVid);
 				return generateSwitchPlaylistVideoMessages(message);
 			}
 			
