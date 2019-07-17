@@ -850,22 +850,23 @@ public class SyncService {
 			if(requests >= raum.getSize()) {
 				requests = 0;
 
-				if(raum.getLoop() == NO_LOOP) {
-					if(raum.isRandomOrder()) {
+				if(raum.getLoop() == NO_LOOP) { //KEINE LOOP
+					if(raum.isRandomOrder()) { //ZUFÄLLIG?
 						newCurrentVid = raum.getRandomPlaylistVideo();
-					}else {
+					}else { // NICHT ZUFÄLLIG
 						if(raum.getIndexOfVideo(raum.getCurrentVideo()) < raum.getPlaylist().size()) { //nicht letztes video
 							newCurrentVid = raum.getPlaylistVideo(raum.getIndexOfVideo(raum.getCurrentVideo()) + 1);
 						}
+						//wenn letztes video -> nichts machen
 					}
-				}else if(raum.getLoop() == LOOP_ALL) {
+				}else if(raum.getLoop() == LOOP_ALL) { // ALLES LOOPEN
 					if(raum.getIndexOfVideo(raum.getCurrentVideo()) < raum.getPlaylist().size()-1) { //nicht letztes video
 						newCurrentVid = raum.getPlaylistVideo(raum.getIndexOfVideo(raum.getCurrentVideo()) + 1);
 					}else { //letztes video
 						newCurrentVid = raum.getPlaylistVideo(0);
 					}
 				}else if(raum.getLoop() == LOOP_SINGLE) {
-					newCurrentVid = raum.getCurrentVideo();
+					newCurrentVid = raum.getCurrentVideo(); // ANY RANDOM
 				}
 				
 				newCurrentVid.setTimestamp(0f);
