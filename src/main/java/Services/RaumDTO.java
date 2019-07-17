@@ -11,7 +11,7 @@ public class RaumDTO {
 	long raumId;
 	String createdAt;
 	String description;
-	String title;
+	String raumTitle;
 	int size; 
 	Video video;
 	Boolean raumStatus;
@@ -35,13 +35,13 @@ public class RaumDTO {
 	public void setDescription(String description) {
 		this.description = description;
 	}
-	public String getTitle() {
-		return title;
-	}
-	public void setTitle(String title) {
-		this.title = title;
-	}
 	
+	public String getRaumTitle() {
+		return raumTitle;
+	}
+	public void setRaumTitle(String raumTitle) {
+		this.raumTitle = raumTitle;
+	}
 	public long getRaumId() {
 		return raumId;
 	}

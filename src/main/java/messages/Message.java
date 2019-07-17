@@ -20,6 +20,8 @@ public class Message {
 	Boolean raumStatus;
 	ArrayList<RaumDTO> publicRaeume;
 	User assignedUser;
+	String raumDescription;
+	String raumTitle;
 	
 	Video playlistVideo;
 	int loop; //0 noloop, 1 loop all, 2 loop single video
@@ -33,6 +35,22 @@ public class Message {
 
 	public void setCurrentPlaybackRate(float currentPlaybackRate) {
 		this.currentPlaybackRate = currentPlaybackRate;
+	}
+
+	public String getRaumDescription() {
+		return raumDescription;
+	}
+
+	public void setRaumDescription(String raumDescription) {
+		this.raumDescription = raumDescription;
+	}
+
+	public String getRaumTitle() {
+		return raumTitle;
+	}
+
+	public void setRaumTitle(String raumTitle) {
+		this.raumTitle = raumTitle;
 	}
 
 	public Video getVideo() {

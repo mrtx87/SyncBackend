@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import Services.ImportedPlaylist;
+import Services.RaumDTO;
 import Services.SyncService;
 import messages.Message;
 import messages.Video;
@@ -40,5 +41,16 @@ public class RestController {
 			return ResponseEntity.ok(new Message());
 		}
 		return ResponseEntity.badRequest().build();
+	}
+	
+	
+	@GetMapping("/publicrooms")
+	@CrossOrigin(origins = "http://localhost:4200")
+	public List<RaumDTO> getPublicRooms() {
+		ArrayList<RaumDTO> publicrooms = syncService.getPublicRooms();
+		if(publicrooms != null) {			
+			return publicrooms;
+		}
+		return new ArrayList<RaumDTO>();
 	}
 }

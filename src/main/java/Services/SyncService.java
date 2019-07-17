@@ -222,6 +222,8 @@ public class SyncService {
 			joinMessage.setType("join-room");
 			joinMessage.setUser(user);
 			joinMessage.setUsers(raum.getUserList());
+			joinMessage.setRaumTitle(raum.getTitle());
+			joinMessage.setRaumDescription(raum.getDescription());
 			joinMessage.setRaumId(raum.getRaumId());
 			joinMessage.setVideo(raum.getCurrentVideo());
 			joinMessage.setRaumStatus(raum.getRaumStatus());
@@ -272,8 +274,16 @@ public class SyncService {
 
 	public ArrayList<RaumDTO> getPublicRooms() {
 
-		return (ArrayList<RaumDTO>) rooms.values().stream().filter(raum -> raum.getRaumStatus() == publicRaum)
-				.map(raum -> RaumMapper.createRaumDTO(raum)).collect(Collectors.toList());
+		return (ArrayList<RaumDTO>) rooms
+				.values()
+				.stream()
+				.filter(raum -> raum.getRaumStatus() == publicRaum)
+				.map(raum -> RaumMapper.createRaumDTO(raum))
+				.collect(Collectors.toList());
+	}
+	
+	private boolean isValidPublicRoom() {
+		return false;
 	}
 
 	public List<Message> addAndShareNewVideo(Message message) {
@@ -721,8 +731,29 @@ public class SyncService {
 	}
 	
 
-	public List<Message> generateUpdateDescriptionAndTitleMessages(Message message) {
-		// TODO Auto-generated method stub
+	public List<Message> generateUpdateTitleAndDescriptionMessages(Message message) {
+		if (rooms.containsKey(message.getRaumId()) && isAdmin(message.getRaumId(), message.getUserId())) {
+			Raum raum = getRaum(message.getRaumId());
+
+			raum.setDescription(message.getRaumDescription());
+			raum.setTitle(message.getRaumTitle());
+			//ChatMessage chatMessage = createAndSaveChatMessage(raum.getUser(message.getUserId()), raum.getRaumId(), "has refreshed RoomId to :" + raum.getRaumId(), null);
+
+			ArrayList<Message> responseMessages = new ArrayList<>();
+			for (User user : raum.getUserList()) {
+				Message responseMessage = new Message();
+				responseMessage.setType("update-title-and-description");
+				responseMessage.setUser(user);
+				responseMessage.setRaumId(raum.getRaumId());
+				responseMessage.setRaumTitle(raum.getTitle());
+				responseMessage.setRaumDescription(raum.getDescription());
+				//responseMessage.setChatMessage(chatMessage);
+
+				responseMessages.add(responseMessage);
+			}
+			return responseMessages;
+		}
+
 		return null;
 	}
 

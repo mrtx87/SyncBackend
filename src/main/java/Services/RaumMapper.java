@@ -9,7 +9,7 @@ public class RaumMapper {
 		raumDTO.setVideo(raum.getCurrentVideo());
 		raumDTO.setCreatedAt(raum.getCreatedAt());
 		raumDTO.setDescription(raum.getDescription());
-		raumDTO.setTitle(raum.getTitle());
+		raumDTO.setRaumTitle(raum.getTitle());
 		raumDTO.setRaumStatus(raum.getRaumStatus());
 		return raumDTO;
 	}
