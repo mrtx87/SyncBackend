@@ -5,7 +5,17 @@ public class User {
 	long userId;
 	String userName;
 	Boolean admin;
+	Boolean isMute;
 	
+	public Boolean getIsMute() {
+		return isMute;
+	}
+	public void setIsMute(Boolean isMute) {
+		this.isMute = isMute;
+	}
+	public Boolean getAdmin() {
+		return admin;
+	}
 	public long getUserId() {
 		return userId;
 	}

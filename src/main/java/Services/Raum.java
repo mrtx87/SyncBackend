@@ -443,4 +443,13 @@ public class Raum {
 		return -1;
 	}
 	
+	public User toggleMuteUserById(Long userId) {
+		if(exists(userId)) {
+			User user = getUser(userId);
+			user.setIsMute(!user.getIsMute());
+			return user;
+		}
+		return null;
+	}
+	
 }

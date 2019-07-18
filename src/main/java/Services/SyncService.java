@@ -175,6 +175,7 @@ public class SyncService {
 			user.setUserName(name);
 			user.setUserId(message.getUserId());
 			user.setAdmin(true);
+			user.setIsMute(false);
 			raum.addUser(user);
 
 			WebSocketConfiguration.registryInstance.enableSimpleBroker("/" + userID);
@@ -207,6 +208,7 @@ public class SyncService {
 			User user = new User();
 			user.setUserName(name);
 			user.setUserId(message.getUserId());
+			user.setIsMute(false);
 
 			if (raum.getRaumStatus() == privateRaum) {
 				user.setAdmin(true);
@@ -345,8 +347,16 @@ public class SyncService {
 	public List<Long> generateSaveChatMessageResponse(Message message) {
 		if (rooms.containsKey(message.getRaumId())) {
 			Raum raum = getRaum(message.getRaumId());
-			saveChatMessage(message.getChatMessage());
-			return raum.getUserIds();
+			
+			if(raum.exists(message.getUserId())) {
+				User user = raum.getUser(message.getUserId());
+				if(!user.isMute) {					
+					saveChatMessage(message.getChatMessage());
+					return raum.getUserIds();
+				}
+				
+			}
+
 		}
 		return null;
 	}
@@ -965,4 +975,41 @@ public class SyncService {
 		}
 		return null;
 	}
+
+	public List<Message> generateToggleMuteUserMessages(Message message) {
+		if (rooms.containsKey(message.getRaumId()) && isAdmin(message.getRaumId(), message.getUserId())) {
+			Raum raum = getRaum(message.getRaumId());
+			User toggleMuteUser = raum.toggleMuteUserById(message.getAssignedUser().getUserId());
+			
+			if(toggleMuteUser != null) {
+				
+				ChatMessage chatMessage = createAndSaveChatMessage(raum.getUser(message.getUserId()), raum.getRaumId(), "has " + ((toggleMuteUser.isMute) ? "muted " : "unmuted " + toggleMuteUser.getUserName()) , null);
+
+				ArrayList<Message> responseMessages = new ArrayList<>();
+				for (User user : raum.getUserList()) {
+					Message responseMessage = new Message();
+					if(toggleMuteUser.getUserId() == user.getUserId()) {
+						responseMessage.setType("refresh-user-and-list");
+
+					}else {
+						responseMessage.setType("refresh-userlist");
+
+					}
+					responseMessage.setUser(user);
+					responseMessage.setRaumId(raum.getRaumId());
+					responseMessage.setChatMessage(chatMessage);
+					responseMessage.setUsers(raum.getUserList());
+
+					responseMessages.add(responseMessage);
+				}
+				return responseMessages;
+							
+			}
+			
+		}
+		return null;
+	}
+	
+	
+	
 }

@@ -222,6 +222,13 @@ public class WebSocketController {
 		sendResponseMessages(responseMessages, message,"[change-playback-rate by User " + message.getUser() + "]");
 	}
 	
+	@MessageMapping("/send/toggle-mute-user")
+	public void onReceiveToggleMuteUser(@Nullable final Message message) {
+		
+		List<Message> responseMessages = this.syncService.generateToggleMuteUserMessages(message);
+		sendResponseMessages(responseMessages, message,"[toggle-mute-user " + message.getAssignedUser()  + " by User" + message.getUser() + "]");
+	}
+	
 	
 	@MessageMapping("/send/current-timestamp")
 	public void onReceiveCurrentTimestamp(@Nullable final Message message) {
