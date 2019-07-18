@@ -169,7 +169,8 @@ public class SyncService {
 			raum.setPlayerState(2);
 			saveRoom(raum);
 			raum.setCurrentPlaybackRate(1);
-
+			raum.setTitle("Raum#" + raum.getRaumId());
+			raum.setDescription("new created room");
 			String name = randomName();
 			User user = new User();
 			user.setUserName(name);
@@ -184,7 +185,9 @@ public class SyncService {
 			createRaumMessage.setUser(user);
 			createRaumMessage.setRaumId(raum.raumId);
 			createRaumMessage.setUsers(raum.getUserList());
-			createRaumMessage.setCurrentPlaybackRate(raum.getCurrentPlaybackRate());
+			createRaumMessage.setCurrentPlaybackRate(raum.getCurrentPlaybackRate());			
+			createRaumMessage.setRaumTitle(raum.getTitle());
+			createRaumMessage.setRaumDescription(raum.getDescription());
 			//createRaumMessage.setVideo(raum.getVideo());
 			createRaumMessage.setRaumStatus(raum.getRaumStatus());
 			createRaumMessage.setPlayerState(raum.getPlayerState());
