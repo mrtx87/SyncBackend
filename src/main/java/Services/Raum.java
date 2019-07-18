@@ -330,9 +330,11 @@ public class Raum {
 	}
 	
 	private Video removeVideoFromPlaylistById(String Id) {
-		for(int i = 0; i < playlist.size(); i++) {
-			if(Id.equals(playlist.get(i).getId())) {
-				return playlist.remove(i);
+		if(Id != null) {
+			for(int i = 0; i < playlist.size(); i++) {
+				if(Id.equals(playlist.get(i).getId())) {
+					return playlist.remove(i);
+				}
 			}
 		}
 		return null;

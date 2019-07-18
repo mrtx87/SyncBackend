@@ -2,6 +2,7 @@ package Services;
 
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -29,7 +30,7 @@ public class SyncService {
 		LAST
 	}
 
-	public  Video defaultVideo = new Video("WBG7TFLj4YQ", 0.0f,"Unter Wasser: Megacitys in Gefahr | Doku | ARTE\r\n");
+	public  Video defaultVideo = new Video(generateVideoObjectId(), "WBG7TFLj4YQ", 0.0f,"Unter Wasser: Megacitys in Gefahr | Doku | ARTE\r\n", "", new Date());
 
 	
 	HashMap<Long, Raum> rooms = new HashMap<>();
@@ -169,7 +170,8 @@ public class SyncService {
 			raum.setPlayerState(2);
 			saveRoom(raum);
 			raum.setCurrentPlaybackRate(1);
-
+			raum.setTitle("Raum#" + raum.getRaumId());
+			raum.setDescription("new created room");
 			String name = randomName();
 			User user = new User();
 			user.setUserName(name);
@@ -185,11 +187,12 @@ public class SyncService {
 			createRaumMessage.setUser(user);
 			createRaumMessage.setRaumId(raum.raumId);
 			createRaumMessage.setUsers(raum.getUserList());
-			createRaumMessage.setCurrentPlaybackRate(raum.getCurrentPlaybackRate());
-			//createRaumMessage.setVideo(raum.getVideo());
+			createRaumMessage.setCurrentPlaybackRate(raum.getCurrentPlaybackRate());			
+			createRaumMessage.setRaumTitle(raum.getTitle());
+			createRaumMessage.setRaumDescription(raum.getDescription());
 			createRaumMessage.setRaumStatus(raum.getRaumStatus());
 			createRaumMessage.setPlayerState(raum.getPlayerState());
-			ChatMessage chatMessage = createAndSaveChatMessage(user, raum.getRaumId(), "has created the Room", null);
+			createAndSaveChatMessage(user, raum.getRaumId(), "has created the Room", null);
 			createRaumMessage.setChatMessages(raum.getChatMessages());
 
 			return createRaumMessage;
@@ -259,10 +262,6 @@ public class SyncService {
 		return null;
 	}
 
-	/*
-	 * public Long getTimeStamp(Long raumId) { return
-	 * getRaum(raumId).getVideo().getTimestamp(); }
-	 */
 
 	public Message generatePublicRaeumeMessage(Message message) {
 
@@ -284,9 +283,6 @@ public class SyncService {
 				.collect(Collectors.toList());
 	}
 	
-	private boolean isValidPublicRoom() {
-		return false;
-	}
 
 	public List<Message> addAndShareNewVideo(Message message) {
 		if (rooms.containsKey(message.getRaumId()) && message.getVideo() != null) {
@@ -396,9 +392,7 @@ public class SyncService {
 				responseMessage.setRaumId(raum.getRaumId());
 				messages.add(responseMessage);
 			}
-
 			return messages;
-
 		}
 
 		return null;
@@ -822,6 +816,13 @@ public class SyncService {
 	
 	public boolean raumExists(Long raumId) {
 		return rooms.containsKey(raumId);
+	}
+	
+	public ArrayList<Video> getCopyOfRaumPlaylist(Long raumId) {
+		if(raumExists(raumId)) {
+			return (ArrayList<Video>) getRaum(raumId).getPlaylist().stream().map(vid -> vid.clone()).collect(Collectors.toList());
+		}
+		return null;
 	}
 	
 	

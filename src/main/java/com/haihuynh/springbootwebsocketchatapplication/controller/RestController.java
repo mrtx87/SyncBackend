@@ -27,7 +27,7 @@ public class RestController {
 	@GetMapping("/room/{raumId}/playlist")
 	@CrossOrigin(origins = "http://localhost:4200")
 	public List<Video> getRaumPlaylist(@PathVariable("raumId") Long raumId) {
-		ArrayList<Video> playlist = syncService.getRaumPlaylist(raumId);
+		ArrayList<Video> playlist = syncService.getCopyOfRaumPlaylist(raumId);
 		if(playlist != null) {			
 			return playlist;
 		}
