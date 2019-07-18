@@ -44,10 +44,13 @@ public class Video {
 		this.title = title;
 	}
 
-	public Video(String videoId, Float timestamp, String title) {
+	public Video(String id, String videoId, Float timestamp, String title, String description, Date publishedAt) {
+		this.id = id;
 		this.videoId = videoId;
 		this.timestamp = timestamp;
 		this.title = title;
+		this.description = description;
+	    this.publishedAt = publishedAt;
 	}
 	
 	public Video() {}
@@ -66,7 +69,7 @@ public class Video {
 	}
 	
 	public Video clone() {
-		return new Video(this.videoId, this.timestamp, this.title);
+		return new Video(this.id,this.videoId, this.timestamp, this.title, this.description, this.publishedAt);
 	}
 
 	public boolean equalsTo(Video video) {
