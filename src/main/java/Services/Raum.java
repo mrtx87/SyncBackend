@@ -24,9 +24,11 @@ public class Raum {
 
 	ArrayList<ChatMessage> chatMessages = new ArrayList<>();
 	HashMap<Long, User> users = new HashMap<>();
+	HashMap<Long, User> joiningUsers = new HashMap<>();
+	HashMap<Long, User> allTimeUsers = new HashMap<>();
+	
 	ArrayList<Video> playlist = new ArrayList<>();
 	HashMap<Long, Float> timeStamps = new HashMap<>();
-	HashMap<Long, User> joiningUsers = new HashMap<>();
 	
 	int countingNextVidRequests = 0;
 
@@ -53,6 +55,26 @@ public class Raum {
 
 	public void setCurrentPlaybackRate(float currentPlaybackRate) {
 		this.currentPlaybackRate = currentPlaybackRate;
+	}
+	
+	public boolean hasBeenToRaum(Long userId) {
+		return allTimeUsers.containsKey(userId);
+	}
+	
+	public HashMap<Long, User> getAllTimeUsers() {
+		return allTimeUsers;
+	}
+	
+	public void addToAllTimeUsers(User user) {
+		allTimeUsers.put(user.getUserId(), user);
+	}
+
+	public void setAllTimeUsers(HashMap<Long, User> allTimeUsers) {
+		this.allTimeUsers = allTimeUsers;
+	}
+	
+	public User getUserFromAllTimeUsers(Long userId) {
+		return allTimeUsers.get(userId);
 	}
 
 	public HashMap<Long, User> getJoiningUsers() {
@@ -450,6 +472,17 @@ public class Raum {
 			User user = getUser(userId);
 			user.setIsMute(!user.getIsMute());
 			return user;
+		}
+		return null;
+	}
+	
+	public User changeUserName(User user) {
+		if(exists(user.getUserId())) {
+			User changeNameUser = getUser(user.getUserId());
+			changeNameUser.setUserName(user.getUserName());
+			allTimeUsers.put(changeNameUser.getUserId(), changeNameUser);
+			users.put(changeNameUser.getUserId(), changeNameUser);
+			return changeNameUser;
 		}
 		return null;
 	}

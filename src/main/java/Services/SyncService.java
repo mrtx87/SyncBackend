@@ -179,6 +179,7 @@ public class SyncService {
 			user.setAdmin(true);
 			user.setIsMute(false);
 			raum.addUser(user);
+			raum.addToAllTimeUsers(user);
 
 			WebSocketConfiguration.registryInstance.enableSimpleBroker("/" + userID);
 
@@ -207,22 +208,28 @@ public class SyncService {
 		if (rooms.containsKey(message.getRaumId())) {
 
 			Raum raum = rooms.get(message.getRaumId());
-			String name = randomName();
-			User user = new User();
-			user.setUserName(name);
-			user.setUserId(message.getUserId());
-			user.setIsMute(false);
+			User user;
+			if(raum.hasBeenToRaum(message.getUserId())) {
+				user = raum.getUserFromAllTimeUsers(message.getUserId());
+			}else {
+				String name = randomName();
+				user = new User();
+				user.setUserName(name);
+				user.setUserId(message.getUserId());
+				user.setIsMute(false);
 
-			if (raum.getRaumStatus() == privateRaum) {
-				user.setAdmin(true);
-			} else {
-				user.setAdmin(false);
+				if (raum.getRaumStatus() == privateRaum) {
+					user.setAdmin(true);
+				} else {
+					user.setAdmin(false);
+				}
+				raum.addToAllTimeUsers(user);
+
 			}
-
 			raum.addUser(user);
 			raum.addJoiningUser(user);
+				
 			List<Message> messages = new ArrayList<>();
-
 			Message joinMessage = new Message();
 			joinMessage.setType("join-room");
 			joinMessage.setUser(user);
@@ -332,6 +339,7 @@ public class SyncService {
 				responseMessage.setRaumId(raum.raumId);
 				responseMessage.setUser(user);
 				responseMessage.setChatMessage(chatMessage);
+				responseMessage.setUsers(raum.getUserList());
 				messages.add(responseMessage);
 			}
 
@@ -559,7 +567,7 @@ public class SyncService {
 
 			User kickedUser = raum.deleteUser(message.getAssignedUser().getUserId());
 			if (kickedUser != null) {
-				ChatMessage chatMessage = createAndSaveChatMessage(raum.getUser(message.getUserId()), raum.getRaumId(), "has kicked :" + kickedUser.getUserName(), null);
+				ChatMessage chatMessage = createAndSaveChatMessage(raum.getUser(message.getUserId()), raum.getRaumId(), "has kicked " + kickedUser.getUserName(), null);
 
 				Message kickedUserMessage = new Message();
 				kickedUserMessage.setType("kicked-user");
@@ -984,7 +992,7 @@ public class SyncService {
 			
 			if(toggleMuteUser != null) {
 				
-				ChatMessage chatMessage = createAndSaveChatMessage(raum.getUser(message.getUserId()), raum.getRaumId(), "has " + ((toggleMuteUser.isMute) ? "muted " : "unmuted " + toggleMuteUser.getUserName()) , null);
+				ChatMessage chatMessage = createAndSaveChatMessage(raum.getUser(message.getUserId()), raum.getRaumId(), "has " + ((toggleMuteUser.isMute) ? "muted " : "unmuted ") + toggleMuteUser.getUserName() , null);
 
 				ArrayList<Message> responseMessages = new ArrayList<>();
 				for (User user : raum.getUserList()) {
@@ -1007,6 +1015,28 @@ public class SyncService {
 							
 			}
 			
+		}
+		return null;
+	}
+
+	public List<Message> generateChangeUserNameMessages(Message message) {
+		if (rooms.containsKey(message.getRaumId()) && message.getUser() != null) {
+			Raum raum = getRaum(message.getRaumId());
+			if(raum.exists(message.getUserId())) {
+				
+				User nameChangedUser = raum.changeUserName(message.getUser());
+				ArrayList<Message> responseMessages = new ArrayList<>();
+				for (User user : raum.getUserList()) {
+					Message responseMessage = new Message();
+					responseMessage.setType("update-client");
+					responseMessage.setUser(user);
+					responseMessage.setRaumId(raum.getRaumId());
+					responseMessage.setUsers(raum.getUserList());
+					
+					responseMessages.add(responseMessage);
+				}
+				return responseMessages;
+			}
 		}
 		return null;
 	}

@@ -6,7 +6,7 @@ public class User {
 	String userName;
 	Boolean admin;
 	Boolean isMute;
-	
+
 	public Boolean getIsMute() {
 		return isMute;
 	}

@@ -80,6 +80,12 @@ public class WebSocketController {
 			sendResponseMessages(responseMessages, message, "[user:" + message.getUserId() + " sharing video: " + message.getVideo().getVideoId() + "]");
 		}
 	}
+	
+	@MessageMapping("/send/change-user-name")
+	public void onReceiveChangeUserName(@Nullable final Message message) {
+		List<Message> responseMessages = syncService.generateChangeUserNameMessages(message);
+		sendResponseMessages(responseMessages, message, "user: " + message.getUserId() + " -> [changed name to - " + message.getUserName() + "]");
+	}
 
 	@MessageMapping("/send/join-room")
 	public void onJoinRoom(@Nullable final Message message) {
