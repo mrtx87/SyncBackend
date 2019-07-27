@@ -160,6 +160,13 @@ public class WebSocketController {
 		sendResponseMessages(responseMessages, message, "[user: " + message.getUserId() + " has kicked User: "+ message.getAssignedUser().getUserId() + "from room:" + message.getRaumId() + "]");
 	}
 	
+	@MessageMapping("/send/pardon-kicked-user")
+	public void onReceivePardonKickedUser(@Nullable final Message message) {
+		List<Message> responseMessages = this.syncService.generatePardonKickedUserMessages(message);
+		sendResponseMessages(responseMessages, message, "[user: " + message.getUserId() + " has kicked User: "+ message.getAssignedUser().getUserId() + "from room:" + message.getRaumId() + "]");
+	}
+	
+	
 	@MessageMapping("/send/refresh-raumid")
 	public void onReceiveRefreshRaumId(@Nullable final Message message) {
 		List<Message> responseMessages = this.syncService.generateRefreshRaumIdMessages(message);

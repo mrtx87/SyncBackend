@@ -26,7 +26,9 @@ public class Raum {
 	HashMap<Long, User> users = new HashMap<>();
 	HashMap<Long, User> joiningUsers = new HashMap<>();
 	HashMap<Long, User> allTimeUsers = new HashMap<>();
+	HashMap<Long, User> kickedUsers = new HashMap<>();
 	
+
 	ArrayList<Video> playlist = new ArrayList<>();
 	HashMap<Long, Float> timeStamps = new HashMap<>();
 	
@@ -97,6 +99,31 @@ public class Raum {
 		return playlist.get((int) (playlist.size() * Math.random()));
 	}
 	
+	public User addKickedUser(User user) {
+		return kickedUsers.put(user.getUserId(), user);
+	}
+	
+	public boolean existsOnKickedUsersList(Long userId) {
+		return kickedUsers.containsKey(userId);
+	}
+	
+	public User removeFromKickedUserList(Long userId) {
+		return kickedUsers.remove(userId);
+	}
+	
+	public ArrayList<User> getKickedUsersList(){
+		return (ArrayList<User>) getKickedUsers()
+				.values()
+				.stream()
+				.collect(Collectors.toList());
+	}
+	
+	public HashMap<Long, User> getKickedUsers() {
+		return kickedUsers;
+	}
+	public void setKickedUsers(HashMap<Long, User> kickedUsers) {
+		this.kickedUsers = kickedUsers;
+	}
 	
 	public boolean isRandomOrder() {
 		return randomOrder;
@@ -252,6 +279,12 @@ public class Raum {
 	public ArrayList<User> getUserList() {
 
 		return (ArrayList<User>) this.users.values().stream().collect(Collectors.toList());
+
+	}
+	
+	public ArrayList<User> getAdminList() {
+
+		return (ArrayList<User>) this.users.values().stream().filter(u -> u.admin).collect(Collectors.toList());
 
 	}
 

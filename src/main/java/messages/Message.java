@@ -17,6 +17,8 @@ public class Message {
 	ChatMessage chatMessage;
 	ArrayList<ChatMessage> chatMessages;
 	ArrayList<User> users;
+	ArrayList<User> kickedUsers;
+	
 	Boolean raumStatus;
 	ArrayList<RaumDTO> publicRaeume;
 	User assignedUser;
@@ -28,6 +30,14 @@ public class Message {
 	boolean randomOrder; //false sequentiell, true random
 	
 	float currentPlaybackRate;
+	
+	
+	public ArrayList<User> getKickedUsers() {
+		return kickedUsers;
+	}
+	public void setKickedUsers(ArrayList<User> kickedUsers) {
+		this.kickedUsers = kickedUsers;
+	}
 	
 	public float getCurrentPlaybackRate() {
 		return currentPlaybackRate;
