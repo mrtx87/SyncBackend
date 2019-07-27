@@ -38,13 +38,6 @@ public class WebSocketController {
 	}
 
 	
-	@MessageMapping("/send/request-public-raeume")
-	public void onRequestPublicRaeume(@Nullable final Message message) {
-			Message responseMessage = syncService.generatePublicRaeumeMessage(message);
-			sendResponseMessage(responseMessage, message, "[broadcast public Räume: " + message.getUserId() + "]");		
-	}
-	
-	
 	@MessageMapping("/send/update-title-and-description")
 	public void onReceiveUpdateTitleAndDescription(@Nullable final Message message) {
 		List<Message> responseMessages = syncService.generateUpdateTitleAndDescriptionMessages(message);
@@ -163,7 +156,7 @@ public class WebSocketController {
 	@MessageMapping("/send/pardon-kicked-user")
 	public void onReceivePardonKickedUser(@Nullable final Message message) {
 		List<Message> responseMessages = this.syncService.generatePardonKickedUserMessages(message);
-		sendResponseMessages(responseMessages, message, "[user: " + message.getUserId() + " has kicked User: "+ message.getAssignedUser().getUserId() + "from room:" + message.getRaumId() + "]");
+		sendResponseMessages(responseMessages, message, "[user: " + message.getUserId() + " has pardonded User: "+ message.getAssignedUser().getUserId() + "from room:" + message.getRaumId() + "]");
 	}
 	
 	

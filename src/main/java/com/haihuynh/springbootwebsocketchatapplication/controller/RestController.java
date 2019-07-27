@@ -35,33 +35,30 @@ public class RestController {
 		return new ArrayList<Video>();
 	}
 	
-	@PostMapping("/room/{raumId}/playlist")
+	
+	
+	@PostMapping("/room/{raumId}/userId/{userId}/playlist")
 	@CrossOrigin(origins = "http://localhost:4200")
-	public ResponseEntity<Message> importPlaylist(@PathVariable("raumId") Long raumId, @RequestBody ImportedPlaylist importedPlaylist) {
-		if(syncService.importPlaylist(raumId, importedPlaylist)) {		
+	public ResponseEntity<Message> importPlaylist(@PathVariable("raumId") Long raumId, @PathVariable("userId") Long userId, @RequestBody ImportedPlaylist importedPlaylist) {
+		if(syncService.importPlaylist(raumId, importedPlaylist, userId)) {		
 			return ResponseEntity.ok(new Message());
 		}
 		return ResponseEntity.badRequest().build();
 	}
 
 	
-	/*
-	 * @TODO Filterung für kicked users mit ralf
-	 */
-	@GetMapping("/publicrooms")
+	
+	@GetMapping("/publicrooms/userId/{userId}")
 	@CrossOrigin(origins = "http://localhost:4200")
-	public ResponseEntity<List<RaumDTO>> getPublicRooms() {
-		ArrayList<RaumDTO> publicrooms = syncService.getPublicRooms();
+	public ResponseEntity<List<RaumDTO>> getPublicRooms(@PathVariable("userId") Long userId) {
+		ArrayList<RaumDTO> publicrooms = syncService.getPublicRooms(userId);
 		if(publicrooms != null) {			
 			return ResponseEntity.ok(publicrooms);
 		}
 		return ResponseEntity.badRequest().body(new ArrayList<RaumDTO>());
 	}
 	
-	/*
-	 * @TODO Filterung für kicked users mit ralf
-	 */
-	@GetMapping("/room/{raumId}/playlist")
+	@GetMapping("/room/{raumId}/users")
 	@CrossOrigin(origins = "http://localhost:4200")
 	public ResponseEntity<ArrayList<User>> getCurrentUsers(@PathVariable("raumId") Long raumId) {
 		ArrayList<User> publicrooms = (ArrayList<User>) syncService.getCurrentUsersInRaum(raumId);
