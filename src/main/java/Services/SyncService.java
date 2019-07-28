@@ -944,12 +944,12 @@ public class SyncService {
 	static int LOOP_SINGLE = 2;
 	
 	public List<Message> processAutoNextPlaylistVideo(Message message) {
-		if (rooms.containsKey(message.getRaumId()) && message.getVideo() != null) {
+		if (rooms.containsKey(message.getRaumId())) {
 			Raum raum = getRaum(message.getRaumId());
 			int requests = raum.countNextVidRequest();
 			Video newCurrentVid = null;
-			if(requests >= raum.getSize()) {
-				requests = 0;
+			if(requests >= raum.getSize()/3) {
+				raum.setCountingNextVidRequests(0);
 
 				if(raum.getLoop() == NO_LOOP) { //KEINE LOOP
 					if(raum.isRandomOrder()) { //ZUFÄLLIG?
