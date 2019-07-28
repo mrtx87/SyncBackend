@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
+import Apis.SupportedApi;
 import Services.ImportedPlaylist;
 import Services.RaumDTO;
 import Services.SyncService;
@@ -67,5 +68,17 @@ public class RestController {
 		}
 		return ResponseEntity.badRequest().body(new ArrayList<User>());
 	}
+	
+	@GetMapping("/supported-apis")
+	@CrossOrigin(origins = "http://localhost:4200")
+	public ResponseEntity<List<SupportedApi>> getSupportedApis() {
+		ArrayList<SupportedApi> supportedApis = syncService.getSupportedApis();
+		if(supportedApis != null) {			
+			return ResponseEntity.ok(supportedApis);
+		}
+		return ResponseEntity.badRequest().body(new ArrayList<SupportedApi>());
+	}
+	
+	
 	
 }

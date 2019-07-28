@@ -45,17 +45,18 @@ public class WebSocketController {
 	}
 
 	
+	/**
+	 * TODO UMBAU WIE ANDERE FUNKTIONEN
+	 * @param message
+	 */
+	
 	@MessageMapping("/send/chat-message")
 	public void onReceiveMessage(@Nullable final Message message) {
 			message.setType("chat-message");
 			message.getChatMessage().setTimestamp(this.syncService.getCurrentTime());
-			List<Long> userIds = syncService.generateSaveChatMessageResponse(message);
-			if(userIds != null) {
-				for (Long userId : userIds) {
-					this.messageService.convertAndSend("/chat/"+userId, message);
-				}
-				System.out.println("[broadcast message: " + message.getChatMessage().toString() + "]");
-			}	
+			List<Message> responseMessages = syncService.generateSaveChatMessageResponse(message);
+
+			sendResponseMessages(responseMessages, message, "[user:" + message.getUserId() + " sends chat-message: " + message.getChatMessage() + "]");	
 	}
 
 	@MessageMapping("/send/create-room")

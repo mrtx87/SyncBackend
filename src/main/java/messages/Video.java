@@ -5,13 +5,51 @@ import java.util.Date;
 public class Video {
 	
 	String id;
+	int api;
+	
 
 	String videoId;
 	Float timestamp;
 	String title;
 	String description;
     Date publishedAt;
+    String thumbnail;
     
+	public Video(String id, String videoId, Float timestamp, String title, String description, Date publishedAt, String thumbnail, int api) {
+		this.id = id;
+		this.videoId = videoId;
+		this.timestamp = timestamp;
+		this.title = title;
+		this.description = description;
+	    this.publishedAt = publishedAt;
+	    this.thumbnail = thumbnail;
+	    this.api = api;
+	}
+    
+	
+	
+	public int getApi() {
+		return api;
+	}
+
+
+	public void setApi(int api) {
+		this.api = api;
+	}
+
+	public Video clone() {
+		return new Video(this.id,this.videoId, this.timestamp, this.title, this.description, this.publishedAt, this.thumbnail, this.api);
+
+	}
+    
+	public String getThumbnail() {
+		return thumbnail;
+	}
+
+	public void setThumbnail(String thumbnail) {
+		this.thumbnail = thumbnail;
+	}
+
 	public String getId() {
 		return id;
 	}
@@ -44,14 +82,6 @@ public class Video {
 		this.title = title;
 	}
 
-	public Video(String id, String videoId, Float timestamp, String title, String description, Date publishedAt) {
-		this.id = id;
-		this.videoId = videoId;
-		this.timestamp = timestamp;
-		this.title = title;
-		this.description = description;
-	    this.publishedAt = publishedAt;
-	}
 	
 	public Video() {}
 	
@@ -68,9 +98,6 @@ public class Video {
 		this.timestamp = timestamp;
 	}
 	
-	public Video clone() {
-		return new Video(this.id,this.videoId, this.timestamp, this.title, this.description, this.publishedAt);
-	}
 
 	public boolean equalsTo(Video video) {
 		if(video != null)

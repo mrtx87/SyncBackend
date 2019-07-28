@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import com.haihuynh.springbootwebsocketchatapplication.configuration.WebSocketConfiguration;
 
+import Apis.SupportedApi;
 import messages.ChatMessage;
 import messages.Message;
 import messages.Video;
@@ -24,13 +25,43 @@ public class SyncService {
 	public static Boolean publicRaum = false;
 	public static Boolean privateRaum = true;
 	
+	public static ArrayList<SupportedApi> supportedApis;
+	
 	public static enum AddVideoMode {
 		NEXT,
 		CURRENT,
 		LAST
 	}
+	
+	public SyncService() {
+		
+		supportedApis = new ArrayList<SupportedApi>();
+		final SupportedApi youtubeApi = new SupportedApi();
+		youtubeApi.setId(1);
+		youtubeApi.setName("youtube");
+		youtubeApi.setIconUrl("assets/yt_icon_rgb.png");
+		youtubeApi.setApiKey("AIzaSyBJKPvOKMDqPzaR-06o1-Mfixvq2CRlS5M");
+		
+		final SupportedApi dailymotionApi = new SupportedApi();
+		dailymotionApi.setId(2);
+		dailymotionApi.setName("dailymotion");
+		dailymotionApi.setIconUrl("assets/logo_dailymotion.png");
+		dailymotionApi.setApiKey("nokey");
 
-	public  Video defaultVideo = new Video(generateVideoObjectId(), "WBG7TFLj4YQ", 0.0f,"Unter Wasser: Megacitys in Gefahr | Doku | ARTE\r\n", "", new Date());
+		
+		final SupportedApi vimeoApi = new SupportedApi();
+		vimeoApi.setId(3);
+		vimeoApi.setName("vimeo");
+		vimeoApi.setIconUrl("assets/vimeo_icon.png");
+		vimeoApi.setApiKey("nokey");
+
+		
+		supportedApis.add(youtubeApi);
+		supportedApis.add(dailymotionApi);
+		supportedApis.add(vimeoApi);
+	}
+
+	public  Video defaultVideo = new Video(generateVideoObjectId(), "WBG7TFLj4YQ", 0.0f,"Unter Wasser: Megacitys in Gefahr | Doku | ARTE\r\n", "", new Date(), "nothumbail", 1);
 
 	
 	HashMap<Long, Raum> rooms = new HashMap<>();
@@ -338,19 +369,27 @@ public class SyncService {
 		return new ArrayList<>();
 	}
 	
-	public List<Long> generateSaveChatMessageResponse(Message message) {
+	public ArrayList<Message> generateSaveChatMessageResponse(Message message) {
 		if (rooms.containsKey(message.getRaumId())) {
 			Raum raum = getRaum(message.getRaumId());
 			
 			if(raum.exists(message.getUserId())) {
-				User user = raum.getUser(message.getUserId());
-				if(!user.isMute) {					
-					saveChatMessage(message.getChatMessage());
-					return raum.getUserIds();
-				}
-				
+				User sendingUser = raum.getUser(message.getUserId());
+				if(!sendingUser.isMute) {					
+					ChatMessage chatMessage = createAndSaveChatMessage(sendingUser, raum.getRaumId(), message.getChatMessage().getMessageText(), null, false);
+					ArrayList<Message> responseMessages = new ArrayList<Message>();
+					for(User user : raum.getUserList()){
+						Message responseMessage = new Message();
+						responseMessage.setUser(user);
+						responseMessage.setType("chat-message");
+						responseMessage.setRaumId(raum.getRaumId());
+						responseMessage.setChatMessage(chatMessage);
+						
+						responseMessages.add(responseMessage);
+					}
+					return responseMessages;
+					}				
 			}
-
 		}
 		return null;
 	}
@@ -484,8 +523,12 @@ public class SyncService {
 
 	public boolean isAdmin(Long raumId, Long userId) {
 		Raum raum = getRaum(raumId);
+		if(exists(raumId, userId)) {
 		User user = raum.getUser(userId);
-		return user.isAdmin();
+			return user.isAdmin();
+		}
+		
+		return false;
 
 	}
 
@@ -1029,7 +1072,7 @@ public class SyncService {
 			Raum raum = getRaum(message.getRaumId());
 			if(raum.exists(message.getUserId())) {
 				
-				User nameChangedUser = raum.changeUserName(message.getUser());
+				raum.changeUserName(message.getUser());
 				ArrayList<Message> responseMessages = new ArrayList<>();
 				for (User user : raum.getUserList()) {
 					Message responseMessage = new Message();
@@ -1079,6 +1122,10 @@ public class SyncService {
 		}
 		
 		return null;
+	}
+
+	public ArrayList<SupportedApi> getSupportedApis() {
+		return supportedApis;
 	}
 	
 	

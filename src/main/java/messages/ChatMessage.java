@@ -73,7 +73,7 @@ public class ChatMessage {
 	@Override
 	public String toString() {
 		// TODO Auto-generated method stub
-		return "id: " + user.getUserId() + " | name:" + user.getUserName() + " | time:" + timestamp + "\ntext: "
+		return "id: " + user.getUserId() + " | name:" + user.getUserName() + " | time:" + timestamp + "\n text: "
 				+ messageText;
 	}
 
