@@ -6,6 +6,7 @@ public class SupportedApi {
 	String name;
 	String iconUrl;
 	String apiKey;
+	String script;
 	
 	public String getApiKey() {
 		return apiKey;
@@ -31,5 +32,12 @@ public class SupportedApi {
 	public void setIconUrl(String iconUrl) {
 		this.iconUrl = iconUrl;
 	}
+	public String getScript() {
+		return script;
+	}
+	public void setScript(String script) {
+		this.script = script;
+	}
+	
 	
 }

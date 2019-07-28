@@ -41,19 +41,22 @@ public class SyncService {
 		youtubeApi.setName("youtube");
 		youtubeApi.setIconUrl("assets/yt_icon_rgb.png");
 		youtubeApi.setApiKey("AIzaSyBJKPvOKMDqPzaR-06o1-Mfixvq2CRlS5M");
+		youtubeApi.setScript("https://www.youtube.com/iframe_api");
 		
 		final SupportedApi dailymotionApi = new SupportedApi();
 		dailymotionApi.setId(2);
 		dailymotionApi.setName("dailymotion");
 		dailymotionApi.setIconUrl("assets/logo_dailymotion.png");
-		dailymotionApi.setApiKey("nokey");
+		dailymotionApi.setApiKey("a8f15ba0bbd9f9552be9");
+		dailymotionApi.setScript("https://api.dmcdn.net/all.js");
 
 		
 		final SupportedApi vimeoApi = new SupportedApi();
 		vimeoApi.setId(3);
 		vimeoApi.setName("vimeo");
 		vimeoApi.setIconUrl("assets/vimeo_icon.png");
-		vimeoApi.setApiKey("nokey");
+		vimeoApi.setApiKey("be6fcf0320704697342bd26a54557395");
+		vimeoApi.setScript("https://player.vimeo.com/api/player.js.");
 
 		
 		supportedApis.add(youtubeApi);
