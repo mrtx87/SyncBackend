@@ -484,8 +484,9 @@ public class Raum {
 			this.setPlaylist(processedPlaylist);
 			return true;
 		}else if(importedPlaylist.getMode() == 1) {
-			//TODO
-			return false;
+			importedPlaylist.items.stream().forEach(v -> v.setId(generateVideoObjectId()));
+			importedPlaylist.items.stream().forEach(v -> this.playlist.add(v));
+			return true;
 		}
 		System.out.println("[WRONG MODE - PLAYLIST NOT IMPORTED]");
 		return false;
