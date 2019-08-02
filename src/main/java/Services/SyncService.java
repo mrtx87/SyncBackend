@@ -67,7 +67,7 @@ public class SyncService {
 	public  Video defaultVideo = new Video(generateVideoObjectId(), "WBG7TFLj4YQ", 0.0f,"Unter Wasser: Megacitys in Gefahr | Doku | ARTE\r\n", "", new Date(), "nothumbail", 1);
 
 	
-	HashMap<Long, Raum> rooms = new HashMap<>();
+	HashMap<String, Raum> rooms = new HashMap<>();
 	public List<Message> generateToPublicRoomMessages;
 
 	static String[] randomNames = { "Sir Anthony Absolute", "Nick Adams", "Parson Adams", "Frankie Addams",
@@ -154,18 +154,31 @@ public class SyncService {
 	private SimpMessagingTemplate messageService;
 
 
-	public HashMap<Long, Raum> getRooms() {
+	public HashMap<String, Raum> getRooms() {
 		return rooms;
 	}
 
-	public void setRooms(HashMap<Long, Raum> rooms) {
+	public void setRooms(HashMap<String, Raum> rooms) {
 		this.rooms = rooms;
 	}
 
-	public static Long generateRaumId() {
+	public static String generateRaumId() {
 
-		Long time = System.currentTimeMillis();
-		return time;
+
+		Long nanoseconds = System.nanoTime();
+		String shorted_nano_string = (nanoseconds + "").substring(3); 
+		StringBuilder sb = new StringBuilder();
+		sb.append(getRandomChar()).append(getRandomChar()).append(getRandomChar()).append(shorted_nano_string).append(getRandomChar()).append(getRandomChar()).append(getRandomChar());
+		//System.out.println(sb.toString());
+		
+		
+		
+		return sb.toString();
+	}
+	
+	private static char getRandomChar() {
+		// 65-90, 97-122
+		return (Math.random() > 0.5d) ? (char) (Math.random()*26+65) : (char) (Math.random()*26+97);
 	}
 
 	public String getCurrentTime() {
@@ -177,7 +190,7 @@ public class SyncService {
 
 	}
 	
-	public ChatMessage createAndSaveChatMessage(User user, Long raumId, String messageText, Video video, boolean isPlaylist) {
+	public ChatMessage createAndSaveChatMessage(User user, String raumId, String messageText, Video video, boolean isPlaylist) {
 		ChatMessage chatMessage = new ChatMessage();
 		chatMessage.setMessageText(messageText);
 		chatMessage.setTimestamp(getCurrentTime());
@@ -199,7 +212,7 @@ public class SyncService {
 
 	public Message createRaum(Message message) {
 		try {
-			Long userID = message.getUserId();
+			String userId = message.getUserId();
 			Raum raum = new Raum();
 			raum.setCreatedAt(getCurrentTime());
 			//raum.setVideo(defaultVideo.clone());
@@ -218,7 +231,7 @@ public class SyncService {
 			raum.addUser(user);
 			raum.addToAllTimeUsers(user);
 
-			WebSocketConfiguration.registryInstance.enableSimpleBroker("/" + userID);
+			WebSocketConfiguration.registryInstance.enableSimpleBroker("/" + userId);
 
 			Message createRaumMessage = new Message();
 			createRaumMessage.setType("create-room");
@@ -280,8 +293,8 @@ public class SyncService {
 	
 				WebSocketConfiguration.registryInstance.enableSimpleBroker("/" + message.getUserId());
 	
-				for (Long id : raum.getUserIds()) {
-					if (user.userId != id) {
+				for (String id : raum.getUserIds()) {
+					if (user.userId.equals(id)) {
 	
 						Message responseMessage = new Message();
 						responseMessage.setType("update-client");
@@ -303,7 +316,7 @@ public class SyncService {
 		return null;
 	}
 
-	public ArrayList<RaumDTO> getPublicRooms(Long userId) {
+	public ArrayList<RaumDTO> getPublicRooms(String userId) {
 
 		return (ArrayList<RaumDTO>) rooms
 				.values()
@@ -330,7 +343,7 @@ public class SyncService {
 			chatMessage.setUser(message.getUser());
 			chatMessage.setTimestamp(getCurrentTime());
 			saveChatMessage(chatMessage);
-			for (Long id : raum.getUserIds()) {
+			for (String id : raum.getUserIds()) {
 
 				Message responseMessage = new Message();
 				responseMessage.setType("insert-new-video");
@@ -351,8 +364,8 @@ public class SyncService {
 	public List<Message> disconnectClient(Message message) {
 		if (rooms.containsKey(message.getRaumId())) {
 			Raum raum = rooms.get(message.getRaumId());
-			Long userID = message.getUserId();
-			User removedUser = raum.remove(userID);
+			String userId = message.getUserId();
+			User removedUser = raum.remove(userId);
 
 			List<Message> messages = new ArrayList<>();
 			ChatMessage chatMessage = createAndSaveChatMessage(removedUser, raum.getRaumId(), "has left the Room", null, false);
@@ -414,7 +427,7 @@ public class SyncService {
 		return randomNames[(int) Math.round((randomNames.length - 1) * Math.random())];
 	}
 
-	public Raum getRaum(Long raumId) {
+	public Raum getRaum(String raumId) {
 		return rooms.get(raumId);
 	}
 
@@ -424,7 +437,7 @@ public class SyncService {
 			Video video = message.getVideo();
 			List<Message> messages = new ArrayList<>();
 			raum.updateTimestamp(video);
-			for (Long userId : raum.getUserIds()) {
+			for (String userId : raum.getUserIds()) {
 				Message responseMessage = new Message();
 				responseMessage.setUserId(userId);
 				responseMessage.setType("seekto-timestamp");
@@ -445,7 +458,7 @@ public class SyncService {
 			raum.setPlayerState(message.getPlayerState());
 			raum.updateTimestamp(message.getVideo());
 			List<Message> messages = new ArrayList<>();
-			for (Long userId : raum.getUserIds()) {
+			for (String userId : raum.getUserIds()) {
 				Message responseMessage = new Message();
 				responseMessage.setType("toggle-play");
 				responseMessage.setUserId(userId);
@@ -524,7 +537,7 @@ public class SyncService {
 		return null;
 	}
 
-	public boolean isAdmin(Long raumId, Long userId) {
+	public boolean isAdmin(String raumId, String userId) {
 		Raum raum = getRaum(raumId);
 		if(exists(raumId, userId)) {
 		User user = raum.getUser(userId);
@@ -535,7 +548,7 @@ public class SyncService {
 
 	}
 
-	public boolean exists(Long raumId, Long userId) {
+	public boolean exists(String raumId, String userId) {
 		Raum raum = rooms.get(raumId);
 		return raum.exists(userId);
 	}
@@ -658,7 +671,7 @@ public class SyncService {
 		return null;
 	}
 
-	public void refreshRaumId(Long raumId) {
+	public void refreshRaumId(String raumId) {
 
 		Raum raum = rooms.get(raumId);
 		rooms.remove(raumId);
@@ -778,7 +791,7 @@ public class SyncService {
 		return null;
 	}
 	
-	public void clearJoiningUsers(Long raumId) {
+	public void clearJoiningUsers(String raumId) {
 		if(rooms.containsKey(raumId)) {
 			Raum raum = getRaum(raumId);
 			raum.clearJoiningUsers();
@@ -865,11 +878,11 @@ public class SyncService {
 		return responseMessages;
 	}
 	
-	public boolean raumExists(Long raumId) {
+	public boolean raumExists(String raumId) {
 		return rooms.containsKey(raumId);
 	}
 	
-	public ArrayList<Video> getCopyOfRaumPlaylist(Long raumId) {
+	public ArrayList<Video> getCopyOfRaumPlaylist(String raumId) {
 		if(raumExists(raumId)) {
 			return (ArrayList<Video>) getRaum(raumId).getPlaylist().stream().map(vid -> vid.clone()).collect(Collectors.toList());
 		}
@@ -877,14 +890,14 @@ public class SyncService {
 	}
 	
 	
-	public ArrayList<Video> getRaumPlaylist(Long raumId) {
+	public ArrayList<Video> getRaumPlaylist(String raumId) {
 		if(raumExists(raumId)) {
 			return getRaum(raumId).getPlaylist();
 		}
 		return null;
 	}
 
-	public boolean importPlaylist(Long raumId, ImportedPlaylist importedPlaylist, Long userId) {
+	public boolean importPlaylist(String raumId, ImportedPlaylist importedPlaylist, String userId) {
 		if(raumExists(raumId)){ 
 			Raum raum = getRaum(raumId);
 			
@@ -1118,7 +1131,7 @@ public class SyncService {
 	}
 	
 	
-	public List<User> getCurrentUsersInRaum(Long raumId) {
+	public List<User> getCurrentUsersInRaum(String raumId) {
 		if(rooms.containsKey(raumId)) {
 			Raum raum = getRaum(raumId);
 			return raum.getUserList();

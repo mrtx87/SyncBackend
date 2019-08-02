@@ -10,7 +10,7 @@ public class Message {
 
 	String type;
 	User user;
-	long raumId;
+	String raumId;
 
 	Video video;
 	int playerState;
@@ -175,12 +175,12 @@ public class Message {
 		this.type = type;
 	}
 
-	public long getRaumId() {
+	public String getRaumId() {
 		return raumId;
 	}
 
-	public void setRaumId(long raumId) {
-		this.raumId = raumId;
+	public void setRaumId(String raumId2) {
+		this.raumId = raumId2;
 	}
 
 	public int getLoop() {
@@ -199,13 +199,13 @@ public class Message {
 		this.randomOrder = randomOrder;
 	}
 
-	public Long getUserId() {
+	public String getUserId() {
 		if (user != null)
 			return user.getUserId();
 		return null;
 	}
 
-	public void setUserId(long userId) {
+	public void setUserId(String userId) {
 		if (user != null) {
 			this.user.setUserId(userId);
 		}

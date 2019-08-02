@@ -28,7 +28,7 @@ public class RestController {
 	
 	@GetMapping("/room/{raumId}/playlist")
 	@CrossOrigin(origins = "http://localhost:4200")
-	public List<Video> getRaumPlaylist(@PathVariable("raumId") Long raumId) {
+	public List<Video> getRaumPlaylist(@PathVariable("raumId") String raumId) {
 		ArrayList<Video> playlist = syncService.getCopyOfRaumPlaylist(raumId);
 		if(playlist != null) {			
 			return playlist;
@@ -40,7 +40,7 @@ public class RestController {
 	
 	@PostMapping("/room/{raumId}/userId/{userId}/playlist")
 	@CrossOrigin(origins = "http://localhost:4200")
-	public ResponseEntity<Message> importPlaylist(@PathVariable("raumId") Long raumId, @PathVariable("userId") Long userId, @RequestBody ImportedPlaylist importedPlaylist) {
+	public ResponseEntity<Message> importPlaylist(@PathVariable("raumId") String raumId, @PathVariable("userId") String userId, @RequestBody ImportedPlaylist importedPlaylist) {
 		if(syncService.importPlaylist(raumId, importedPlaylist, userId)) {		
 			return ResponseEntity.ok(new Message());
 		}
@@ -51,7 +51,7 @@ public class RestController {
 	
 	@GetMapping("/publicrooms/userId/{userId}")
 	@CrossOrigin(origins = "http://localhost:4200")
-	public ResponseEntity<List<RaumDTO>> getPublicRooms(@PathVariable("userId") Long userId) {
+	public ResponseEntity<List<RaumDTO>> getPublicRooms(@PathVariable("userId") String userId) {
 		ArrayList<RaumDTO> publicrooms = syncService.getPublicRooms(userId);
 		if(publicrooms != null) {			
 			return ResponseEntity.ok(publicrooms);
@@ -61,7 +61,7 @@ public class RestController {
 	
 	@GetMapping("/room/{raumId}/users")
 	@CrossOrigin(origins = "http://localhost:4200")
-	public ResponseEntity<ArrayList<User>> getCurrentUsers(@PathVariable("raumId") Long raumId) {
+	public ResponseEntity<ArrayList<User>> getCurrentUsers(@PathVariable("raumId") String raumId) {
 		ArrayList<User> publicrooms = (ArrayList<User>) syncService.getCurrentUsersInRaum(raumId);
 		if(publicrooms != null) {			
 			return ResponseEntity.ok(publicrooms);

@@ -2,7 +2,7 @@ package Services;
 
 public class User {
 	
-	long userId;
+	String userId;
 	String userName;
 	Boolean admin;
 	Boolean isMute;
@@ -16,10 +16,10 @@ public class User {
 	public Boolean getAdmin() {
 		return admin;
 	}
-	public long getUserId() {
+	public String getUserId() {
 		return userId;
 	}
-	public void setUserId(long userId) {
+	public void setUserId(String userId) {
 		this.userId = userId;
 	}
 	public String getUserName() {

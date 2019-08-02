@@ -112,7 +112,7 @@ public class WebSocketController {
 		List<Message> responseMessages = this.syncService.generateSyncPlayToggleMessages(message);
 		if (responseMessages != null) {
 			System.out.println("user: " + message.getUserId() + " -> [toggle play in room - " + message.getRaumId() + "]");
-			List<Long> userIds = this.syncService.getRaum(message.getRaumId()).getUserIds();
+			List<String> userIds = this.syncService.getRaum(message.getRaumId()).getUserIds();
 			for (int i = 0; i < responseMessages.size(); i++) {
 				this.messageService.convertAndSend("/chat/" + userIds.get(i), responseMessages.get(i));
 			}						

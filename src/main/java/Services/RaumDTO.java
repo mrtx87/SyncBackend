@@ -8,7 +8,7 @@ import messages.Video;
 
 public class RaumDTO {
 
-	long raumId;
+	String raumId;
 	String createdAt;
 	String description;
 	String raumTitle;
@@ -42,13 +42,13 @@ public class RaumDTO {
 	public void setRaumTitle(String raumTitle) {
 		this.raumTitle = raumTitle;
 	}
-	public long getRaumId() {
+	
+	public String getRaumId() {
 		return raumId;
 	}
-	public void setRaumId(long raumId) {
+	public void setRaumId(String raumId) {
 		this.raumId = raumId;
 	}
-	
 	public Video getVideo() {
 		return video;
 	}

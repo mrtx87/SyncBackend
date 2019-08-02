@@ -7,7 +7,7 @@ public class ChatMessage {
 	boolean isPrivate;
 
 	User user;
-	Long raumId;
+	String raumId;
 	String type;
 
 	String timestamp;
@@ -46,11 +46,11 @@ public class ChatMessage {
 		this.user = user;
 	}
 
-	public Long getRaumId() {
+	public String getRaumId() {
 		return raumId;
 	}
 
-	public void setRaumId(Long raumId) {
+	public void setRaumId(String raumId) {
 		this.raumId = raumId;
 	}
 

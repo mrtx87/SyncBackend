@@ -8,7 +8,7 @@ import messages.Video;
 
 public class Raum {
 
-	long raumId;
+	String raumId;
 	String title;
 	String description;
 	String createdAt;
@@ -23,14 +23,14 @@ public class Raum {
 	float currentPlaybackRate = 1;
 
 	ArrayList<ChatMessage> chatMessages = new ArrayList<>();
-	HashMap<Long, User> users = new HashMap<>();
-	HashMap<Long, User> joiningUsers = new HashMap<>();
-	HashMap<Long, User> allTimeUsers = new HashMap<>();
-	HashMap<Long, User> kickedUsers = new HashMap<>();
+	HashMap<String, User> users = new HashMap<>();
+	HashMap<String, User> joiningUsers = new HashMap<>();
+	HashMap<String, User> allTimeUsers = new HashMap<>();
+	HashMap<String, User> kickedUsers = new HashMap<>();
 	
 
 	ArrayList<Video> playlist = new ArrayList<>();
-	HashMap<Long, Float> timeStamps = new HashMap<>();
+	HashMap<String, Float> timeStamps = new HashMap<>();
 	
 	int countingNextVidRequests = 0;
 
@@ -59,11 +59,11 @@ public class Raum {
 		this.currentPlaybackRate = currentPlaybackRate;
 	}
 	
-	public boolean hasBeenToRaum(Long userId) {
+	public boolean hasBeenToRaum(String userId) {
 		return allTimeUsers.containsKey(userId);
 	}
 	
-	public HashMap<Long, User> getAllTimeUsers() {
+	public HashMap<String, User> getAllTimeUsers() {
 		return allTimeUsers;
 	}
 	
@@ -71,27 +71,27 @@ public class Raum {
 		allTimeUsers.put(user.getUserId(), user);
 	}
 
-	public void setAllTimeUsers(HashMap<Long, User> allTimeUsers) {
+	public void setAllTimeUsers(HashMap<String, User> allTimeUsers) {
 		this.allTimeUsers = allTimeUsers;
 	}
 	
-	public User getUserFromAllTimeUsers(Long userId) {
+	public User getUserFromAllTimeUsers(String userId) {
 		return allTimeUsers.get(userId);
 	}
 
-	public HashMap<Long, User> getJoiningUsers() {
+	public HashMap<String, User> getJoiningUsers() {
 		return joiningUsers;
 	}
 	
-	public void setJoiningUsers(HashMap<Long, User> joiningUsers) {
+	public void setJoiningUsers(HashMap<String, User> joiningUsers) {
 		this.joiningUsers = joiningUsers;
 	}
 
-	public HashMap<Long, Float> getTimeStamps() {
+	public HashMap<String, Float> getTimeStamps() {
 		return timeStamps;
 	}
 
-	public void setTimeStamps(HashMap<Long, Float> timeStamps) {
+	public void setTimeStamps(HashMap<String, Float> timeStamps) {
 		this.timeStamps = timeStamps;
 	}
 	
@@ -103,11 +103,11 @@ public class Raum {
 		return kickedUsers.put(user.getUserId(), user);
 	}
 	
-	public boolean existsOnKickedUsersList(Long userId) {
+	public boolean existsOnKickedUsersList(String userId) {
 		return kickedUsers.containsKey(userId);
 	}
 	
-	public User removeFromKickedUserList(Long userId) {
+	public User removeFromKickedUserList(String userId) {
 		return kickedUsers.remove(userId);
 	}
 	
@@ -118,10 +118,10 @@ public class Raum {
 				.collect(Collectors.toList());
 	}
 	
-	public HashMap<Long, User> getKickedUsers() {
+	public HashMap<String, User> getKickedUsers() {
 		return kickedUsers;
 	}
-	public void setKickedUsers(HashMap<Long, User> kickedUsers) {
+	public void setKickedUsers(HashMap<String, User> kickedUsers) {
 		this.kickedUsers = kickedUsers;
 	}
 	
@@ -217,7 +217,11 @@ public class Raum {
 
 	public Raum() {
 
-		setRaumId(SyncService.generateRaumId());
+		setRaumId(SyncService.generateRaumId()); // TODO
+		
+		for(int i = 0; i < 50000; i++) {
+			System.out.println(SyncService.generateRaumId());
+		}
 	}
 
 	public int getPlayerState() {
@@ -240,7 +244,7 @@ public class Raum {
 		this.raumStatus = publicRoom;
 	}
 
-	public void setUsers(HashMap<Long, User> users) {
+	public void setUsers(HashMap<String, User> users) {
 		this.users = users;
 	}
 
@@ -263,16 +267,17 @@ public class Raum {
 	public void setChatMessages(ArrayList<ChatMessage> chatMessages) {
 		this.chatMessages = chatMessages;
 	}
-
-	public long getRaumId() {
+	
+	
+	public String getRaumId() {
 		return raumId;
 	}
 
-	public void setRaumId(long raumId) {
+	public void setRaumId(String raumId) {
 		this.raumId = raumId;
 	}
 
-	public HashMap<Long, User> getUsers() {
+	public HashMap<String, User> getUsers() {
 		return users;
 	}
 
@@ -301,7 +306,7 @@ public class Raum {
 		users.put(user.getUserId(), user);
 	}
 
-	public User remove(Long id) {
+	public User remove(String id) {
 		return users.remove(id);
 	}
 
@@ -309,8 +314,8 @@ public class Raum {
 		chatMessages.add(message);
 	}
 
-	public ArrayList<Long> getUserIds() {
-		return (ArrayList<Long>) this.users.keySet().stream().collect(Collectors.toList());
+	public ArrayList<String> getUserIds() {
+		return (ArrayList<String>) this.users.keySet().stream().collect(Collectors.toList());
 	}
 
 	public ArrayList<String> getUserNames() {
@@ -326,11 +331,11 @@ public class Raum {
 		return result;
 	}
 
-	public User getUser(Long userId) {
+	public User getUser(String userId) {
 		return users.get(userId);
 	}
 
-	public boolean exists(Long userId) {
+	public boolean exists(String userId) {
 		return users.containsKey(userId);
 	}
 
@@ -343,7 +348,7 @@ public class Raum {
 		users.values().stream().forEach(u -> u.setAdmin(true));
 	}
 
-	public User deleteUser(Long userId) {
+	public User deleteUser(String userId) {
 		return users.remove(userId);
 	}
 
@@ -414,7 +419,7 @@ public class Raum {
 		this.playlist = playlist;
 	}
 
-	public void addTimeStamp(Long userId, Float timeStamp) {
+	public void addTimeStamp(String userId, Float timeStamp) {
 		timeStamps.put(userId, timeStamp);
 	}
 	
@@ -500,7 +505,7 @@ public class Raum {
 		return -1;
 	}
 	
-	public User toggleMuteUserById(Long userId) {
+	public User toggleMuteUserById(String userId) {
 		if(exists(userId)) {
 			User user = getUser(userId);
 			user.setIsMute(!user.getIsMute());
