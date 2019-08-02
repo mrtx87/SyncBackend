@@ -40,7 +40,8 @@ public class SyncService {
 		youtubeApi.setId(1);
 		youtubeApi.setName("youtube");
 		youtubeApi.setIconUrl("assets/yt_icon_rgb.png");
-		youtubeApi.setApiKey("AIzaSyBJKPvOKMDqPzaR-06o1-Mfixvq2CRlS5M");
+		//youtubeApi.setApiKey("AIzaSyBJKPvOKMDqPzaR-06o1-Mfixvq2CRlS5M");
+		youtubeApi.setApiKey("AIzaSyAYkdQEFOAjHZHRSQiREI4qO28FxpOUtZM");
 		youtubeApi.setScript("https://www.youtube.com/iframe_api");
 		
 		final SupportedApi dailymotionApi = new SupportedApi();
@@ -294,7 +295,7 @@ public class SyncService {
 				WebSocketConfiguration.registryInstance.enableSimpleBroker("/" + message.getUserId());
 	
 				for (String id : raum.getUserIds()) {
-					if (user.userId.equals(id)) {
+					if (!user.userId.equals(id)) {
 	
 						Message responseMessage = new Message();
 						responseMessage.setType("update-client");

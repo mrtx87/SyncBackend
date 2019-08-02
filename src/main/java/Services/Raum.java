@@ -217,11 +217,7 @@ public class Raum {
 
 	public Raum() {
 
-		setRaumId(SyncService.generateRaumId()); // TODO
-		
-		for(int i = 0; i < 50000; i++) {
-			System.out.println(SyncService.generateRaumId());
-		}
+		setRaumId(SyncService.generateRaumId()); 
 	}
 
 	public int getPlayerState() {

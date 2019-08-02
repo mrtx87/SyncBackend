@@ -9,7 +9,7 @@ public class Video {
 	
 
 	String videoId;
-	Float timestamp;
+	Float timestamp = 0f;
 	String title;
 	String description;
     Date publishedAt;
