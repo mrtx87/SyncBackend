@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.stream.Collectors;
 import messages.ChatMessage;
+import messages.ToastrMessage;
 import messages.Video;
 
 public class Raum {
@@ -31,10 +32,27 @@ public class Raum {
 
 	ArrayList<Video> playlist = new ArrayList<>();
 	ArrayList<Video> history = new ArrayList<>();
+	ArrayList<ToastrMessage> toastrMessages = new ArrayList<>();
 
 	HashMap<String, Float> timeStamps = new HashMap<>();
 	
 	int countingNextVidRequests = 0;
+	
+	public void addToastrMessage(ToastrMessage toastrMessage) {
+		toastrMessages.add(toastrMessage);
+	}
+	
+	public int getSizeOfTaostrMessages() {
+		return toastrMessages.size();
+	}
+	
+	public ArrayList<ToastrMessage> getToastrMessages() {
+		return toastrMessages;
+	}
+
+	public void setToastrMessages(ArrayList<ToastrMessage> toastrMessages) {
+		this.toastrMessages = toastrMessages;
+	}
 
 	public int getCountingNextVidRequests() {
 		return countingNextVidRequests;

@@ -24,6 +24,7 @@ public class Message {
 	User assignedUser;
 	String raumDescription;
 	String raumTitle;
+	ToastrMessage toastrMessage;
 	
 	Video playlistVideo;
 	int loop; //0 noloop, 1 loop all, 2 loop single video
@@ -31,7 +32,14 @@ public class Message {
 	
 	float currentPlaybackRate;
 	
+
 	
+	public ToastrMessage getToastrMessage() {
+		return toastrMessage;
+	}
+	public void setToastrMessage(ToastrMessage toastrMessage) {
+		this.toastrMessage = toastrMessage;
+	}
 	public ArrayList<User> getKickedUsers() {
 		return kickedUsers;
 	}

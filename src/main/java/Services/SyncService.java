@@ -16,6 +16,11 @@ import com.haihuynh.springbootwebsocketchatapplication.configuration.WebSocketCo
 import Apis.SupportedApi;
 import messages.ChatMessage;
 import messages.Message;
+import messages.MessageTypes;
+import messages.MessageTypesObject;
+import messages.ToastrMessage;
+import messages.ToastrMessageTypes;
+import messages.ToastrMessageTypesObject;
 import messages.Video;
 
 @Service
@@ -210,6 +215,14 @@ public class SyncService {
 		saveChatMessage(chatMessage);
 		return chatMessage;
 	}
+	
+	
+	public ToastrMessage createAndSaveToastrMessage(String type, String messageText, Raum raum) {
+
+		ToastrMessage toastrMsg = new ToastrMessage(raum.getSizeOfTaostrMessages(), type, messageText, raum.getRaumId());
+		raum.addToastrMessage(toastrMsg);
+		return toastrMsg;
+	}
 
 	public Message createRaum(Message message) {
 		try {
@@ -244,8 +257,10 @@ public class SyncService {
 			createRaumMessage.setRaumDescription(raum.getDescription());
 			createRaumMessage.setRaumStatus(raum.getRaumStatus());
 			createRaumMessage.setPlayerState(raum.getPlayerState());
-			createAndSaveChatMessage(user, raum.getRaumId(), "has created the Room", null, false);
+			//createAndSaveChatMessage(user, raum.getRaumId(), "has created the Room", null, false);
+			ToastrMessage toastrMessage = createAndSaveToastrMessage(ToastrMessageTypes.CREATE_ROOM, user.userName + " has created the Room", raum);
 			createRaumMessage.setChatMessages(raum.getChatMessages());
+			createRaumMessage.setToastrMessage(toastrMessage);
 
 			return createRaumMessage;
 		} catch (Exception e) {
@@ -289,7 +304,9 @@ public class SyncService {
 				joinMessage.setRaumStatus(raum.getRaumStatus());
 				joinMessage.setPlayerState(raum.getPlayerState());
 				joinMessage.setCurrentPlaybackRate(raum.getCurrentPlaybackRate());
-				ChatMessage chatMessage = createAndSaveChatMessage(user, raum.getRaumId(), "has joined the Room", null, false);
+				//ChatMessage chatMessage = createAndSaveChatMessage(user, raum.getRaumId(), "has joined the Room", null, false);
+				ToastrMessage toastrMessage = createAndSaveToastrMessage(ToastrMessageTypes.JOIN_ROOM, user.userName + " has joined the Room", raum);
+				joinMessage.setToastrMessage(toastrMessage);
 				joinMessage.setChatMessages(raum.getChatMessages());
 	
 				WebSocketConfiguration.registryInstance.enableSimpleBroker("/" + message.getUserId());
@@ -301,7 +318,7 @@ public class SyncService {
 						responseMessage.setType("update-client");
 						responseMessage.setRaumId(raum.raumId);
 						responseMessage.setUserId(id);
-						responseMessage.setChatMessage(chatMessage);
+						responseMessage.setToastrMessage(toastrMessage);
 						responseMessage.setUsers(raum.getUserList());
 	
 						messages.add(responseMessage);
@@ -369,14 +386,15 @@ public class SyncService {
 			User removedUser = raum.remove(userId);
 
 			List<Message> messages = new ArrayList<>();
-			ChatMessage chatMessage = createAndSaveChatMessage(removedUser, raum.getRaumId(), "has left the Room", null, false);
+			//ChatMessage chatMessage = createAndSaveChatMessage(removedUser, raum.getRaumId(), "has left the Room", null, false);
+			ToastrMessage toastrMessage = createAndSaveToastrMessage(ToastrMessageTypes.DISCONNECT, removedUser.userName + " has left the Room", raum);
 			for (User user : raum.getUserList()) {
 
 				Message responseMessage = new Message();
 				responseMessage.setType("update-client");
 				responseMessage.setRaumId(raum.raumId);
 				responseMessage.setUser(user);
-				responseMessage.setChatMessage(chatMessage);
+				responseMessage.setToastrMessage(toastrMessage);
 				responseMessage.setUsers(raum.getUserList());
 				messages.add(responseMessage);
 			}
@@ -475,29 +493,6 @@ public class SyncService {
 		return null;
 	}
 
-	public List<Message> generateSyncRoomStateMessages(Message message) {
-
-		if (rooms.containsKey(message.getRaumId())) {
-
-			Raum raum = rooms.get(message.getRaumId());
-			raum.setRaumStatus(message.getRaumStatus());
-			List<Message> messages = new ArrayList<>();
-			ChatMessage chatMessage = createAndSaveChatMessage(raum.getUser(message.getUserId()), raum.getRaumId(), (raum.getRaumStatus()) ? "Room is now public" : "Room is now private", null, false);
-
-			for (User user : raum.getUserList()) {
-				Message responseMessage = new Message();
-				responseMessage.setType("sync-roomstate");
-				responseMessage.setUser(user);
-				responseMessage.setRaumStatus(raum.getRaumStatus());
-				responseMessage.setChatMessage(chatMessage);
-				messages.add(responseMessage);
-			}
-
-			return messages;
-		}
-
-		return null;
-	}
 
 	public List<Message> generateAssignedAdminMessages(Message message) {
 		// type="assigned-as-admin"
@@ -506,15 +501,15 @@ public class SyncService {
 			Raum raum = getRaum(message.getRaumId());
 			raum.assignUserAsAdmin(message.getAssignedUser());
 
-			ChatMessage chatMessage = createAndSaveChatMessage(raum.getUser(message.getUserId()), raum.getRaumId(),"assigned " + raum.getUser(message.getAssignedUser().getUserId()).getUserName() + " as Admin", null, false);
-
+			//ChatMessage chatMessage = createAndSaveChatMessage(raum.getUser(message.getUserId()), raum.getRaumId(),"assigned " + raum.getUser(message.getAssignedUser().getUserId()).getUserName() + " as Admin", null, falsetz);
+			ToastrMessage toastrMessage = createAndSaveToastrMessage(ToastrMessageTypes.ASSIGNED_AS_ADMIN,"assigned " + raum.getUser(message.getAssignedUser().getUserId()).getUserName() + " as Admin", raum);
 			Message assignAdminMessage = new Message();
 			assignAdminMessage.setType("assigned-as-admin");
 			assignAdminMessage.setUser(raum.getUser(message.getAssignedUser().userId));
 			assignAdminMessage.setUsers(raum.getUserList());
 			assignAdminMessage.setRaumId(raum.getRaumId());
-			assignAdminMessage.setChatMessage(chatMessage);
-
+			assignAdminMessage.setToastrMessage(toastrMessage);
+			
 			ArrayList<Message> responseMessages = new ArrayList<>();
 
 			for (User user : raum.getUserList()) {
@@ -524,7 +519,7 @@ public class SyncService {
 					responseMessage.setUser(user);
 					responseMessage.setUsers(raum.getUserList());
 					responseMessage.setRaumId(raum.getRaumId());
-					responseMessage.setChatMessage(chatMessage);
+					responseMessage.setToastrMessage(toastrMessage);
 
 					responseMessages.add(responseMessage);
 				} else {
@@ -560,7 +555,8 @@ public class SyncService {
 			Raum raum = getRaum(message.getRaumId());
 			raum.setRaumStatus(publicRaum);
 
-			ChatMessage chatMessage = createAndSaveChatMessage(raum.getUser(message.getUserId()), raum.getRaumId(),"has changed the Room to Public", null, false);
+			//ChatMessage chatMessage = createAndSaveChatMessage(raum.getUser(message.getUserId()), raum.getRaumId(),"has changed the Room to Public", null, falsetz);
+			ToastrMessage toastrMessage = createAndSaveToastrMessage(ToastrMessageTypes.TO_PUBLIC_ROOM, message.getUserName() + " has changed the Room to Public", raum);
 
 			ArrayList<Message> responseMessages = new ArrayList<>();
 
@@ -571,7 +567,7 @@ public class SyncService {
 				responseMessage.setUser(user);
 				responseMessage.setUsers(raum.getUserList());
 				responseMessage.setRaumId(raum.getRaumId());
-				responseMessage.setChatMessage(chatMessage);
+				responseMessage.setToastrMessage(toastrMessage);
 				responseMessage.setRaumStatus(raum.getRaumStatus());
 
 				responseMessages.add(responseMessage);
@@ -586,7 +582,8 @@ public class SyncService {
 			Raum raum = getRaum(message.getRaumId());
 			raum.setRaumStatus(privateRaum);
 			raum.setAllUsersToAdmins();
-			ChatMessage chatMessage = createAndSaveChatMessage(raum.getUser(message.getUserId()), raum.getRaumId(), "has changed the Room to Private", null, false);
+			//ChatMessage chatMessage = createAndSaveChatMessage(raum.getUser(message.getUserId()), raum.getRaumId(), "has changed the Room to Private", null, falsetzt);
+			ToastrMessage toastrMessage = createAndSaveToastrMessage(ToastrMessageTypes.TO_PRIVATE_ROOM, message.getUserName() + " has changed the Room to Private", raum);
 			ArrayList<Message> responseMessages = new ArrayList<>();
 
 			for (User user : raum.getUserList()) {
@@ -596,7 +593,7 @@ public class SyncService {
 				responseMessage.setUser(user);
 				responseMessage.setUsers(raum.getUserList());
 				responseMessage.setRaumId(raum.getRaumId());
-				responseMessage.setChatMessage(chatMessage);
+				responseMessage.setToastrMessage(toastrMessage);
 				responseMessage.setRaumStatus(raum.getRaumStatus());
 
 				responseMessages.add(responseMessage);
@@ -619,12 +616,13 @@ public class SyncService {
 			if (kickedUser != null) {
 				raum.addKickedUser(kickedUser);
 				
-				ChatMessage chatMessage = createAndSaveChatMessage(raum.getUser(message.getUserId()), raum.getRaumId(), "has kicked " + kickedUser.getUserName(), null, false);
+				//ChatMessage chatMessage = createAndSaveChatMessage(raum.getUser(message.getUserId()), raum.getRaumId(), "has kicked " + kickedUser.getUserName(), null, falzse);
+				ToastrMessage toastrMessage = createAndSaveToastrMessage(ToastrMessageTypes.KICKED_USER, message.getUserName() + " has kicked " + message.getAssignedUser().getUserName()  , raum);
 
 				Message kickedUserMessage = new Message();
 				kickedUserMessage.setType("kicked-user");
 				kickedUserMessage.setUser(kickedUser);
-				kickedUserMessage.setChatMessage(chatMessage);
+				kickedUserMessage.setToastrMessage(toastrMessage);
 
 				ArrayList<Message> responseMessages = new ArrayList<>();
 				responseMessages.add(kickedUserMessage);
@@ -635,7 +633,7 @@ public class SyncService {
 					responseMessage.setType("update-kick-client");
 					responseMessage.setUser(user);
 					responseMessage.setRaumId(raum.getRaumId());
-					responseMessage.setChatMessage(chatMessage);
+					responseMessage.setToastrMessage(toastrMessage);
 					responseMessage.setUsers(raum.getUserList());
 					responseMessage.setKickedUsers(raum.getKickedUsersList());
 
@@ -654,7 +652,8 @@ public class SyncService {
 			Raum raum = getRaum(message.getRaumId());
 
 			refreshRaumId(raum.getRaumId());
-			ChatMessage chatMessage = createAndSaveChatMessage(raum.getUser(message.getUserId()), raum.getRaumId(), "has refreshed RoomId to :" + raum.getRaumId(), null, false);
+			//ChatMessage chatMessage = createAndSaveChatMessage(raum.getUser(message.getUserId()), raum.getRaumId(), "has refreshed RoomId to :" + raum.getRaumId(), null, fztzalse);
+			ToastrMessage toastrMessage = createAndSaveToastrMessage(ToastrMessageTypes.REFRESH_ROOM_ID, message.getUserName() + " has refreshed RoomId: " + raum.getRaumId(), raum);
 
 			ArrayList<Message> responseMessages = new ArrayList<>();
 			for (User user : raum.getUserList()) {
@@ -662,7 +661,7 @@ public class SyncService {
 				responseMessage.setType("refresh-raumid");
 				responseMessage.setUser(user);
 				responseMessage.setRaumId(raum.getRaumId());
-				responseMessage.setChatMessage(chatMessage);
+				responseMessage.setToastrMessage(toastrMessage);
 
 				responseMessages.add(responseMessage);
 			}
@@ -715,8 +714,9 @@ public class SyncService {
 			}
 			
 			//raum.addVideoToPlaylist(message.getPlaylistVideo());
-			ChatMessage chatMessage = createAndSaveChatMessage(raum.getUser(message.getUserId()), raum.getRaumId(), null, message.getPlaylistVideo(), false);
-			
+			//ChatMessage chatMessage = createAndSaveChatMessage(raum.getUser(message.getUserId()), raum.getRaumId(), null, message.getPlaylistVideo(), faltzse);
+			ToastrMessage toastrMessage = createAndSaveToastrMessage(ToastrMessageTypes.ADDED_VIDEO_TO_PLAYLIST, message.getUserName() + " has added Video: " + playlistVideo.getTitle(), raum);
+
 			ArrayList<Message> responseMessages = new ArrayList<>();
 			for (User user : raum.getUserList()) {
 				Message responseMessage = new Message();
@@ -732,7 +732,7 @@ public class SyncService {
 					responseMessage.setCurrentPlaybackRate(raum.getCurrentPlaybackRate());
 				}
 				responseMessage.setRaumId(raum.getRaumId());
-				responseMessage.setChatMessage(chatMessage);
+				responseMessage.setToastrMessage(toastrMessage);
 				responseMessages.add(responseMessage);
 			}
 			return responseMessages;
@@ -808,6 +808,7 @@ public class SyncService {
 			raum.setDescription(message.getRaumDescription());
 			raum.setTitle(message.getRaumTitle());
 			//ChatMessage chatMessage = createAndSaveChatMessage(raum.getUser(message.getUserId()), raum.getRaumId(), "has refreshed RoomId to :" + raum.getRaumId(), null);
+			ToastrMessage toastrMessage = createAndSaveToastrMessage(ToastrMessageTypes.UPDATE_TITLE_AND_DESCRIPTION, message.getUserName() + "changed room title & description: \n " + message.getRaumTitle() +"\n" + message.getRaumDescription(), raum);
 
 			ArrayList<Message> responseMessages = new ArrayList<>();
 			for (User user : raum.getUserList()) {
@@ -818,7 +819,7 @@ public class SyncService {
 				responseMessage.setRaumTitle(raum.getTitle());
 				responseMessage.setRaumDescription(raum.getDescription());
 				//responseMessage.setChatMessage(chatMessage);
-
+				responseMessage.setToastrMessage(toastrMessage);
 				responseMessages.add(responseMessage);
 			}
 			return responseMessages;
@@ -835,6 +836,8 @@ public class SyncService {
 			
 			Video removedVideo = raum.removeVideoFromPlaylist(message.getPlaylistVideo());
 			if(removedVideo != null) {
+				ToastrMessage toastrMessage = createAndSaveToastrMessage(ToastrMessageTypes.REMOVE_VIDEO_PLAYLIST, message.getUserName() + " has removed Video: " + removedVideo.getTitle(), raum);
+
 				if(raum.currentVideo.equalsTo(removedVideo)) {
 					if(!raum.playlist.isEmpty()) {
 						if(raum.getCurrentVideoIndex() >= raum.getPlaylist().size()) {
@@ -843,16 +846,16 @@ public class SyncService {
 							raum.setCurrentVideo(raum.playlist.get(raum.getCurrentVideoIndex()));
 						}
 						
-						return createRemoveVideoFromPlaylistMessages(raum, removedVideo, raum.getCurrentVideo());
+						return createRemoveVideoFromPlaylistMessages(raum, removedVideo, raum.getCurrentVideo(), toastrMessage);
 
 					}else {
 						raum.setCurrentVideo(null);
-						return createRemoveVideoFromPlaylistMessages(raum, removedVideo, new Video());
+						return createRemoveVideoFromPlaylistMessages(raum, removedVideo, new Video(), toastrMessage);
 
 					}
 				}else { // REMOVED AND CURRENT VIDEO ARE NOT EQUAL
 					raum.setCurrentVideo(raum.getCurrentVideo());
-					return createRemoveVideoFromPlaylistMessages(raum, removedVideo, null);
+					return createRemoveVideoFromPlaylistMessages(raum, removedVideo, null, toastrMessage);
 				}
 							
 			}
@@ -862,7 +865,7 @@ public class SyncService {
 		return null;
 	}
 	
-	private List<Message> createRemoveVideoFromPlaylistMessages(Raum raum, Video removedVideo, Video currentVideo) {
+	private List<Message> createRemoveVideoFromPlaylistMessages(Raum raum, Video removedVideo, Video currentVideo, ToastrMessage toastrMessage) {
 		ArrayList<Message> responseMessages = new ArrayList<>();
 		for (User user : raum.getUserList()) {
 			Message responseMessage = new Message();
@@ -870,6 +873,7 @@ public class SyncService {
 			responseMessage.setUser(user);
 			responseMessage.setRaumId(raum.getRaumId());
 			responseMessage.setPlaylistVideo(removedVideo);
+			responseMessage.setToastrMessage(toastrMessage);
 			if(currentVideo != null) {
 				responseMessage.setVideo(currentVideo);
 			}else {
@@ -904,6 +908,8 @@ public class SyncService {
 			Raum raum = getRaum(raumId);
 			
 			if(raum.importPlaylist(importedPlaylist)) {
+				ToastrMessage toastrMessage = createAndSaveToastrMessage(ToastrMessageTypes.IMPORTED_PLAYLIST, getRaum(raumId).getUser(userId).getUserName()+  ((importedPlaylist.mode == 0) ?  " has imported " : " has integrated ")+  importedPlaylist.title, raum);
+
 				Video playlistTitleTransferVideo = new Video();
 				playlistTitleTransferVideo.setTitle(importedPlaylist.getTitle());
 				ChatMessage chatMessage = createAndSaveChatMessage(raum.getUser(userId), raumId, null, playlistTitleTransferVideo, true);
@@ -917,7 +923,8 @@ public class SyncService {
 				responseMessage.setVideo(raum.getCurrentVideo());
 				raum.setCurrentPlaybackRate(1);
 				responseMessage.setCurrentPlaybackRate(1);
-				responseMessage.setChatMessage(chatMessage);;
+				responseMessage.setChatMessage(chatMessage);
+				responseMessage.setToastrMessage(toastrMessage);
 				
 			for(User user: getRaum(raumId).getUserList()) {
 					responseMessage.setUser(user);
@@ -1059,7 +1066,8 @@ public class SyncService {
 			
 			if(toggleMuteUser != null) {
 				
-				ChatMessage chatMessage = createAndSaveChatMessage(raum.getUser(message.getUserId()), raum.getRaumId(), "has " + ((toggleMuteUser.isMute) ? "muted " : "unmuted ") + toggleMuteUser.getUserName() , null, false);
+				//ChatMessage chatMessage = createAndSaveChatMessage(raum.getUser(message.getUserId()), raum.getRaumId(), "has " + ((toggleMuteUser.isMute) ? "muted " : "unmuted ") + toggleMuteUser.getUserName() , null, falstze);
+				ToastrMessage toastrMessage = createAndSaveToastrMessage(ToastrMessageTypes.MUTE_USER, message.getUserName() + "has " + ((toggleMuteUser.isMute) ? "muted " : "unmuted ") + toggleMuteUser.getUserName() + raum.getRaumId(), raum);
 
 				ArrayList<Message> responseMessages = new ArrayList<>();
 				for (User user : raum.getUserList()) {
@@ -1073,7 +1081,7 @@ public class SyncService {
 					}
 					responseMessage.setUser(user);
 					responseMessage.setRaumId(raum.getRaumId());
-					responseMessage.setChatMessage(chatMessage);
+					responseMessage.setToastrMessage(toastrMessage);
 					responseMessage.setUsers(raum.getUserList());
 
 					responseMessages.add(responseMessage);
@@ -1113,7 +1121,7 @@ public class SyncService {
 			Raum raum = getRaum(message.getRaumId());
 
 			if (raum.existsOnKickedUsersList(message.getAssignedUser().getUserId())) {
-
+				ToastrMessage toastrMessage = new ToastrMessage(raum.getSizeOfTaostrMessages(), ToastrMessageTypes.PARDONED_KICKED_USER, message.getUserName()  + "kicked " + message.getAssignedUser().getUserName() , raum.getRaumId());
 				User kickedUser = raum.removeFromKickedUserList(message.getAssignedUser().getUserId());
 				if (kickedUser != null) {
 					ArrayList<Message> responseMessages = new ArrayList<>();
@@ -1123,6 +1131,7 @@ public class SyncService {
 						responseMessage.setUser(user);
 						responseMessage.setRaumId(raum.getRaumId());
 						responseMessage.setKickedUsers(raum.getKickedUsersList());
+						responseMessage.setToastrMessage(toastrMessage);
 
 						responseMessages.add(responseMessage);
 					}
@@ -1152,6 +1161,15 @@ public class SyncService {
 			return getRaum(raumId).getHistory();
 		}
 		return null;
+	}
+
+	public ToastrMessageTypesObject getToastrMessageTypes() {
+		
+		return ToastrMessageTypes.cloneInstance();
+	}
+
+	public MessageTypesObject getMessageTypes() {
+		return MessageTypes.cloneInstance();
 	}
 	
 	

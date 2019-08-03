@@ -17,6 +17,9 @@ import Services.RaumDTO;
 import Services.SyncService;
 import Services.User;
 import messages.Message;
+import messages.MessageTypesObject;
+import messages.ToastrMessageTypes;
+import messages.ToastrMessageTypesObject;
 import messages.Video;
 
 
@@ -86,6 +89,24 @@ public class RestController {
 		return ResponseEntity.badRequest().body(new ArrayList<SupportedApi>());
 	}
 	
+	@GetMapping("/toastr-message-types")
+	@CrossOrigin(origins = "http://localhost:4200")
+	public ResponseEntity<ToastrMessageTypesObject> getToastrMessageTypes() {
+		ToastrMessageTypesObject toastrMessageTypes = syncService.getToastrMessageTypes();
+		if(toastrMessageTypes != null) {			
+			return ResponseEntity.ok(toastrMessageTypes);
+		}
+		return ResponseEntity.badRequest().body(new ToastrMessageTypesObject());
+	}
 	
+	@GetMapping("/message-types")
+	@CrossOrigin(origins = "http://localhost:4200")
+	public ResponseEntity<MessageTypesObject> getMessageTypes() {
+		MessageTypesObject messageTypes = syncService.getMessageTypes();
+		if(messageTypes != null) {			
+			return ResponseEntity.ok(messageTypes);
+		}
+		return ResponseEntity.badRequest().body(new MessageTypesObject());
+	}
 	
 }

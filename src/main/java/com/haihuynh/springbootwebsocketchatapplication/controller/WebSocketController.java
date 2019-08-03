@@ -122,13 +122,6 @@ public class WebSocketController {
 
 	}
 	
-	@MessageMapping("/send/sync-roomstate")
-	public void onReceiveRoomState(@Nullable final Message message) {
-		List<Message> responseMessages = this.syncService.generateSyncRoomStateMessages(message);
-		sendResponseMessages(responseMessages, message, "user: " + message.getUserId() + " -> [switch Roomstate - " + message.getRaumStatus() + "]");
-	}
-	
-	
 	@MessageMapping("/send/assign-admin")
 	public void onReceiveAssignAdmin(@Nullable final Message message) {
 		List<Message> responseMessages = this.syncService.generateAssignedAdminMessages(message);
