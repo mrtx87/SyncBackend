@@ -723,6 +723,7 @@ public class SyncService {
 				responseMessage.setType("update-playlist");
 				responseMessage.setUser(user);
 				if(newCurrentVideo != null) {
+					raum.addToHistory(newCurrentVideo);
 					responseMessage.setVideo(newCurrentVideo);
 					responseMessage.setPlayerState(1);
 					responseMessage.setCurrentPlaybackRate(1);
@@ -932,9 +933,10 @@ public class SyncService {
 		if (rooms.containsKey(message.getRaumId()) && isAdmin(message.getRaumId(), message.getUserId())) {
 			Raum raum = getRaum(message.getRaumId());
 			Video video = raum.switchCurrentPlaylistVideo(message.getPlaylistVideo());
-			video.setTimestamp(0f);
 			raum.setCurrentPlaybackRate(1);
-			if(video != null)	{		
+			if(video != null)	{	
+				video.setTimestamp(0f);
+				raum.addToHistory(video);
 				ArrayList<Message> responseMessages = new ArrayList<>();
 				for (User user : raum.getUserList()) {
 					Message responseMessage = new Message();
@@ -1143,6 +1145,13 @@ public class SyncService {
 
 	public ArrayList<SupportedApi> getSupportedApis() {
 		return supportedApis;
+	}
+
+	public ArrayList<Video> getHistory(String raumId, String userId) {
+		if(raumExists(raumId) && exists(raumId, userId)) {
+			return getRaum(raumId).getHistory();
+		}
+		return null;
 	}
 	
 	

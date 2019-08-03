@@ -30,6 +30,8 @@ public class Raum {
 	
 
 	ArrayList<Video> playlist = new ArrayList<>();
+	ArrayList<Video> history = new ArrayList<>();
+
 	HashMap<String, Float> timeStamps = new HashMap<>();
 	
 	int countingNextVidRequests = 0;
@@ -191,6 +193,14 @@ public class Raum {
 		return this.playlist;
 	}
 
+	public ArrayList<Video> getHistory() {
+		return history;
+	}
+
+	public void setHistory(ArrayList<Video> history) {
+		this.history = history;
+	}
+	
 	public boolean isVideo(Video _video) {
 		return currentVideo.getVideoId().equals(_video.getVideoId());
 	}
@@ -520,6 +530,10 @@ public class Raum {
 			return changeNameUser;
 		}
 		return null;
+	}
+
+	public void addToHistory(Video video) {
+		history.add(video);
 	}
 	
 }

@@ -37,7 +37,6 @@ public class RestController {
 	}
 	
 	
-	
 	@PostMapping("/room/{raumId}/userId/{userId}/playlist")
 	@CrossOrigin(origins = "http://localhost:4200")
 	public ResponseEntity<Message> importPlaylist(@PathVariable("raumId") String raumId, @PathVariable("userId") String userId, @RequestBody ImportedPlaylist importedPlaylist) {
@@ -47,7 +46,15 @@ public class RestController {
 		return ResponseEntity.badRequest().build();
 	}
 
-	
+	@GetMapping("/room/{raumId}/userId/{userId}/history")
+	@CrossOrigin(origins = "http://localhost:4200")
+	public ResponseEntity<List<Video>> getHistory(@PathVariable("raumId") String raumId, @PathVariable("userId") String userId){
+		ArrayList<Video> history = syncService.getHistory(raumId, userId);
+		if(history != null) {
+			return ResponseEntity.ok(history);
+		}
+		return ResponseEntity.badRequest().build();
+	}
 	
 	@GetMapping("/publicrooms/userId/{userId}")
 	@CrossOrigin(origins = "http://localhost:4200")
