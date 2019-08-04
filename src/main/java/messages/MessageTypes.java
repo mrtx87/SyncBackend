@@ -33,6 +33,7 @@ public class MessageTypes {
 	
 	public static MessageTypesObject cloneInstance() {
 		return new MessageTypesObject(
+				CREATE_ROOM,
 				JOIN_ROOM,
 				UPDATE_CLIENT,
 				INSERT_NEW_VIDEO,

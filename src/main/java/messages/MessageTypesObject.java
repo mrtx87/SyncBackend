@@ -1,6 +1,7 @@
 package messages;
 
 public class MessageTypesObject {
+	public String CREATE_ROOM = "create-room";
 	public String JOIN_ROOM = "join-room";
 	public String UPDATE_CLIENT = "update-client";
 	public String INSERT_NEW_VIDEO = "insert-new-video";
@@ -30,7 +31,7 @@ public class MessageTypesObject {
 	public String TOGGLE_PLAYLIST_RUNNING_ORDER = "toggle-playlist-running-order";
 	public String TOGGLE_PLAYLIST_LOOP = "toggle-playlist-loop";
 	
-	public MessageTypesObject(String jOIN_ROOM, String uPDATE_CLIENT, String iNSERT_NEW_VIDEO, String cHAT_MESSAGE,
+	public MessageTypesObject(String cREATE_ROOM, String jOIN_ROOM, String uPDATE_CLIENT, String iNSERT_NEW_VIDEO, String cHAT_MESSAGE,
 			String sEEK_TO_TIMESTAMP, String tOGGLE_PLAY, String dISCONNECT, String aSSIGNED_AS_ADMIN,
 			String tO_PUBLIC_ROOM, String tO_PRIVATE_ROOM, String sWITCH_VIDEO, String uPDATE_KICKED_USERS,
 			String kICKED_USER, String uPDATE_PLAYLIST, String rEQUEST_SYNC_TIMESTAMP, String rEMOVE_VIDEO_PLAYLIST,
@@ -39,6 +40,7 @@ public class MessageTypesObject {
 			String cHANGED_PLAYBACK_RATE, String mUTE_USER, String pARDONED_KICKED_USER,
 			String tOGGLE_PLAYLIST_RUNNING_ORDER, String tOGGLE_PLAYLIST_LOOP) {
 		super();
+		CREATE_ROOM = cREATE_ROOM;
 		JOIN_ROOM = jOIN_ROOM;
 		UPDATE_CLIENT = uPDATE_CLIENT;
 		INSERT_NEW_VIDEO = iNSERT_NEW_VIDEO;
