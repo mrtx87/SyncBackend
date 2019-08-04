@@ -3,7 +3,6 @@ package messages;
 import java.time.LocalDateTime;
 
 public class ToastrMessage {
-	int index;
 	String type;
 	String message;
 	String raumId;
@@ -11,16 +10,27 @@ public class ToastrMessage {
 	boolean onlyLogging;
     String origin;
     String target;
+    String toastrType;
 
-	public ToastrMessage(int index, String type, String message, String raumId, LocalDateTime createdAt, boolean onlyLogging) {
-		this.index = index;
+	public ToastrMessage(String type, String message, String raumId, LocalDateTime createdAt, boolean onlyLogging, String toastrType) {
 		this.type = type;
 		this.message = message;
 		this.raumId = raumId;
 		this.createdAt = createdAt;
 		this.onlyLogging = onlyLogging;
+		this.toastrType = toastrType;
 	}
 	
+	
+	
+	public String getToastrType() {
+		return toastrType;
+	}
+
+	public void setToastrType(String toastrType) {
+		this.toastrType = toastrType;
+	}
+
 	public boolean isOnlyLogging() {
 		return onlyLogging;
 	}
@@ -51,14 +61,6 @@ public class ToastrMessage {
 
 	public void setCreatedAt(LocalDateTime createdAt) {
 		this.createdAt = createdAt;
-	}
-
-	public long getIndex() {
-		return index;
-	}
-
-	public void setIndex(int index) {
-		this.index = index;
 	}
 
 	public String getType() {
