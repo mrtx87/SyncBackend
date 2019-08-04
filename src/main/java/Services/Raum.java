@@ -533,7 +533,7 @@ public class Raum {
 	public User toggleMuteUserById(String userId) {
 		if(exists(userId)) {
 			User user = getUser(userId);
-			user.setIsMute(!user.getIsMute());
+			user.setMute(!user.isMute());
 			return user;
 		}
 		return null;

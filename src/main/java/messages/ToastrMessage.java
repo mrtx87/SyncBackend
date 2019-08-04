@@ -1,16 +1,56 @@
 package messages;
 
+import java.time.LocalDateTime;
+
 public class ToastrMessage {
 	int index;
 	String type;
 	String message;
 	String raumId;
+	LocalDateTime createdAt;
+	boolean onlyLogging;
+    String origin;
+    String target;
 
-	public ToastrMessage(int index, String type, String message, String raumId) {
+	public ToastrMessage(int index, String type, String message, String raumId, LocalDateTime createdAt, boolean onlyLogging) {
 		this.index = index;
 		this.type = type;
 		this.message = message;
 		this.raumId = raumId;
+		this.createdAt = createdAt;
+		this.onlyLogging = onlyLogging;
+	}
+	
+	public boolean isOnlyLogging() {
+		return onlyLogging;
+	}
+
+	public void setOnlyLogging(boolean onlyLogging) {
+		this.onlyLogging = onlyLogging;
+	}
+
+	public String getOrigin() {
+		return origin;
+	}
+
+	public void setOrigin(String origin) {
+		this.origin = origin;
+	}
+
+	public String getTarget() {
+		return target;
+	}
+
+	public void setTarget(String target) {
+		this.target = target;
+	}
+	
+	public LocalDateTime getCreatedAt() {
+		return createdAt;
+	}
+
+	public void setCreatedAt(LocalDateTime createdAt) {
+		this.createdAt = createdAt;
 	}
 
 	public long getIndex() {

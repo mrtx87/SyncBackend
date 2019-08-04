@@ -16,8 +16,10 @@ import Services.ImportedPlaylist;
 import Services.RaumDTO;
 import Services.SyncService;
 import Services.User;
+import messages.ChatMessage;
 import messages.Message;
 import messages.MessageTypesObject;
+import messages.ToastrMessage;
 import messages.ToastrMessageTypes;
 import messages.ToastrMessageTypesObject;
 import messages.Video;
@@ -77,6 +79,26 @@ public class RestController {
 			return ResponseEntity.ok(publicrooms);
 		}
 		return ResponseEntity.badRequest().body(new ArrayList<User>());
+	}
+	
+	@GetMapping("/room/{raumId}/userId/{userId}/toastr-messages")
+	@CrossOrigin(origins = "http://localhost:4200")
+	public ResponseEntity<ArrayList<ToastrMessage>> getToastrMessages(@PathVariable("raumId") String raumId, @PathVariable("userId") String userId) {
+		ArrayList<ToastrMessage> toastrMessages = (ArrayList<ToastrMessage>) syncService.getToastrMessages(raumId, userId);
+		if(toastrMessages != null) {			
+			return ResponseEntity.ok(toastrMessages);
+		}
+		return ResponseEntity.badRequest().body(new ArrayList<ToastrMessage>());
+	}
+	
+	@GetMapping("/room/{raumId}/userId/{userId}/chat-messages")
+	@CrossOrigin(origins = "http://localhost:4200")
+	public ResponseEntity<ArrayList<ChatMessage>> getChatMessages(@PathVariable("raumId") String raumId, @PathVariable("userId") String userId) {
+		ArrayList<ChatMessage> chatMessages = (ArrayList<ChatMessage>) syncService.getChatMessages(raumId, userId);
+		if(chatMessages != null) {			
+			return ResponseEntity.ok(chatMessages);
+		}
+		return ResponseEntity.badRequest().body(new ArrayList<ChatMessage>());
 	}
 	
 	@GetMapping("/supported-apis")

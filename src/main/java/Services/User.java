@@ -5,13 +5,14 @@ public class User {
 	String userId;
 	String userName;
 	Boolean admin;
-	Boolean isMute;
+	Boolean mute;
 
-	public Boolean getIsMute() {
-		return isMute;
+
+	public Boolean isMute() {
+		return mute;
 	}
-	public void setIsMute(Boolean isMute) {
-		this.isMute = isMute;
+	public void setMute(Boolean mute) {
+		this.mute = mute;
 	}
 	public Boolean getAdmin() {
 		return admin;
