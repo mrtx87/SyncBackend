@@ -1274,13 +1274,14 @@ public class SyncService {
 			if (kickedUser != null) {
 				raum.addKickedUser(kickedUser);
 				
-				//ChatMessage chatMessage = createAndSaveChatMessage(raum.getUser(message.getUserId()), raum.getRaumId(), "has kicked " + kickedUser.getUserName(), null, falzse);
-				ToastrMessage toastrMessage = createAndSaveToastrMessage(ToastrMessageTypes.KICKED_USER, message.getUserName() + " has kicked " + kickedUser.getUserName()  , raum, ERROR);
-
+				ToastrMessage toastrMessage = createAndSaveToastrMessage(ToastrMessageTypes.UPDATE_KICK_CLIENT, message.getUserName() + " has kicked " + kickedUser.getUserName()  , raum, ERROR);
+				ToastrMessage kickedUserToastrMessage = toastrMessage.clone();
+				kickedUserToastrMessage.setType(ToastrMessageTypes.KICKED_USER);
+				
 				Message kickedUserMessage = new Message();
 				kickedUserMessage.setType(MessageTypes.KICKED_USER);
 				kickedUserMessage.setUser(kickedUser);
-				kickedUserMessage.setToastrMessage(toastrMessage);
+				kickedUserMessage.setToastrMessage(kickedUserToastrMessage);
 
 				ArrayList<Message> responseMessages = new ArrayList<>();
 				responseMessages.add(kickedUserMessage);

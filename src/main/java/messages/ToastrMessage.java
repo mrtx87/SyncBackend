@@ -87,4 +87,8 @@ public class ToastrMessage {
 		this.raumId = raumId;
 	}
 
+	public ToastrMessage clone() {
+		return new ToastrMessage(type, message, raumId, createdAt, onlyLogging, toastrType);
+	}
+	
 }
