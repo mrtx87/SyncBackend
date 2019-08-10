@@ -374,6 +374,16 @@ public class Raum {
 		}
 		return false;
 	}
+	
+	public boolean userIsAdmin(User user) {
+		User realUser = users.get(user.getUserId());
+		if(realUser != null) {
+			if(realUser.getUserKey().equals(user.getUserKey()) && realUser.isAdmin()) {
+				return true;
+			}
+		}
+		return false;
+	}
 
 	public void assignUserAsAdmin(User user) {
 		User newAdmin = users.get(user.userId);

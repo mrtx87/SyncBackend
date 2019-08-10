@@ -959,7 +959,7 @@ public class SyncService {
 
 	public List<Message> joinRaum(Message message) {
 
-		if (rooms.containsKey(message.getRaumId())) {
+		if (raumExists(message.getRaumId())) {
 			Raum raum = rooms.get(message.getRaumId());
 			
 			if(!raum.existsOnKickedUsersList(message.getUserId())) {
@@ -1035,7 +1035,7 @@ public class SyncService {
 	
 
 	public List<Message> disconnectClient(Message message) {
-		if (rooms.containsKey(message.getRaumId())) {
+		if (authorize(message)) {
 			Raum raum = rooms.get(message.getRaumId());
 			String userId = message.getUserId();
 			User removedUser = raum.remove(userId);
@@ -1060,7 +1060,7 @@ public class SyncService {
 	}
 	
 	public ArrayList<Message> generateSaveChatMessageResponse(Message message) {
-		if (rooms.containsKey(message.getRaumId())) {
+		if (authorize(message)) {
 			Raum raum = getRaum(message.getRaumId());
 			
 			if(raum.userExists(message.getUser())) {
@@ -1109,7 +1109,7 @@ public class SyncService {
 	}
 
 	public List<Message> generateSyncSeekToMessages(Message message) {
-		if (rooms.containsKey(message.getRaumId())) {
+		if (authorize(message)) {
 			Raum raum = rooms.get(message.getRaumId());
 			Video video = message.getVideo();
 			List<Message> messages = new ArrayList<>();
@@ -1130,7 +1130,7 @@ public class SyncService {
 
 	public List<Message> generateSyncPlayToggleMessages(Message message) {
 
-		if (rooms.containsKey(message.getRaumId()) && message.getVideo() != null) {
+		if (authorize(message) && message.getVideo() != null) {
 			Raum raum = rooms.get(message.getRaumId());
 			raum.setPlayerState(message.getPlayerState());
 			raum.updateTimestamp(message.getVideo());
@@ -1156,8 +1156,7 @@ public class SyncService {
 
 	public List<Message> generateAssignedAdminMessages(Message message) {
 		// type="assigned-as-admin"
-		if (rooms.containsKey(message.getRaumId()) && isAdmin(message.getRaumId(), message.getUserId())
-				&& exists(message.getRaumId(), message.getAssignedUser().userId)) {
+		if (authorizeAsAdmin(message) && authorizeAssignedUser(message)) {
 			Raum raum = getRaum(message.getRaumId());
 			raum.assignUserAsAdmin(message.getAssignedUser());
 
@@ -1213,7 +1212,7 @@ public class SyncService {
 
 	public List<Message> generateToPublicRoomMessages(Message message) {
 
-		if (rooms.containsKey(message.getRaumId()) && isAdmin(message.getRaumId(), message.getUserId())) {
+		if (authorizeAsAdmin(message)) {
 			Raum raum = getRaum(message.getRaumId());
 			raum.setRaumStatus(publicRaum);
 
@@ -1240,7 +1239,7 @@ public class SyncService {
 	}
 
 	public List<Message> generateToPrivateRoomMessages(Message message) {
-		if (rooms.containsKey(message.getRaumId()) && isAdmin(message.getRaumId(), message.getUserId())) {
+		if (authorizeAsAdmin(message)) {
 			Raum raum = getRaum(message.getRaumId());
 			raum.setRaumStatus(privateRaum);
 			raum.setAllUsersToAdmins();
@@ -1268,8 +1267,7 @@ public class SyncService {
 
 	public List<Message> generateKickMessages(Message message) {
 
-		if (rooms.containsKey(message.getRaumId()) && isAdmin(message.getRaumId(), message.getUserId())
-				&& exists(message.getRaumId(), message.getAssignedUser().userId)) {
+		if (authorizeAsAdmin(message) && authorizeAssignedUser(message)) {
 			Raum raum = getRaum(message.getRaumId());
 
 			refreshRaumId(raum.getRaumId());
@@ -1311,7 +1309,7 @@ public class SyncService {
 
 	public List<Message> generateRefreshRaumIdMessages(Message message) {
 
-		if (rooms.containsKey(message.getRaumId()) && isAdmin(message.getRaumId(), message.getUserId())) {
+		if (authorizeAsAdmin(message)) {
 			Raum raum = getRaum(message.getRaumId());
 
 			refreshRaumId(raum.getRaumId());
@@ -1359,7 +1357,7 @@ public class SyncService {
 
 	public List<Message> addVideoToPlaylistMessages(Message message, AddVideoMode mode) {
 
-		if (rooms.containsKey(message.getRaumId()) && isAdmin(message.getRaumId(), message.getUserId())) {
+		if (authorizeAsAdmin(message)) {
 			Raum raum = getRaum(message.getRaumId());
 			Video newCurrentVideo = null;
 			Video playlistVideo = message.getPlaylistVideo();
@@ -1406,7 +1404,7 @@ public class SyncService {
 
 	public ArrayList<Message> processJoinTimeStamp(Message message) {
 
-		if (rooms.containsKey(message.getRaumId()) && message.getVideo() != null) {
+		if (authorize(message) && message.getVideo() != null) {
 			Raum raum = getRaum(message.getRaumId());
 				Float ts = message.getVideo().getTimestamp();
 				System.out.println("[UPDATE TIMESTAMP " + raum.getCurrentVideo().getTimestamp() +" -> " + ts +"]");
@@ -1430,7 +1428,7 @@ public class SyncService {
 
 	public Message generateRequestSyncTimestampMessages(Message message) {
 		
-		if (rooms.containsKey(message.getRaumId())) {
+		if (authorize(message)) {
 			Raum raum = getRaum(message.getRaumId());
 
 			ArrayList<User> onlyJoinedUsers = (ArrayList<User>) raum
@@ -1465,7 +1463,7 @@ public class SyncService {
 	
 
 	public List<Message> generateUpdateTitleAndDescriptionMessages(Message message) {
-		if (rooms.containsKey(message.getRaumId()) && isAdmin(message.getRaumId(), message.getUserId())) {
+		if (authorizeAsAdmin(message)) {
 			Raum raum = getRaum(message.getRaumId());
 
 			raum.setDescription(message.getRaumDescription());
@@ -1494,7 +1492,7 @@ public class SyncService {
 
 	public List<Message> generateRemoveVideoFromPlaylistMessages(Message message) {
 
-		if (rooms.containsKey(message.getRaumId()) && isAdmin(message.getRaumId(), message.getUserId())) {
+		if (authorizeAsAdmin(message)) {
 			Raum raum = getRaum(message.getRaumId());
 			
 			Video removedVideo = raum.removeVideoFromPlaylist(message.getPlaylistVideo());
@@ -1600,7 +1598,7 @@ public class SyncService {
 	}
 
 	public List<Message> generateSwitchPlaylistVideoMessages(Message message) {
-		if (rooms.containsKey(message.getRaumId()) && isAdmin(message.getRaumId(), message.getUserId())) {
+		if (authorizeAsAdmin(message)) {
 			Raum raum = getRaum(message.getRaumId());
 			Video video = raum.switchCurrentPlaylistVideo(message.getPlaylistVideo());
 			ToastrMessage toastrMessage = createAndSaveToastrMessage(ToastrMessageTypes.ONLY_LOGGING, message.getUserName() + " switched Video to " + video.getTitle(), raum, true, INFO);
@@ -1633,7 +1631,7 @@ public class SyncService {
 	static int LOOP_SINGLE = 2;
 	
 	public List<Message> processAutoNextPlaylistVideo(Message message) {
-		if (rooms.containsKey(message.getRaumId())) {
+		if (authorize(message)) {
 			Raum raum = getRaum(message.getRaumId());
 			int requests = raum.countNextVidRequest();
 			Video newCurrentVid = null;
@@ -1669,7 +1667,7 @@ public class SyncService {
 	}
 
 	public List<Message> generateTogglePlaylistLoopMessages(Message message) {
-		if (rooms.containsKey(message.getRaumId()) && isAdmin(message.getRaumId(), message.getUserId())) {
+		if (authorizeAsAdmin(message)) {
 			Raum raum = getRaum(message.getRaumId());
 			int loop  = raum.toggleLoop();
 				ArrayList<Message> responseMessages = new ArrayList<>();
@@ -1688,7 +1686,7 @@ public class SyncService {
 	}
 
 	public List<Message> generateTogglePlaylistRunningOrderMessages(Message message) {
-		if (rooms.containsKey(message.getRaumId()) && isAdmin(message.getRaumId(), message.getUserId())) {
+		if (authorizeAsAdmin(message)) {
 			Raum raum = getRaum(message.getRaumId());
 			boolean randomOrder  = raum.toggleRandomOrder();
 				ArrayList<Message> responseMessages = new ArrayList<>();
@@ -1707,7 +1705,7 @@ public class SyncService {
 	}
 
 	public List<Message> generateChangePlaybackRateMessages(Message message) {
-		if (rooms.containsKey(message.getRaumId()) && isAdmin(message.getRaumId(), message.getUserId())) {
+		if (authorizeAsAdmin(message)) {
 			Raum raum = getRaum(message.getRaumId());
 			raum.setCurrentPlaybackRate(message.getCurrentPlaybackRate());
 			ToastrMessage toastrMessage = createAndSaveToastrMessage(ToastrMessageTypes.CHANGED_PLAYBACK_RATE, message.getUserName() + "changed Playbackrate to " + message.getCurrentPlaybackRate(), raum, INFO);
@@ -1728,7 +1726,7 @@ public class SyncService {
 	}
 
 	public List<Message> generateToggleMuteUserMessages(Message message) {
-		if (rooms.containsKey(message.getRaumId()) && isAdmin(message.getRaumId(), message.getUserId())) {
+		if (authorizeAsAdmin(message)) {
 			Raum raum = getRaum(message.getRaumId());
 			User toggleMuteUser = raum.toggleMuteUser(message.getAssignedUser());
 			
@@ -1786,7 +1784,7 @@ public class SyncService {
 	}
 
 	public List<Message> generatePardonKickedUserMessages(Message message) {
-		if (rooms.containsKey(message.getRaumId()) && isAdmin(message.getRaumId(), message.getUserId())) {
+		if (authorizeAsAdmin(message)) {
 			Raum raum = getRaum(message.getRaumId());
 
 			if (raum.existsOnKickedUsersList(message.getAssignedUser().getUserId())) {
@@ -1869,6 +1867,26 @@ public class SyncService {
 		Raum room = rooms.get(message.getRaumId());
 		if(room != null){
 			if(room.userExists(message.getUser())) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	public boolean authorizeAsAdmin(Message message) {
+		Raum room = rooms.get(message.getRaumId());
+		if(room != null){
+			if(room.userIsAdmin(message.getUser())) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	public boolean authorizeAssignedUser(Message message) {
+		Raum room = rooms.get(message.getRaumId());
+		if(room != null){
+			if(room.userExists(message.getAssignedUser())) {
 				return true;
 			}
 		}
