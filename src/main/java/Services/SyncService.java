@@ -1063,7 +1063,7 @@ public class SyncService {
 		if (authorize(message)) {
 			Raum raum = getRaum(message.getRaumId());
 			
-			if(raum.userExists(message.getUser())) {
+			if(raum.userValid(message.getUser())) {
 				User sendingUser = raum.getUser(message.getUserId());
 				if(!sendingUser.isMute()) {					
 					ChatMessage chatMessage = createAndSaveChatMessage(sendingUser, raum.getRaumId(), message.getChatMessage().getMessageText(), null, false);
@@ -1207,7 +1207,7 @@ public class SyncService {
 		Raum raum = rooms.get(raumId);
 		User user = new User();
 		user.userId = userId;
-		return raum.userExists(user);
+		return raum.userValid(user);
 	}
 
 	public List<Message> generateToPublicRoomMessages(Message message) {
@@ -1866,7 +1866,7 @@ public class SyncService {
 	public boolean authorize(Message message) {
 		Raum room = rooms.get(message.getRaumId());
 		if(room != null){
-			if(room.userExists(message.getUser())) {
+			if(room.userValid(message.getUser())) {
 				return true;
 			}
 		}

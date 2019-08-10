@@ -365,7 +365,7 @@ public class Raum {
 		return users.get(userId);
 	}
 
-	public boolean userExists(User user) {
+	public boolean userValid(User user) {
 		User realUser = users.get(user.getUserId());
 		if(realUser != null) {
 			if(realUser.getUserKey().equals(user.getUserKey())) {
@@ -373,6 +373,10 @@ public class Raum {
 			}
 		}
 		return false;
+	}
+	
+	public boolean userExists(User user) {
+		return users.containsKey(user.getUserId());
 	}
 	
 	public boolean userIsAdmin(User user) {
@@ -553,7 +557,7 @@ public class Raum {
 	}
 	
 	public User toggleMuteUser(User user) {
-		if(userExists(user)) {
+		if(userValid(user)) {
 			user.setMute(!user.isMute());
 			return user;
 		}
@@ -561,7 +565,7 @@ public class Raum {
 	}
 	
 	public User changeUserName(User user) {
-		if(userExists(user)){
+		if(userValid(user)){
 			User changeNameUser = getUser(user.getUserId());
 			changeNameUser.setUserName(user.getUserName());
 			allTimeUsers.put(changeNameUser.getUserId(), changeNameUser);
