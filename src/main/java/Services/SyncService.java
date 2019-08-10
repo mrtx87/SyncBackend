@@ -936,7 +936,7 @@ public class SyncService {
 			WebSocketConfiguration.registryInstance.enableSimpleBroker("/" + userId);
 
 			Message createRaumMessage = new Message();
-			createRaumMessage.setType("create-room");
+			createRaumMessage.setType(MessageTypes.CREATE_ROOM);
 			createRaumMessage.setUser(user);
 			createRaumMessage.setRaumId(raum.raumId);
 			createRaumMessage.setUsers(raum.getUserList());
@@ -981,7 +981,7 @@ public class SyncService {
 					
 				List<Message> messages = new ArrayList<>();
 				Message joinMessage = new Message();
-				joinMessage.setType("join-room");
+				joinMessage.setType(MessageTypes.JOIN_ROOM);
 				joinMessage.setUser(user);
 				joinMessage.setUsers(raum.getUserList());
 				joinMessage.setRaumTitle(raum.getTitle());
@@ -1001,7 +1001,7 @@ public class SyncService {
 					if (!user.userId.equals(id)) {
 	
 						Message responseMessage = new Message();
-						responseMessage.setType("update-client");
+						responseMessage.setType(MessageTypes.UPDATE_CLIENT);
 						responseMessage.setRaumId(raum.raumId);
 						responseMessage.setUserId(id);
 						responseMessage.setToastrMessage(toastrMessage);
@@ -1032,39 +1032,6 @@ public class SyncService {
 	}
 	
 
-	public List<Message> addAndShareNewVideo(Message message) {
-		if (rooms.containsKey(message.getRaumId()) && message.getVideo() != null) {
-			Raum raum = rooms.get(message.getRaumId());
-			Video video = message.getVideo();
-			raum.setCurrentVideo(video);
-			raum.setPlayerState(1);
-			List<Message> messages = new ArrayList<>();
-
-			ChatMessage chatMessage = new ChatMessage();
-			chatMessage.setType("insert-video");
-			chatMessage.setVideo(raum.getCurrentVideo());
-			chatMessage.setRaumId(raum.getRaumId());
-			chatMessage.setUser(message.getUser());
-			chatMessage.setTimestamp(getCurrentTime());
-			saveChatMessage(chatMessage);
-			for (String id : raum.getUserIds()) {
-
-				Message responseMessage = new Message();
-				responseMessage.setType("insert-new-video");
-				responseMessage.setRaumId(raum.raumId);
-				responseMessage.setUserId(id);
-				responseMessage.setVideo(video);
-				responseMessage.setChatMessage(chatMessage);
-				responseMessage.setPlayerState(raum.getPlayerState());
-				messages.add(responseMessage);
-			}
-
-			return messages;
-		}
-		return new ArrayList<>();
-
-	}
-
 	public List<Message> disconnectClient(Message message) {
 		if (rooms.containsKey(message.getRaumId())) {
 			Raum raum = rooms.get(message.getRaumId());
@@ -1077,7 +1044,7 @@ public class SyncService {
 			for (User user : raum.getUserList()) {
 
 				Message responseMessage = new Message();
-				responseMessage.setType("update-client");
+				responseMessage.setType(MessageTypes.UPDATE_CLIENT);
 				responseMessage.setRaumId(raum.raumId);
 				responseMessage.setUser(user);
 				responseMessage.setToastrMessage(toastrMessage);
@@ -1104,7 +1071,7 @@ public class SyncService {
 					for(User user : raum.getUserList()){
 						Message responseMessage = new Message();
 						responseMessage.setUser(user);
-						responseMessage.setType("chat-message");
+						responseMessage.setType(MessageTypes.CHAT_MESSAGE);
 						responseMessage.setRaumId(raum.getRaumId());
 						responseMessage.setChatMessage(chatMessage);
 						responseMessage.setToastrMessage(toastrMessage);
@@ -1148,7 +1115,7 @@ public class SyncService {
 			for (String userId : raum.getUserIds()) {
 				Message responseMessage = new Message();
 				responseMessage.setUserId(userId);
-				responseMessage.setType("seekto-timestamp");
+				responseMessage.setType(MessageTypes.SEEK_TO_TIMESTAMP);
 				responseMessage.setVideo(raum.getCurrentVideo());
 				responseMessage.setRaumId(raum.getRaumId());
 				messages.add(responseMessage);
@@ -1169,7 +1136,7 @@ public class SyncService {
 			List<Message> messages = new ArrayList<>();
 			for (String userId : raum.getUserIds()) {
 				Message responseMessage = new Message();
-				responseMessage.setType("toggle-play");
+				responseMessage.setType(MessageTypes.TOGGLE_PLAY);
 				responseMessage.setUserId(userId);
 				responseMessage.setRaumId(raum.getRaumId());
 				responseMessage.setPlayerState(raum.getPlayerState());
@@ -1195,7 +1162,7 @@ public class SyncService {
 			//ChatMessage chatMessage = createAndSaveChatMessage(raum.getUser(message.getUserId()), raum.getRaumId(),"assigned " + raum.getUser(message.getAssignedUser().getUserId()).getUserName() + " as Admin", null, falsetz);
 			ToastrMessage toastrMessage = createAndSaveToastrMessage(ToastrMessageTypes.ASSIGNED_AS_ADMIN,"assigned " + raum.getUser(message.getAssignedUser().getUserId()).getUserName() + " as Admin", raum, SUCCESS);
 			Message assignAdminMessage = new Message();
-			assignAdminMessage.setType("assigned-as-admin");
+			assignAdminMessage.setType(MessageTypes.ASSIGNED_AS_ADMIN);
 			assignAdminMessage.setUser(raum.getUser(message.getAssignedUser().userId));
 			assignAdminMessage.setUsers(raum.getUserList());
 			assignAdminMessage.setRaumId(raum.getRaumId());
@@ -1206,7 +1173,7 @@ public class SyncService {
 			for (User user : raum.getUserList()) {
 				if (user.getUserId() != message.getAssignedUser().getUserId()) {
 					Message responseMessage = new Message();
-					responseMessage.setType("update-client");
+					responseMessage.setType(MessageTypes.UPDATE_CLIENT);
 					responseMessage.setUser(user);
 					responseMessage.setUsers(raum.getUserList());
 					responseMessage.setRaumId(raum.getRaumId());
@@ -1254,7 +1221,7 @@ public class SyncService {
 			for (User user : raum.getUserList()) {
 
 				Message responseMessage = new Message();
-				responseMessage.setType("to-public-room");
+				responseMessage.setType(MessageTypes.TO_PUBLIC_ROOM);
 				responseMessage.setUser(user);
 				responseMessage.setUsers(raum.getUserList());
 				responseMessage.setRaumId(raum.getRaumId());
@@ -1280,7 +1247,7 @@ public class SyncService {
 			for (User user : raum.getUserList()) {
 
 				Message responseMessage = new Message();
-				responseMessage.setType("to-private-room");
+				responseMessage.setType(MessageTypes.TO_PRIVATE_ROOM);
 				responseMessage.setUser(user);
 				responseMessage.setUsers(raum.getUserList());
 				responseMessage.setRaumId(raum.getRaumId());
@@ -1311,7 +1278,7 @@ public class SyncService {
 				ToastrMessage toastrMessage = createAndSaveToastrMessage(ToastrMessageTypes.KICKED_USER, message.getUserName() + " has kicked " + kickedUser.getUserName()  , raum, ERROR);
 
 				Message kickedUserMessage = new Message();
-				kickedUserMessage.setType("kicked-user");
+				kickedUserMessage.setType(MessageTypes.KICKED_USER);
 				kickedUserMessage.setUser(kickedUser);
 				kickedUserMessage.setToastrMessage(toastrMessage);
 
@@ -1321,7 +1288,7 @@ public class SyncService {
 				for (User user : raum.getUserList()) {
 
 					Message responseMessage = new Message();
-					responseMessage.setType("update-kick-client");
+					responseMessage.setType(MessageTypes.UPDATE_KICK_CLIENT);
 					responseMessage.setUser(user);
 					responseMessage.setRaumId(raum.getRaumId());
 					responseMessage.setToastrMessage(toastrMessage);
@@ -1349,7 +1316,7 @@ public class SyncService {
 			ArrayList<Message> responseMessages = new ArrayList<>();
 			for (User user : raum.getUserList()) {
 				Message responseMessage = new Message();
-				responseMessage.setType("refresh-raumid");
+				responseMessage.setType(MessageTypes.REFRESH_ROOM_ID);
 				responseMessage.setUser(user);
 				responseMessage.setRaumId(raum.getRaumId());
 				responseMessage.setToastrMessage(toastrMessage);
@@ -1411,7 +1378,7 @@ public class SyncService {
 			ArrayList<Message> responseMessages = new ArrayList<>();
 			for (User user : raum.getUserList()) {
 				Message responseMessage = new Message();
-				responseMessage.setType("update-playlist");
+				responseMessage.setType(MessageTypes.UPDATE_PLAYLIST);
 				responseMessage.setUser(user);
 				if(newCurrentVideo != null) {
 					raum.addToHistory(newCurrentVideo);
@@ -1443,7 +1410,7 @@ public class SyncService {
 				ArrayList<Message> responseMessages = new ArrayList<>();
 				for (User joiningUser : raum.getJoiningUserList()) {
 					Message responseMessage = new Message();
-					responseMessage.setType("seekto-timestamp");
+					responseMessage.setType(MessageTypes.SEEK_TO_TIMESTAMP);
 					responseMessage.setUser(joiningUser);
 					responseMessage.setRaumId(raum.getRaumId());
 					responseMessage.setVideo(raum.getCurrentVideo());
@@ -1469,7 +1436,7 @@ public class SyncService {
 			System.out.println("[JOINED USERS: " + onlyJoinedUsers + " - SIZE: " + onlyJoinedUsers.size() +"]");
 			if(onlyJoinedUsers.size() > 0) {
 				Message responseMessage = new Message();
-				responseMessage.setType("request-sync-timestamp");
+				responseMessage.setType(MessageTypes.REQUEST_SYNC_TIMESTAMP);
 				responseMessage.setUser(onlyJoinedUsers.get(0));
 				responseMessage.setRaumId(raum.getRaumId());							
 				return responseMessage;
@@ -1504,7 +1471,7 @@ public class SyncService {
 			ArrayList<Message> responseMessages = new ArrayList<>();
 			for (User user : raum.getUserList()) {
 				Message responseMessage = new Message();
-				responseMessage.setType("update-title-and-description");
+				responseMessage.setType(MessageTypes.UPDATE_TITLE_AND_DESCRIPTION);
 				responseMessage.setUser(user);
 				responseMessage.setRaumId(raum.getRaumId());
 				responseMessage.setRaumTitle(raum.getTitle());
@@ -1560,7 +1527,7 @@ public class SyncService {
 		ArrayList<Message> responseMessages = new ArrayList<>();
 		for (User user : raum.getUserList()) {
 			Message responseMessage = new Message();
-			responseMessage.setType("remove-video-playlist");
+			responseMessage.setType(MessageTypes.REMOVE_VIDEO_PLAYLIST);
 			responseMessage.setUser(user);
 			responseMessage.setRaumId(raum.getRaumId());
 			responseMessage.setPlaylistVideo(removedVideo);
@@ -1607,7 +1574,7 @@ public class SyncService {
 				raum.setCurrentVideo(raum.getPlaylistVideo(0));
 				
 				Message responseMessage = new Message();
-				responseMessage.setType("update-playlist");
+				responseMessage.setType(MessageTypes.UPDATE_PLAYLIST);
 				responseMessage.setRaumId(raumId);
 				raum.setPlayerState(1);
 				responseMessage.setPlayerState(1);		
@@ -1640,7 +1607,7 @@ public class SyncService {
 				ArrayList<Message> responseMessages = new ArrayList<>();
 				for (User user : raum.getUserList()) {
 					Message responseMessage = new Message();
-					responseMessage.setType("switch-video");
+					responseMessage.setType(MessageTypes.SWITCH_VIDEO);
 					responseMessage.setUser(user);
 					responseMessage.setRaumId(raum.getRaumId());
 					responseMessage.setVideo(raum.getCurrentVideo());
@@ -1703,7 +1670,7 @@ public class SyncService {
 				ArrayList<Message> responseMessages = new ArrayList<>();
 				for (User user : raum.getUserList()) {
 					Message responseMessage = new Message();
-					responseMessage.setType("toggle-playlist-loop");
+					responseMessage.setType(MessageTypes.TOGGLE_PLAYLIST_LOOP);
 					responseMessage.setUser(user);
 					responseMessage.setRaumId(raum.getRaumId());
 					responseMessage.setVideo(raum.getCurrentVideo());
@@ -1722,7 +1689,7 @@ public class SyncService {
 				ArrayList<Message> responseMessages = new ArrayList<>();
 				for (User user : raum.getUserList()) {
 					Message responseMessage = new Message();
-					responseMessage.setType("toggle-playlist-running-order");
+					responseMessage.setType(MessageTypes.TOGGLE_PLAYLIST_RUNNING_ORDER);
 					responseMessage.setUser(user);
 					responseMessage.setRaumId(raum.getRaumId());
 					responseMessage.setVideo(raum.getCurrentVideo());
@@ -1742,7 +1709,7 @@ public class SyncService {
 				ArrayList<Message> responseMessages = new ArrayList<>();
 				for (User user : raum.getUserList()) {
 					Message responseMessage = new Message();
-					responseMessage.setType("change-playback-rate");
+					responseMessage.setType(MessageTypes.CHANGED_PLAYBACK_RATE);
 					responseMessage.setUser(user);
 					responseMessage.setRaumId(raum.getRaumId());
 					responseMessage.setVideo(raum.getCurrentVideo());
@@ -1769,10 +1736,10 @@ public class SyncService {
 				for (User user : raum.getUserList()) {
 					Message responseMessage = new Message();
 					if(toggleMuteUser.getUserId() == user.getUserId()) {
-						responseMessage.setType("refresh-user-and-list");
+						responseMessage.setType(MessageTypes.REFRESH_USER_AND_LIST);
 
 					}else {
-						responseMessage.setType("refresh-userlist");
+						responseMessage.setType(MessageTypes.REFRESH_USERLIST);
 
 					}
 					responseMessage.setUser(user);
@@ -1801,7 +1768,7 @@ public class SyncService {
 				ArrayList<Message> responseMessages = new ArrayList<>();
 				for (User user : raum.getUserList()) {
 					Message responseMessage = new Message();
-					responseMessage.setType("update-client");
+					responseMessage.setType(MessageTypes.UPDATE_CLIENT);
 					responseMessage.setUser(user);
 					responseMessage.setRaumId(raum.getRaumId());
 					responseMessage.setUsers(raum.getUserList());
@@ -1826,7 +1793,7 @@ public class SyncService {
 					ArrayList<Message> responseMessages = new ArrayList<>();
 					for (User user : raum.getAdminList()) {
 						Message responseMessage = new Message();
-						responseMessage.setType("update-kicked-users");
+						responseMessage.setType(MessageTypes.UPDATE_KICKED_USERS);
 						responseMessage.setUser(user);
 						responseMessage.setRaumId(raum.getRaumId());
 						responseMessage.setKickedUsers(raum.getKickedUsersList());

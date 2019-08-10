@@ -66,15 +66,6 @@ public class WebSocketController {
 		sendResponseMessage(responseMessage, message, "userId: " + responseMessage.getUserId() + " -> [created room - " + responseMessage.getRaumId() + " |  status: " + syncService.getRaum(responseMessage.getRaumId()).getRaumStatus() + "]");
 	}
 
-	// old function for non playlist video sync
-	@MessageMapping("/send/receive-new-video")
-	public void onReceiveNewVideo(@Nullable final Message message) {
-		List<Message> responseMessages = syncService.addAndShareNewVideo(message);
-		if (responseMessages.size() > 0) {
-			sendResponseMessages(responseMessages, message, "[user:" + message.getUserId() + " sharing video: " + message.getVideo().getVideoId() + "]");
-		}
-	}
-	
 	@MessageMapping("/send/change-user-name")
 	public void onReceiveChangeUserName(@Nullable final Message message) {
 		List<Message> responseMessages = syncService.generateChangeUserNameMessages(message);
