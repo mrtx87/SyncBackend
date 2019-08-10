@@ -33,6 +33,12 @@ public class Message {
 	float currentPlaybackRate;
 	
 
+	public String getUserKey() {
+		if(user != null) {
+			return user.getUserKey();
+		}
+		return null;
+	}
 	
 	public ToastrMessage getToastrMessage() {
 		return toastrMessage;

@@ -886,7 +886,7 @@ public class SyncService {
 		chatMessage.setMessageText(messageText);
 		chatMessage.setTimestamp(getCurrentTime());
 		chatMessage.setRaumId(raumId);
-		chatMessage.setUser(user);
+		chatMessage.setUser(UserMapper.reduce(user));
 		if(video != null) {
 			if(isPlaylist) {
 				chatMessage.setType("insert-playlist");
@@ -928,6 +928,7 @@ public class SyncService {
 			User user = new User();
 			user.setUserName(name);
 			user.setUserId(message.getUserId());
+			user.setUserKey(message.getUserKey());
 			user.setAdmin(true);
 			user.setMute(false);
 			raum.addUser(user);
@@ -962,27 +963,28 @@ public class SyncService {
 			Raum raum = rooms.get(message.getRaumId());
 			
 			if(!raum.existsOnKickedUsersList(message.getUserId())) {
-				User user;	
-				if(raum.hasBeenToRaum(message.getUserId())) {
-					user = raum.getUserFromAllTimeUsers(message.getUserId());
+				User joiningUser;	
+				if(raum.hasBeenToRaum(message.getUser())) {
+					joiningUser = raum.getUserFromAllTimeUsers(message.getUser());
 				}else {
 					String name = randomName();
-					user = new User();
-					user.setUserName(name);
-					user.setUserId(message.getUserId());
-					user.setMute(false);
-					user.setAdmin(false);
+					joiningUser = new User();
+					joiningUser.setUserName(name);
+					joiningUser.setUserId(message.getUserId());
+					joiningUser.setUserKey(message.getUserKey());
+					joiningUser.setMute(false);
+					joiningUser.setAdmin(false);
 
-					raum.addToAllTimeUsers(user);
+					raum.addToAllTimeUsers(joiningUser);
 	
 				}
-				raum.addUser(user);
-				raum.addJoiningUser(user);
+				raum.addUser(joiningUser);
+				raum.addJoiningUser(joiningUser);
 					
 				List<Message> messages = new ArrayList<>();
 				Message joinMessage = new Message();
 				joinMessage.setType(MessageTypes.JOIN_ROOM);
-				joinMessage.setUser(user);
+				joinMessage.setUser(joiningUser);
 				joinMessage.setUsers(raum.getUserList());
 				joinMessage.setRaumTitle(raum.getTitle());
 				joinMessage.setRaumDescription(raum.getDescription());
@@ -991,29 +993,29 @@ public class SyncService {
 				joinMessage.setRaumStatus(raum.getRaumStatus());
 				joinMessage.setPlayerState(raum.getPlayerState());
 				joinMessage.setCurrentPlaybackRate(raum.getCurrentPlaybackRate());
-				//ChatMessage chatMessage = createAndSaveChatMessage(user, raum.getRaumId(), "has joined the Room", null, false);
-				ToastrMessage toastrMessage = createAndSaveToastrMessage(ToastrMessageTypes.JOIN_ROOM, user.userName + " has joined the Room", raum, INFO);
+				// ChatMessage chatMessage = createAndSaveChatMessage(user, raum.getRaumId(),
+				// "has joined the Room", null, false);
+				ToastrMessage toastrMessage = createAndSaveToastrMessage(ToastrMessageTypes.JOIN_ROOM,
+						joiningUser.userName + " has joined the Room", raum, INFO);
 				joinMessage.setToastrMessage(toastrMessage);
-	
+
 				WebSocketConfiguration.registryInstance.enableSimpleBroker("/" + message.getUserId());
-	
-				for (String id : raum.getUserIds()) {
-					if (!user.userId.equals(id)) {
-	
+				messages.add(joinMessage);
+				for (User user : raum.getUserList()) {
+					if (!joiningUser.userId.equals(user.getUserId())) {
+
 						Message responseMessage = new Message();
 						responseMessage.setType(MessageTypes.UPDATE_CLIENT);
 						responseMessage.setRaumId(raum.raumId);
-						responseMessage.setUserId(id);
+						responseMessage.setUser(user);
 						responseMessage.setToastrMessage(toastrMessage);
 						responseMessage.setUsers(raum.getUserList());
-	
+
 						messages.add(responseMessage);
-	
-					} else {
-						messages.add(joinMessage);
+
 					}
 				}
-	
+
 				return messages;
 			}
 		}
@@ -1061,7 +1063,7 @@ public class SyncService {
 		if (rooms.containsKey(message.getRaumId())) {
 			Raum raum = getRaum(message.getRaumId());
 			
-			if(raum.exists(message.getUserId())) {
+			if(raum.userExists(message.getUser())) {
 				User sendingUser = raum.getUser(message.getUserId());
 				if(!sendingUser.isMute()) {					
 					ChatMessage chatMessage = createAndSaveChatMessage(sendingUser, raum.getRaumId(), message.getChatMessage().getMessageText(), null, false);
@@ -1163,7 +1165,7 @@ public class SyncService {
 			ToastrMessage toastrMessage = createAndSaveToastrMessage(ToastrMessageTypes.ASSIGNED_AS_ADMIN,"assigned " + raum.getUser(message.getAssignedUser().getUserId()).getUserName() + " as Admin", raum, SUCCESS);
 			Message assignAdminMessage = new Message();
 			assignAdminMessage.setType(MessageTypes.ASSIGNED_AS_ADMIN);
-			assignAdminMessage.setUser(raum.getUser(message.getAssignedUser().userId));
+			assignAdminMessage.setUser(UserMapper.reduce(raum.getUser(message.getAssignedUser().userId)));
 			assignAdminMessage.setUsers(raum.getUserList());
 			assignAdminMessage.setRaumId(raum.getRaumId());
 			assignAdminMessage.setToastrMessage(toastrMessage);
@@ -1204,7 +1206,9 @@ public class SyncService {
 
 	public boolean exists(String raumId, String userId) {
 		Raum raum = rooms.get(raumId);
-		return raum.exists(userId);
+		User user = new User();
+		user.userId = userId;
+		return raum.userExists(user);
 	}
 
 	public List<Message> generateToPublicRoomMessages(Message message) {
@@ -1280,7 +1284,7 @@ public class SyncService {
 				
 				Message kickedUserMessage = new Message();
 				kickedUserMessage.setType(MessageTypes.KICKED_USER);
-				kickedUserMessage.setUser(kickedUser);
+				kickedUserMessage.setUser(UserMapper.reduce(kickedUser));
 				kickedUserMessage.setToastrMessage(kickedUserToastrMessage);
 
 				ArrayList<Message> responseMessages = new ArrayList<>();
@@ -1726,7 +1730,7 @@ public class SyncService {
 	public List<Message> generateToggleMuteUserMessages(Message message) {
 		if (rooms.containsKey(message.getRaumId()) && isAdmin(message.getRaumId(), message.getUserId())) {
 			Raum raum = getRaum(message.getRaumId());
-			User toggleMuteUser = raum.toggleMuteUserById(message.getAssignedUser().getUserId());
+			User toggleMuteUser = raum.toggleMuteUser(message.getAssignedUser());
 			
 			if(toggleMuteUser != null) {
 				
@@ -1759,9 +1763,8 @@ public class SyncService {
 	}
 
 	public List<Message> generateChangeUserNameMessages(Message message) {
-		if (rooms.containsKey(message.getRaumId()) && message.getUser() != null) {
+		if(authorize(message)) {
 			Raum raum = getRaum(message.getRaumId());
-			if(raum.exists(message.getUserId())) {
 				
 				User changedNameUser = raum.changeUserName(message.getUser());
 				ToastrMessage toastrMessage = createAndSaveToastrMessage(ToastrMessageTypes.CHANGED_USER_NAME, message.getUserName()  + " has changed Name to " + changedNameUser.getUserName() , raum, INFO);
@@ -1778,7 +1781,6 @@ public class SyncService {
 					responseMessages.add(responseMessage);
 				}
 				return responseMessages;
-			}
 		}
 		return null;
 	}
@@ -1861,6 +1863,16 @@ public class SyncService {
 		 */
 		
 		return "<h1> Stream2gether Health Page </h1> " + key ;
+	}
+	
+	public boolean authorize(Message message) {
+		Raum room = rooms.get(message.getRaumId());
+		if(room != null){
+			if(room.userExists(message.getUser())) {
+				return true;
+			}
+		}
+		return false;
 	}
 	
 	

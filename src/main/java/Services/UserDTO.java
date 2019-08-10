@@ -1,8 +1,7 @@
 package Services;
 
-public class User {
+public class UserDTO {
 	
-	String userKey;
 	String userId;
 	String userName;
 	Boolean admin;
@@ -11,12 +10,6 @@ public class User {
 
 	public Boolean getMute() {
 		return mute;
-	}
-	public String getUserKey() {
-		return userKey;
-	}
-	public void setUserKey(String userKey) {
-		this.userKey = userKey;
 	}
 	public Boolean isMute() {
 		return mute;

@@ -79,8 +79,14 @@ public class Raum {
 		this.currentPlaybackRate = currentPlaybackRate;
 	}
 	
-	public boolean hasBeenToRaum(String userId) {
-		return allTimeUsers.containsKey(userId);
+	public boolean hasBeenToRaum(User user) {
+		User realUser  = allTimeUsers.get(user.getUserId());
+		if(realUser != null) {
+			if(realUser.getUserKey().equals(user.getUserKey())) {
+				return true;
+			}
+		}
+		return false;
 	}
 	
 	public HashMap<String, User> getAllTimeUsers() {
@@ -95,8 +101,8 @@ public class Raum {
 		this.allTimeUsers = allTimeUsers;
 	}
 	
-	public User getUserFromAllTimeUsers(String userId) {
-		return allTimeUsers.get(userId);
+	public User getUserFromAllTimeUsers(User user) {
+		return allTimeUsers.get(user.getUserId());
 	}
 
 	public HashMap<String, User> getJoiningUsers() {
@@ -307,7 +313,7 @@ public class Raum {
 
 	public ArrayList<User> getUserList() {
 
-		return (ArrayList<User>) this.users.values().stream().collect(Collectors.toList());
+		return (ArrayList<User>) this.users.values().stream().map(UserMapper::reduce).collect(Collectors.toList());
 
 	}
 	
@@ -359,8 +365,14 @@ public class Raum {
 		return users.get(userId);
 	}
 
-	public boolean exists(String userId) {
-		return users.containsKey(userId);
+	public boolean userExists(User user) {
+		User realUser = users.get(user.getUserId());
+		if(realUser != null) {
+			if(realUser.getUserKey().equals(user.getUserKey())) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	public void assignUserAsAdmin(User user) {
@@ -471,7 +483,7 @@ public class Raum {
 
 	public ArrayList<User> getJoiningUserList() {
 
-		return (ArrayList<User>) joiningUsers.values().stream().collect(Collectors.toList());
+		return (ArrayList<User>) joiningUsers.values().stream().map(UserMapper::reduce).collect(Collectors.toList());
 
 	}
 
@@ -530,9 +542,8 @@ public class Raum {
 		return -1;
 	}
 	
-	public User toggleMuteUserById(String userId) {
-		if(exists(userId)) {
-			User user = getUser(userId);
+	public User toggleMuteUser(User user) {
+		if(userExists(user)) {
 			user.setMute(!user.isMute());
 			return user;
 		}
@@ -540,7 +551,7 @@ public class Raum {
 	}
 	
 	public User changeUserName(User user) {
-		if(exists(user.getUserId())) {
+		if(userExists(user)){
 			User changeNameUser = getUser(user.getUserId());
 			changeNameUser.setUserName(user.getUserName());
 			allTimeUsers.put(changeNameUser.getUserId(), changeNameUser);
