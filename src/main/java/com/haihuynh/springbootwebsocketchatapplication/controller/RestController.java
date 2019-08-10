@@ -31,6 +31,7 @@ public class RestController {
 	@Autowired
 	private SyncService syncService;
 	
+	
 	@GetMapping("/room/{raumId}/playlist")
 	@CrossOrigin(origins = "http://localhost:4200")
 	public List<Video> getRaumPlaylist(@PathVariable("raumId") String raumId) {
@@ -129,6 +130,17 @@ public class RestController {
 			return ResponseEntity.ok(messageTypes);
 		}
 		return ResponseEntity.badRequest().body(new MessageTypesObject());
+	}
+	
+	
+	@GetMapping("/health/{secretkey}")
+	@CrossOrigin(origins = "http://localhost:4200")
+	public String getHealthPage(@PathVariable("secretkey") String key) {
+		String healthPage = syncService.getHealthPage(key);
+		if(healthPage != null) {			
+			return healthPage;
+		}
+		return "error - not available";
 	}
 	
 }

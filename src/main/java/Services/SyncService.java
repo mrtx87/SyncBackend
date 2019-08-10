@@ -1851,6 +1851,17 @@ public class SyncService {
 		}
 		return null;	
 	}
+
+	public String getHealthPage(String key) {
+		
+		/**		
+		 * @TODO generate a HTML String (Stringbuilder) that represents the HealthPage with all intressting informations. be creative.
+		 *  
+		 * generate secret key
+		 */
+		
+		return "<h1> Stream2gether Health Page </h1> " + key ;
+	}
 	
 	
 }
