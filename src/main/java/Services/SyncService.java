@@ -1564,12 +1564,12 @@ public class SyncService {
 		return null;
 	}
 
-	public boolean importPlaylist(String raumId, ImportedPlaylist importedPlaylist, String userId) {
-		if(raumExists(raumId)){ 
+	public boolean importPlaylist(String raumId, ImportedPlaylist importedPlaylist) {
+		if(authorizeAsAdmin(raumId, importedPlaylist)){ 
 			Raum raum = getRaum(raumId);
 			
 			if(raum.importPlaylist(importedPlaylist)) {
-				ToastrMessage toastrMessage = createAndSaveToastrMessage(ToastrMessageTypes.IMPORTED_PLAYLIST, getRaum(raumId).getUser(userId).getUserName()+  ((importedPlaylist.mode == 0) ?  " has imported " : " has integrated ")+  importedPlaylist.title, raum, SUCCESS);
+				ToastrMessage toastrMessage = createAndSaveToastrMessage(ToastrMessageTypes.IMPORTED_PLAYLIST, getRaum(raumId).getUser(importedPlaylist.getUser().getUserId()).getUserName()+  ((importedPlaylist.mode == 0) ?  " has imported " : " has integrated ")+  importedPlaylist.title, raum, SUCCESS);
 
 				Video playlistTitleTransferVideo = new Video();
 				playlistTitleTransferVideo.setTitle(importedPlaylist.getTitle());
@@ -1873,14 +1873,22 @@ public class SyncService {
 		return false;
 	}
 	
-	public boolean authorizeAsAdmin(Message message) {
-		Raum room = rooms.get(message.getRaumId());
+	public boolean authorizeAsAdmin(String raumId, ImportedPlaylist importedPlaylist) {
+		return authorizeAsAdmin(raumId, importedPlaylist.getUser());
+	}
+	
+	public boolean authorizeAsAdmin(String raumId,User user) {
+		Raum room = rooms.get(raumId);
 		if(room != null){
-			if(room.userIsAdmin(message.getUser())) {
+			if(room.userIsAdmin(user)) {
 				return true;
 			}
 		}
 		return false;
+	}
+	
+	public boolean authorizeAsAdmin(Message message) {
+		return authorizeAsAdmin(message.getRaumId(), message.getUser());
 	}
 	
 	public boolean authorizeAssignedUser(Message message) {

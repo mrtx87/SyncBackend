@@ -9,7 +9,14 @@ public class ImportedPlaylist {
 	int mode;
 	String title;
 	ArrayList<Video> items;
+	User user;
 	
+	public User getUser() {
+		return user;
+	}
+	public void setUser(User user) {
+		this.user = user;
+	}
 	public int getMode() {
 		return mode;
 	}

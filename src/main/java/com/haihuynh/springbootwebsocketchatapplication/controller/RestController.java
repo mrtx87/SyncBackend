@@ -43,10 +43,10 @@ public class RestController {
 	}
 	
 	
-	@PostMapping("/room/{raumId}/userId/{userId}/playlist")
+	@PostMapping("/room/{raumId}/playlist")
 	@CrossOrigin(origins = "http://localhost:4200")
-	public ResponseEntity<Message> importPlaylist(@PathVariable("raumId") String raumId, @PathVariable("userId") String userId, @RequestBody ImportedPlaylist importedPlaylist) {
-		if(syncService.importPlaylist(raumId, importedPlaylist, userId)) {		
+	public ResponseEntity<Message> importPlaylist(@PathVariable("raumId") String raumId, @RequestBody ImportedPlaylist importedPlaylist) {
+		if(syncService.importPlaylist(raumId, importedPlaylist)) {		
 			return ResponseEntity.ok(new Message());
 		}
 		return ResponseEntity.badRequest().build();
