@@ -52,10 +52,10 @@ public class RestController {
 		return ResponseEntity.badRequest().build();
 	}
 
-	@GetMapping("/room/{raumId}/userId/{userId}/history")
+	@GetMapping("/room/{raumId}/history")
 	@CrossOrigin(origins = "http://localhost:4200")
-	public ResponseEntity<List<Video>> getHistory(@PathVariable("raumId") String raumId, @PathVariable("userId") String userId){
-		ArrayList<Video> history = syncService.getHistory(raumId, userId);
+	public ResponseEntity<List<Video>> getHistory(@PathVariable("raumId") String raumId){
+		ArrayList<Video> history = syncService.getHistory(raumId);
 		if(history != null) {
 			return ResponseEntity.ok(history);
 		}
@@ -82,7 +82,7 @@ public class RestController {
 		return ResponseEntity.badRequest().body(new ArrayList<User>());
 	}
 	
-	@GetMapping("/room/{raumId}/userId/{userId}/toastr-messages")
+	@GetMapping("/room/{raumId}/user/{userId}/toastr-messages")
 	@CrossOrigin(origins = "http://localhost:4200")
 	public ResponseEntity<ArrayList<ToastrMessage>> getToastrMessages(@PathVariable("raumId") String raumId, @PathVariable("userId") String userId) {
 		ArrayList<ToastrMessage> toastrMessages = (ArrayList<ToastrMessage>) syncService.getToastrMessages(raumId, userId);
@@ -92,9 +92,9 @@ public class RestController {
 		return ResponseEntity.badRequest().body(new ArrayList<ToastrMessage>());
 	}
 	
-	@GetMapping("/room/{raumId}/userId/{userId}/chat-messages")
+	@GetMapping("/room/{raumId}/user/{userId}/chat-messages")
 	@CrossOrigin(origins = "http://localhost:4200")
-	public ResponseEntity<ArrayList<ChatMessage>> getChatMessages(@PathVariable("raumId") String raumId, @PathVariable("userId") String userId) {
+	public ResponseEntity<ArrayList<ChatMessage>> getChatMessages(@PathVariable("raumId") String raumId,@PathVariable("userId") String userId) {
 		ArrayList<ChatMessage> chatMessages = (ArrayList<ChatMessage>) syncService.getChatMessages(raumId, userId);
 		if(chatMessages != null) {			
 			return ResponseEntity.ok(chatMessages);

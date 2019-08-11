@@ -1207,7 +1207,7 @@ public class SyncService {
 		Raum raum = rooms.get(raumId);
 		User user = new User();
 		user.userId = userId;
-		return raum.userValid(user);
+		return raum.userExists(user);
 	}
 
 	public List<Message> generateToPublicRoomMessages(Message message) {
@@ -1823,8 +1823,8 @@ public class SyncService {
 		return supportedApis;
 	}
 
-	public ArrayList<Video> getHistory(String raumId, String userId) {
-		if(raumExists(raumId) && exists(raumId, userId)) {
+	public ArrayList<Video> getHistory(String raumId) {
+		if(raumExists(raumId)) {
 			return getRaum(raumId).getHistory();
 		}
 		return null;
