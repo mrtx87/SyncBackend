@@ -139,10 +139,7 @@ public class RestController {
 	public String getHealthPage(@PathVariable("secretkey") String key) {
 		String healthPage = syncService.getHealthPage(key);
 		if(healthPage != null) {	
-			if(key.equals(SyncService.SECRET_KEY)) {		
-				// TODO
-				return healthPage;
-			}
+			return healthPage;
 		}
 		return "error - not available";
 	}

@@ -16,6 +16,7 @@ import com.haihuynh.springbootwebsocketchatapplication.configuration.WebSocketCo
 
 import Apis.SupportedApi;
 import messages.ChatMessage;
+import messages.HealthPage;
 import messages.Message;
 import messages.MessageTypes;
 import messages.MessageTypesObject;
@@ -52,7 +53,6 @@ public class SyncService {
 		youtubeApi.setId(1);
 		youtubeApi.setName("youtube");
 		youtubeApi.setIconUrl("assets/yt_icon_rgb.png");
-		//youtubeApi.setApiKey("AIzaSyBJKPvOKMDqPzaR-06o1-Mfixvq2CRlS5M");
 		youtubeApi.setApiKey("AIzaSyAYkdQEFOAjHZHRSQiREI4qO28FxpOUtZM");
 		youtubeApi.setScript("https://www.youtube.com/iframe_api");
 		
@@ -1854,14 +1854,12 @@ public class SyncService {
 	}
 
 	public String getHealthPage(String key) {
-		
-		/**		
-		 * @TODO generate a HTML String (Stringbuilder) that represents the HealthPage with all intressting informations. be creative.
-		 *  
-		 * generate secret key
-		 */
-		
-		return "<h1> Stream2gether Health Page </h1> " + key ;
+		HealthPage healthPage = new HealthPage();
+		healthPage.setNumberOfPrivateRooms(getNumberOfPrivateRooms());
+		healthPage.setNumberOfPublicRooms(getNumerOfPublicRooms());
+		healthPage.setNumberOfUsers(getNumberOfUsers());
+		healthPage.setNumberOfChatMessages(getNumberOfChatMessages());
+		return healthPage.toString();
 	}
 	
 	public boolean authorize(Message message) {
@@ -1902,5 +1900,44 @@ public class SyncService {
 		return false;
 	}
 	
+	/**
+	 * Health Page Methods
+	 * 
+		private int numberOfPublicRooms;
+		private int numberOfUsers;
+		private long numberOfChatMessages;
+	 */
+	
+	private int getNumberOfPrivateRooms() {
+		int numberOfPrivateRooms = 0;
+		for(Raum room : rooms.values()) {
+			numberOfPrivateRooms += room.raumStatus ? 1 : 0;
+		}
+		return numberOfPrivateRooms;
+	}	
+	
+	private int getNumerOfPublicRooms() {
+		int numberOfPublicRooms = 0;
+		for(Raum room : rooms.values()) {
+			numberOfPublicRooms += !room.raumStatus ? 1 : 0;
+		}
+		return numberOfPublicRooms;
+	}
+	
+	private int getNumberOfUsers() {
+		int numberOfUsers = 0;
+		for(Raum room : rooms.values()) {
+			numberOfUsers += room.getUserList().size();
+		}
+		return numberOfUsers;
+	}
+	
+	private int getNumberOfChatMessages() {
+		int numberOfChatMessages = 0;
+		for(Raum room : rooms.values()) {
+			numberOfChatMessages += room.getChatMessages().size();
+		}
+		return numberOfChatMessages;
+	}
 	
 }
