@@ -27,9 +27,10 @@ import messages.Video;
 @Service
 public class SyncService {
 
-	public static int maxUpdateJoinClients = 3;
-	public static Boolean publicRaum = false;
-	public static Boolean privateRaum = true;
+	public static int MAX_UPDATE_JOIN_CLIENTS = 3;
+	public static Boolean PUBLIC_ROOM = false;
+	public static Boolean PRIVATE_ROOM = true;
+	public static String SECRET_KEY = "PerryRhodan2036";
 	
 	static String INFO = "toast-info";
 	static String WARNING = "toast-warning";
@@ -1027,7 +1028,7 @@ public class SyncService {
 		return (ArrayList<RaumDTO>) rooms
 				.values()
 				.stream()
-				.filter(raum -> raum.getRaumStatus() == publicRaum)
+				.filter(raum -> raum.getRaumStatus() == PUBLIC_ROOM)
 				.filter(raum -> !raum.existsOnKickedUsersList(userId))
 				.map(raum -> RaumMapper.createRaumDTO(raum))
 				.collect(Collectors.toList());
@@ -1090,10 +1091,10 @@ public class SyncService {
 	public void saveChatMessage(ChatMessage message) {
 		if (rooms.containsKey(message.getRaumId())) {
 			Raum raum = rooms.get(message.getRaumId());
-			if (raum.getRaumStatus() == publicRaum) {
-				message.setPrivate(publicRaum);
+			if (raum.getRaumStatus() == PUBLIC_ROOM) {
+				message.setPrivate(PUBLIC_ROOM);
 			} else {
-				message.setPrivate(privateRaum);
+				message.setPrivate(PRIVATE_ROOM);
 			}
 			raum.addChatMessage(message);
 
@@ -1214,7 +1215,7 @@ public class SyncService {
 
 		if (authorizeAsAdmin(message)) {
 			Raum raum = getRaum(message.getRaumId());
-			raum.setRaumStatus(publicRaum);
+			raum.setRaumStatus(PUBLIC_ROOM);
 
 			//ChatMessage chatMessage = createAndSaveChatMessage(raum.getUser(message.getUserId()), raum.getRaumId(),"has changed the Room to Public", null, falsetz);
 			ToastrMessage toastrMessage = createAndSaveToastrMessage(ToastrMessageTypes.TO_PUBLIC_ROOM, message.getUserName() + " has changed the Room to Public", raum, INFO);
@@ -1241,7 +1242,7 @@ public class SyncService {
 	public List<Message> generateToPrivateRoomMessages(Message message) {
 		if (authorizeAsAdmin(message)) {
 			Raum raum = getRaum(message.getRaumId());
-			raum.setRaumStatus(privateRaum);
+			raum.setRaumStatus(PRIVATE_ROOM);
 			raum.setAllUsersToAdmins();
 			//ChatMessage chatMessage = createAndSaveChatMessage(raum.getUser(message.getUserId()), raum.getRaumId(), "has changed the Room to Private", null, falsetzt);
 			ToastrMessage toastrMessage = createAndSaveToastrMessage(ToastrMessageTypes.TO_PRIVATE_ROOM, message.getUserName() + " has changed the Room to Private", raum, INFO);

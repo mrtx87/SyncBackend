@@ -17,13 +17,14 @@ import Services.RaumDTO;
 import Services.SyncService;
 import Services.User;
 import messages.ChatMessage;
+import messages.HealthPage;
 import messages.Message;
 import messages.MessageTypesObject;
 import messages.ToastrMessage;
 import messages.ToastrMessageTypes;
 import messages.ToastrMessageTypesObject;
 import messages.Video;
-
+import messages.HealthPage;
 
 @org.springframework.web.bind.annotation.RestController
 public class RestController {
@@ -137,8 +138,11 @@ public class RestController {
 	@CrossOrigin(origins = "http://localhost:4200")
 	public String getHealthPage(@PathVariable("secretkey") String key) {
 		String healthPage = syncService.getHealthPage(key);
-		if(healthPage != null) {			
-			return healthPage;
+		if(healthPage != null) {	
+			if(key.equals(SyncService.SECRET_KEY)) {		
+				// TODO
+				return healthPage;
+			}
 		}
 		return "error - not available";
 	}

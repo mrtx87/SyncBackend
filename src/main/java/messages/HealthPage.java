@@ -7,7 +7,7 @@ public class HealthPage {
 	private int numberOfUsers;
 	private long numberOfChatMessages;
 	
-	// Streamed links, playlists, 
+	// Streamed links, playlists
 	
 	public HealthPage() {}
 	
@@ -17,6 +17,8 @@ public class HealthPage {
 		this.numberOfUsers = numberOfUsers;
 		this.numberOfChatMessages = numberOfChatMessages;
 	}
+	
+	
 
 	public int getNumberOfPrivateRooms() {
 		return numberOfPrivateRooms;
