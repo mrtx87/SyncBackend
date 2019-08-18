@@ -70,11 +70,18 @@ public class SyncService {
 		vimeoApi.setIconUrl("assets/vimeo_icon.png");
 		vimeoApi.setApiKey("be6fcf0320704697342bd26a54557395");
 		vimeoApi.setScript("https://player.vimeo.com/api/player.js.");
+		
+		final SupportedApi noApi = new SupportedApi();
+		noApi.setId(99);
+		noApi.setName("noapi");
+		noApi.setIconUrl("assets/delete.svg");
+		noApi.setApiKey("none");
+		noApi.setScript("none");
 
 		
 		supportedApis.add(youtubeApi);
 		supportedApis.add(dailymotionApi);
-		supportedApis.add(vimeoApi);
+		supportedApis.add(noApi);
 	}
 
 	public  Video defaultVideo = new Video(generateVideoObjectId(), "WBG7TFLj4YQ", 0.0f,"Unter Wasser: Megacitys in Gefahr | Doku | ARTE\r\n", "", new Date(), "nothumbail", 1);
@@ -923,7 +930,7 @@ public class SyncService {
 			raum.setPlayerState(2);
 			saveRoom(raum);
 			raum.setCurrentPlaybackRate(1);
-			raum.setTitle("Raum#" + raum.getRaumId());
+			raum.setTitle("#" + raum.getRaumId());
 			raum.setDescription("new created room");
 			String name = randomName();
 			User user = new User();
