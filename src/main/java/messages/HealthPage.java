@@ -49,7 +49,7 @@ public class HealthPage {
 			"  <body>\n" + 
 			"\n" + 
 			"    <h2>Health Page</h2>\n" + 
-			"    <p>Health Page Infromation</p>\n" + 
+			"    <p>Health Page Information</p>\n" + 
 			"\n" + 
 			"    <table>\n" + 
 			"      <tr>\n" + 
