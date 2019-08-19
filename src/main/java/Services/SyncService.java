@@ -74,7 +74,7 @@ public class SyncService {
 		final SupportedApi noApi = new SupportedApi();
 		noApi.setId(99);
 		noApi.setName("noapi");
-		noApi.setIconUrl("assets/delete.svg");
+		noApi.setIconUrl("assets/question.svg");
 		noApi.setApiKey("none");
 		noApi.setScript("none");
 
