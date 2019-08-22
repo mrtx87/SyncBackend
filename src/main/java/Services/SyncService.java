@@ -1883,14 +1883,7 @@ public class SyncService {
 		return false;
 	}
 	
-	/**
-	 * Health Page Methods
-	 * 
-		private int numberOfPublicRooms;
-		private int numberOfUsers;
-		private long numberOfChatMessages;
-	 */
-	
+
 	private int getNumberOfPrivateRooms() {
 		int numberOfPrivateRooms = 0;
 		for(Raum room : rooms.values()) {
