@@ -50,25 +50,23 @@ public class SyncService {
 		
 		supportedApis = new ArrayList<SupportedApi>();
 		final SupportedApi youtubeApi = new SupportedApi();
-		youtubeApi.setId(1);
+		youtubeApi.setId("youtube");
 		youtubeApi.setName("youtube");
 		youtubeApi.setIconUrl("assets/yt_icon_rgb.png");
 		youtubeApi.setApiKey("AIzaSyAYkdQEFOAjHZHRSQiREI4qO28FxpOUtZM");
 		youtubeApi.setScript("https://www.youtube.com/iframe_api");
 		
 		final SupportedApi dailymotionApi = new SupportedApi();
-		dailymotionApi.setId(2);
+		dailymotionApi.setId("dailymotion");
 		dailymotionApi.setName("dailymotion");
 		dailymotionApi.setIconUrl("assets/logo_dailymotion.png");
 		dailymotionApi.setApiKey("a8f15ba0bbd9f9552be9");
 		dailymotionApi.setScript("https://api.dmcdn.net/all.js");
 
 		final SupportedApi noApi = new SupportedApi();
-		noApi.setId(99);
-		noApi.setName("noapi");
+		noApi.setId("directlink");
+		noApi.setName("directlink");
 		noApi.setIconUrl("assets/question.svg");
-		noApi.setApiKey("none");
-		noApi.setScript("none");
 
 		
 		supportedApis.add(youtubeApi);
@@ -76,7 +74,7 @@ public class SyncService {
 		supportedApis.add(noApi);
 	}
 
-	public  Video defaultVideo = new Video(generateVideoObjectId(), "WBG7TFLj4YQ", 0.0f,"Unter Wasser: Megacitys in Gefahr | Doku | ARTE\r\n", "", new Date(), "nothumbail", 1);
+	public  Video defaultVideo = new Video(generateVideoObjectId(), "WBG7TFLj4YQ", 0.0f,"Unter Wasser: Megacitys in Gefahr | Doku | ARTE\r\n", "", new Date(), "nothumbail", "youtube");
 
 	
 	HashMap<String, Raum> rooms = new HashMap<>();

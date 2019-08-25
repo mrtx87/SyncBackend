@@ -5,7 +5,7 @@ import java.util.Date;
 public class Video {
 	
 	String id;
-	int api;
+	String api;
 	
 
 	String videoId;
@@ -15,7 +15,7 @@ public class Video {
     Date publishedAt;
     String thumbnail;
     
-	public Video(String id, String videoId, Float timestamp, String title, String description, Date publishedAt, String thumbnail, int api) {
+	public Video(String id, String videoId, Float timestamp, String title, String description, Date publishedAt, String thumbnail, String api) {
 		this.id = id;
 		this.videoId = videoId;
 		this.timestamp = timestamp;
@@ -28,12 +28,12 @@ public class Video {
     
 	
 	
-	public int getApi() {
+	public String getApi() {
 		return api;
 	}
 
 
-	public void setApi(int api) {
+	public void setApi(String api) {
 		this.api = api;
 	}
 
