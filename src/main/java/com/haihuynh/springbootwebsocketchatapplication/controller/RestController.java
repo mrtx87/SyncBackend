@@ -17,14 +17,11 @@ import Services.RaumDTO;
 import Services.SyncService;
 import Services.User;
 import messages.ChatMessage;
-import messages.HealthPage;
 import messages.Message;
 import messages.MessageTypesObject;
 import messages.ToastrMessage;
-import messages.ToastrMessageTypes;
 import messages.ToastrMessageTypesObject;
 import messages.Video;
-import messages.HealthPage;
 
 @org.springframework.web.bind.annotation.RestController
 public class RestController {
