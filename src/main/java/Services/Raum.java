@@ -513,6 +513,11 @@ public class Raum {
 
 	}
 
+	
+	public void clearPlaylist() {
+		this.playlist.clear();
+	}
+	
 	public void cleartimestamps() {
 		this.timeStamps.clear();
 	}

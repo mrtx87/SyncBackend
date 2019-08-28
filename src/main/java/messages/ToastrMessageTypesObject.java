@@ -20,12 +20,14 @@ public class ToastrMessageTypesObject {
 	public String CHANGED_USER_NAME = "changed-user-name";
 	public String PARDONED_KICKED_USER = "pardon-kicked-user";
 	public String ONLY_LOGGING = "only-logging"; 
+	public String DELETED_PLAYLIST = "deleted-playlist"; 
+
 
 	public ToastrMessageTypesObject(String cREATE_ROOM, String jOIN_ROOM, String dISCONNECT, String aSSIGNED_AS_ADMIN,
 			String tO_PUBLIC_ROOM, String tO_PRIVATE_ROOM, String kICKED_USER, String uPDATE_KICK_CLIENT,
 			String rEFRESH_ROOM_ID, String aDDED_VIDEO_TO_PLAYLIST, String uPDATE_TITLE_AND_DESCRIPTION,
 			String rEMOVE_VIDEO_PLAYLIST, String iMPORTED_PLAYLIST, String iNTEGRATED_PLAYLIST,
-			String cHANGED_PLAYBACK_RATE, String mUTE_USER, String cHANGED_USER_NAME, String pARDONED_KICKED_USER, String oNLY_LOGGING) {
+			String cHANGED_PLAYBACK_RATE, String mUTE_USER, String cHANGED_USER_NAME, String pARDONED_KICKED_USER, String oNLY_LOGGING, String dELETED_PLAYLIST) {
 		super();
 		CREATE_ROOM = cREATE_ROOM;
 		JOIN_ROOM = jOIN_ROOM;
@@ -46,6 +48,7 @@ public class ToastrMessageTypesObject {
 		CHANGED_USER_NAME = cHANGED_USER_NAME;
 		PARDONED_KICKED_USER = pARDONED_KICKED_USER;
 		ONLY_LOGGING = oNLY_LOGGING;
+		DELETED_PLAYLIST = dELETED_PLAYLIST;
 	}
 	
 	public ToastrMessageTypesObject() {

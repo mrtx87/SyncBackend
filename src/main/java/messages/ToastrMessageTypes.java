@@ -20,6 +20,8 @@ public class ToastrMessageTypes {
 	public static String CHANGED_USER_NAME = "changed-user-name";
 	public static String PARDONED_KICKED_USER = "pardon-kicked-user";
 	public static String ONLY_LOGGING = "only-logging"; 
+	public static String DELETED_PLAYLIST = "deleted-playlist"; 
+
 	
 	
 	public static ToastrMessageTypesObject cloneInstance() {
@@ -42,7 +44,8 @@ public class ToastrMessageTypes {
 			MUTE_USER ,
 			CHANGED_USER_NAME ,
 			PARDONED_KICKED_USER,
-			ONLY_LOGGING
+			ONLY_LOGGING,
+			DELETED_PLAYLIST
 			);
 	}
 	

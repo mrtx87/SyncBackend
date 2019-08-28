@@ -162,6 +162,12 @@ public class WebSocketController {
 		sendResponseMessages(responseMessages, message,
 				"[user: " + message.getUserId() + " has wants to resfresh Raumid: " + message.getRaumId() + "]");
 	}
+	
+	@MessageMapping("/send/clear-playlist")
+	public void onReceiveClearPlaylist(@Nullable final Message message) {
+		List<Message> responseMessages = this.syncService.generateClearPlaylistMessages(message);
+		sendResponseMessages(responseMessages, message, "[user: " + message.getUserId() + " cleared the playlist ");
+	}
 
 	@MessageMapping("/send/add-video-to-playlist")
 	public void onReceiveAddVideoToPlaylist(@Nullable final Message message) {

@@ -4,21 +4,33 @@ import java.time.LocalDateTime;
 
 public class ToastrMessage {
 	String type;
-	String message;
 	String raumId;
 	LocalDateTime createdAt;
 	boolean onlyLogging;
     String origin;
     String target;
     String toastrType;
+	String message;
 
-	public ToastrMessage(String type, String message, String raumId, LocalDateTime createdAt, boolean onlyLogging, String toastrType) {
+	public ToastrMessage(String type, String origin, String target, String raumId, LocalDateTime createdAt, boolean onlyLogging, String toastrType) {
 		this.type = type;
-		this.message = message;
+		this.origin = origin;
+		this.target = target;
 		this.raumId = raumId;
 		this.createdAt = createdAt;
 		this.onlyLogging = onlyLogging;
 		this.toastrType = toastrType;
+	}
+	
+	public ToastrMessage(String type, String origin, String target, String raumId, LocalDateTime createdAt, boolean onlyLogging, String toastrType, String message) {
+		this.type = type;
+		this.origin = origin;
+		this.target = target;
+		this.raumId = raumId;
+		this.createdAt = createdAt;
+		this.onlyLogging = onlyLogging;
+		this.toastrType = toastrType;
+		this.message = message;
 	}
 	
 	
@@ -71,14 +83,6 @@ public class ToastrMessage {
 		this.type = type;
 	}
 
-	public String getMessage() {
-		return message;
-	}
-
-	public void setMessage(String message) {
-		this.message = message;
-	}
-
 	public String getRaumId() {
 		return raumId;
 	}
@@ -88,7 +92,7 @@ public class ToastrMessage {
 	}
 
 	public ToastrMessage clone() {
-		return new ToastrMessage(type, message, raumId, createdAt, onlyLogging, toastrType);
+		return new ToastrMessage(type, origin, target, raumId, createdAt, onlyLogging, toastrType);
 	}
 	
 }
