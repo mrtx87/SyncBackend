@@ -66,12 +66,26 @@ public class SyncService {
 		final SupportedApi noApi = new SupportedApi();
 		noApi.setId("directlink");
 		noApi.setName("directlink");
-		noApi.setIconUrl("assets/question.svg");
+		noApi.setIconUrl("assets/link.svg");
+		
+		final SupportedApi openloadApi = new SupportedApi();
+		openloadApi.setId("openload");
+		openloadApi.setName("openload");
+		openloadApi.setIconUrl("assets/openloadicon.png");
+		
+		final SupportedApi verystreamApi = new SupportedApi();
+		verystreamApi.setId("verystream");
+		verystreamApi.setName("verystream");
+		verystreamApi.setIconUrl("assets/verystream.png");
 
 		
 		supportedApis.add(youtubeApi);
 		supportedApis.add(dailymotionApi);
 		supportedApis.add(noApi);
+		supportedApis.add(openloadApi);
+		supportedApis.add(verystreamApi);
+
+		
 	}
 
 	public  Video defaultVideo = new Video(generateVideoObjectId(), "WBG7TFLj4YQ", 0.0f,"Unter Wasser: Megacitys in Gefahr | Doku | ARTE\r\n", "", new Date(), "nothumbail", "youtube");
