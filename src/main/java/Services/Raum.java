@@ -251,7 +251,8 @@ public class Raum {
 
 	public Raum() {
 
-		setRaumId(SyncService.generateRaumId()); 
+		setRaumId(SyncService.generateRaumId());
+		setTitle(SyncService.getRandomTitle());
 	}
 
 	public int getPlayerState() {

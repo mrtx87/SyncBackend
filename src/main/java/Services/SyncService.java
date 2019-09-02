@@ -78,7 +78,6 @@ public class SyncService {
 		verystreamApi.setName("verystream");
 		verystreamApi.setIconUrl("assets/verystream.png");
 
-		
 		supportedApis.add(youtubeApi);
 		supportedApis.add(dailymotionApi);
 		supportedApis.add(noApi);
@@ -1878,12 +1877,14 @@ public class SyncService {
 	}
 
 	public String getHealthPage(String key) {
-		HealthPage healthPage = new HealthPage();
-		healthPage.setNumberOfPrivateRooms(getNumberOfPrivateRooms());
-		healthPage.setNumberOfPublicRooms(getNumerOfPublicRooms());
-		healthPage.setNumberOfUsers(getNumberOfUsers());
-		healthPage.setNumberOfChatMessages(getNumberOfChatMessages());
-		return healthPage.toString();
+		if(SECRET_KEY.equals(key)) {
+			HealthPage healthPage = new HealthPage();
+			healthPage.setNumberOfPrivateRooms(getNumberOfPrivateRooms());
+			healthPage.setNumberOfPublicRooms(getNumerOfPublicRooms());
+			healthPage.setNumberOfUsers(getNumberOfUsers());
+			healthPage.setNumberOfChatMessages(getNumberOfChatMessages());
+			return healthPage.toString();}
+		return "<h1>Error</h1>";
 	}
 	
 	public boolean authorize(Message message) {
@@ -1954,6 +1955,10 @@ public class SyncService {
 			numberOfChatMessages += room.getChatMessages().size();
 		}
 		return numberOfChatMessages;
+	}
+
+	public static String getRandomTitle() {
+		return "NOT_A_RANDOM_TITLE";
 	}
 	
 }

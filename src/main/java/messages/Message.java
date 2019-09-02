@@ -11,7 +11,8 @@ public class Message {
 	String type;
 	User user;
 	String raumId;
-
+    String raumName;
+	
 	Video video;
 	int playerState;
 	ChatMessage chatMessage;
@@ -43,6 +44,16 @@ public class Message {
 	public ToastrMessage getToastrMessage() {
 		return toastrMessage;
 	}
+	
+	
+	public String getRaumName() {
+		return raumName;
+	}
+
+	public void setRaumName(String raumName) {
+		this.raumName = raumName;
+	}
+
 	public void setToastrMessage(ToastrMessage toastrMessage) {
 		this.toastrMessage = toastrMessage;
 	}
